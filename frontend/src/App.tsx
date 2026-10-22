@@ -1,6 +1,6 @@
-import MapView from "./components/MapView";
-import GraphView from "./components/GraphView";
-import AnalyticsChart from "./components/AnalyticsChart";
+import MapView from "./components/map_view/MapView";
+import GraphView from "./components/graph_view/GraphView";
+import AnalyticsChart from "./components/analytics_chart/AnalyticsChart";
 import { entitiesGeoJSON } from "./data/sampleData";
 
 export default function App() {
