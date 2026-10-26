@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+body {
+  margin: 16px;
+  font-family: sans-serif;
+}
+
+section {
+  margin-bottom: 32px;
+}
+
+h1,
+h2 {
+  margin-bottom: 12px;
+}
+
+.leaflet-container {
+  background: #f1f5f9;
+}
