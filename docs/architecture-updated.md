@@ -106,7 +106,7 @@ w(i, j) = S_j · d_ij^(−β) / Σ_k ( S_k · d_ik^(−β) )
 | Часть         | Технологии                                              |
 |-------------------|-------------------------------------------------------------|
 | Интерфейс         | React, TypeScript, Vite; карта на Leaflet или MapLibre      |
-| Подготовка данных | Java, Spring Boot; DuckDB с расширением spatial; shapely для геометрии |
+| Подготовка данных | Python; DuckDB с расширением spatial; shapely для геометрии |
 | Источники OSM     | Overpass API; запасной вариант — файлы Geofabrik и QuackOSM |
 | Формат обмена     | GeoJSON и JSON                                              |
 | Конфигурация      | YAML                                                        |
