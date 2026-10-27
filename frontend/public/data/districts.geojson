@@ -1,0 +1,286 @@
+{
+  "type": "FeatureCollection",
+  "name": "districts",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              39.29,
+              57.34
+            ],
+            [
+              40.01,
+              57.34
+            ],
+            [
+              40.01,
+              57.92
+            ],
+            [
+              39.29,
+              57.92
+            ],
+            [
+              39.29,
+              57.34
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "id": "d_01",
+        "name": "Ярославский",
+        "synthetic_geometry": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              39.06,
+              57.0
+            ],
+            [
+              39.84,
+              57.0
+            ],
+            [
+              39.84,
+              57.36
+            ],
+            [
+              39.06,
+              57.36
+            ],
+            [
+              39.06,
+              57.0
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "id": "d_02",
+        "name": "Ростовский",
+        "synthetic_geometry": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              38.49,
+              56.81
+            ],
+            [
+              39.21,
+              56.81
+            ],
+            [
+              39.21,
+              57.09
+            ],
+            [
+              38.49,
+              57.09
+            ],
+            [
+              38.49,
+              56.81
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "id": "d_03",
+        "name": "Переславский",
+        "synthetic_geometry": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              38.36,
+              57.809999999999995
+            ],
+            [
+              39.14,
+              57.809999999999995
+            ],
+            [
+              39.14,
+              58.29
+            ],
+            [
+              38.36,
+              58.29
+            ],
+            [
+              38.36,
+              57.809999999999995
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "id": "d_04",
+        "name": "Рыбинский",
+        "synthetic_geometry": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              38.025,
+              57.21
+            ],
+            [
+              38.475,
+              57.21
+            ],
+            [
+              38.475,
+              57.690000000000005
+            ],
+            [
+              38.025,
+              57.690000000000005
+            ],
+            [
+              38.025,
+              57.21
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "id": "d_05",
+        "name": "Угличский",
+        "synthetic_geometry": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              39.24,
+              58.51
+            ],
+            [
+              40.059999999999995,
+              58.51
+            ],
+            [
+              40.059999999999995,
+              58.99
+            ],
+            [
+              39.24,
+              58.99
+            ],
+            [
+              39.24,
+              58.51
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "id": "d_06",
+        "name": "Пошехонский",
+        "synthetic_geometry": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              40.11,
+              58.24
+            ],
+            [
+              40.790000000000006,
+              58.24
+            ],
+            [
+              40.790000000000006,
+              58.660000000000004
+            ],
+            [
+              40.11,
+              58.660000000000004
+            ],
+            [
+              40.11,
+              58.24
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "id": "d_07",
+        "name": "Любимский",
+        "synthetic_geometry": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              39.19,
+              58.06
+            ],
+            [
+              39.91,
+              58.06
+            ],
+            [
+              39.91,
+              58.44
+            ],
+            [
+              39.19,
+              58.44
+            ],
+            [
+              39.19,
+              58.06
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "id": "d_08",
+        "name": "Некоузский",
+        "synthetic_geometry": true
+      }
+    }
+  ]
+}
