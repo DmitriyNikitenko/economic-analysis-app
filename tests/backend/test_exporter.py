@@ -2,19 +2,19 @@ import json
 from pathlib import Path
 import pytest
 
-from economy.db import init_schema
-from economy.repository import OsmObjectRepository
-from export_gjs.exporter import export_osm_to_geojson
+from backend.economy.db import init_schema
+from backend.economy.repository import OsmObjectRepository
+from backend.export_gjs.exporter import export_osm_to_geojson
 
 
 @pytest.fixture
 def populated_db(monkeypatch):
-    """Подменяем подключение к БД в экспортере на тестовую базу в памяти."""
+    # Подменяем подключение к БД в экспортере на тестовую базу в памяти
     import duckdb
     con = duckdb.connect(":memory:")
     init_schema(con)
 
-    # Заполняем тестовыми данными (как в тестах репозитория)
+    # Заполняем тестовыми данными
     con.execute(
         "INSERT INTO osm_objects (osm_type, osm_id, tags, geom, region) "
         "VALUES ('node', 1, '{\"amenity\": \"bank\"}', ST_GeomFromGeoJSON('{\"type\": \"Point\", \"coordinates\": [39.9, 57.6]}'), 'yaroslavl')"

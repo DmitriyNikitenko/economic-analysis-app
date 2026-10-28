@@ -1,7 +1,7 @@
 # Чтение объектов OSM и результатов классификации из DuckDB
 import json
 import duckdb
-from economy.models import DomainRole, OsmObject
+from backend.economy.models import DomainRole, OsmObject
 
 _SELECT = """
     SELECT o.osm_type, o.osm_id,

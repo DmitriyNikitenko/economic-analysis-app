@@ -1,7 +1,7 @@
 import pytest
 
-from economy.db import connect, init_schema
-from economy.repository import OsmObjectRepository
+from backend.economy.db import connect, init_schema
+from backend.economy.repository import OsmObjectRepository
 
 
 @pytest.fixture
