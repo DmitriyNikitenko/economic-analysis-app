@@ -69,6 +69,19 @@ export const DEFAULT_CONFIG: LayerConfig = {
   show_all_domains_option: true,
 };
 
+// Функция читает настройки слоёв из конфигурации и создаёт объект, который показывает, какие слои включены
+export function getInitialVisibleLayers(config: LayerConfig): Record<LayerId, boolean> {
+  const configured = Object.fromEntries(
+    config.layers.map((layer) => [layer.id, layer.enabled]),
+  ) as Partial<Record<LayerId, boolean>>;
+
+  return {
+    objects: configured.objects ?? true,
+    roles: configured.roles ?? true,
+    edges: configured.edges ?? true,
+  };
+}
+
 /* Функция для получения доступных доменов на основе данных объектов, связей и конфигурации */
 export function getAvailableDomains(
   subjects: SubjectsData,  /* Коллекция экономических объектов */
