@@ -1,0 +1,123 @@
+rules:
+  - id: bank
+    priority: 100
+    match:
+      amenity: bank
+    type: bank
+    domains: [money]
+    roles:
+      money: supply
+
+  - id: atm
+    priority: 95
+    match:
+      amenity: atm
+    type: atm
+    domains: [money]
+    roles:
+      money: supply
+
+  - id: financial_office
+    priority: 90
+    match:
+      office: financial
+    type: financial_service
+    domains: [money]
+    roles:
+      money: supply
+
+  - id: money_lender
+    priority: 90
+    match:
+      shop: money_lender
+    type: financial_service
+    domains: [money]
+    roles:
+      money: supply
+
+  - id: settlement
+    priority: 80
+    match:
+      place:
+        - city
+        - town
+        - village
+        - hamlet
+        - isolated_dwelling
+    type: settlement
+    domains: [money, labor]
+    roles:
+      money: demand
+      labor: supply
+
+  - id: industrial_land
+    priority: 70
+    match:
+      landuse: industrial
+    type: industrial_area
+    domains: [labor]
+    roles:
+      labor: demand
+
+  - id: works
+    priority: 75
+    match:
+      man_made: works
+    type: industrial_facility
+    domains: [labor]
+    roles:
+      labor: demand
+
+  - id: industrial_activity
+    priority: 65
+    match:
+      industrial: "*"
+    type: industrial_facility
+    domains: [labor]
+    roles:
+      labor: demand
+
+  - id: employer_office
+    priority: 60
+    match:
+      office:
+        - company
+        - government
+        - employment_agency
+        - insurance
+        - it
+        - telecommunication
+        - energy_supplier
+        - architect
+        - accountant
+        - lawyer
+        - notary
+        - estate_agent
+        - ngo
+        - association
+        - charity
+        - foundation
+        - religion
+        - yes
+    type: employer
+    domains: [labor]
+    roles:
+      labor: demand
+
+  - id: shop
+    priority: 50
+    match:
+      shop: "*"
+    type: shop
+    domains: [goods_services]
+    roles:
+      goods_services: supply
+
+  - id: amenity_service
+    priority: 40
+    match:
+      amenity: "*"
+    type: service
+    domains: [goods_services]
+    roles:
+      goods_services: supply
