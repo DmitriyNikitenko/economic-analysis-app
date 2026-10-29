@@ -3,6 +3,7 @@ import json
 from shapely.geometry import mapping
 import osmnx as ox
 import pandas as pd
+import argparse
 
 # На первом этапе скачиваем только объекты,
 # полезные для анализа экономической активности.
@@ -44,7 +45,7 @@ def keep_tag(key, value):
             return language in KEEP_LANGS
     return True
 
-def get_data():
+def get_data(save=False, output_path=None):
     # Небольшой участок Ярославля для тестирования.
 
     bbox = (39.86, 57.61, 39.92, 57.64)
@@ -78,22 +79,57 @@ def get_data():
             "geometry": mapping(row.geometry),
         })
 
+    data = {
+        "type": "FeatureCollection",
+        "features": features,
+    }
 
-    OUTPUT.parent.mkdir(parents=True, exist_ok=True)
+    if save:
+        path = Path(output_path) if output_path else OUTPUT
 
-    OUTPUT.write_text(
-        json.dumps(
-            {"type": "FeatureCollection", "features": features},
-            ensure_ascii=False,
-            indent=2,
-            default=str,
-        ),
-        encoding="utf-8",
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(
+            json.dumps(
+                data,
+                ensure_ascii=False,
+                indent=2,
+                default=str,
+            ),
+            encoding="utf-8",
+        )
+
+    return data
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Загрузка объектов OpenStreetMap в JSON."
+    )
+    parser.add_argument(
+        "--save",
+        action="store_true",
+        help="Сохранить результат в файл.",
+    )
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=OUTPUT,
+        help="Путь к выходному GeoJSON.",
+    )
+    args = parser.parse_args()
+
+    data = get_data(
+        save=args.save,
+        output_path=args.output,
     )
 
-    print(f"Загружено объектов: {len(features)}")
-    print(f"Сохранено в: {OUTPUT.resolve()}")
+    print(f"Загружено объектов: {len(data['features'])}")
+
+    if args.save:
+        path = args.output
+        print(f"Сохранено в: {path.resolve()}")
+    else:
+        print("Файл не сохранён (--save не указан).")
 
 
 if __name__ == "__main__":
-    get_data()
+    main()

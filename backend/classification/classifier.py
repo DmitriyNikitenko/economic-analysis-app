@@ -1,6 +1,9 @@
+import argparse
+import copy
 import json
 from pathlib import Path
 import yaml
+from collections import Counter
 
 ROOT = Path(__file__).resolve().parents[2]
 INPUT = ROOT / "data/raw/osm_sample.json"
@@ -52,38 +55,93 @@ def classify(properties, rules):
         "matched_rules": [rule["id"] for rule in matched],
     }
 
+def classify_data(data=None, save=False, input_path=None, output_path=None):
+    if data is None:
+        path = Path(input_path) if input_path else INPUT
+        if not path.is_absolute():
+            path = ROOT / path
+        data = json.loads(path.read_text(encoding="utf-8"))
 
-def classify_data():
-    data = json.loads(INPUT.read_text(encoding="utf-8"))
+    if not isinstance(data, dict) or data.get("type") != "FeatureCollection":
+        raise ValueError(
+            "Ожидается GeoJSON-объект типа FeatureCollection."
+        )
+    
     rules_data = yaml.safe_load(RULES_FILE.read_text(encoding="utf-8"))
     rules = rules_data["rules"]
 
-    for feature in data.get("features", []):
+    result = copy.deepcopy(data)
+    features = result.get("features", [])
+
+    for feature in features:
         properties = feature.setdefault("properties", {})
         properties["classification"] = classify(properties, rules)
 
-    OUTPUT.parent.mkdir(parents=True, exist_ok=True)
-    OUTPUT.write_text(
-        json.dumps(data, ensure_ascii=False, indent=2),
-        encoding="utf-8",
-    )
+    if save:
+        path = Path(output_path) if output_path else OUTPUT
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(
+            json.dumps(result, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
 
-    features = data.get("features", [])
-    print(f"Обработано объектов: {len(features)}")
+    return result
 
-    from collections import Counter
-
+def get_summary(data):
+    """Возвращает статистику по типам классификации."""
     counts = Counter(
-        feature["properties"]["classification"]["type"]
-        for feature in features
+        feature.get("properties", {})
+        .get("classification", {})
+        .get("type", "unclassified")
+        for feature in data.get("features", [])
     )
 
+    return {
+        "total": len(data.get("features", [])),
+        "by_type": dict(counts.most_common()),
+    }
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Классификация объектов OpenStreetMap."
+    )
+    parser.add_argument(
+        "--input",
+        type=Path,
+        default=INPUT,
+        help="Входной JSON.",
+    )
+    parser.add_argument(
+        "--save",
+        action="store_true",
+        help="Сохранить классифицированный GeoJSON.",
+    )
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=OUTPUT,
+        help="Путь к выходному GeoJSON.",
+    )
+    args = parser.parse_args()
+
+    data = classify_data(
+        input_path=args.input,
+        save=args.save,
+        output_path=args.output,
+    )
+
+    summary = get_summary(data)
+    print(f"Обработано объектов: {summary['total']}")
     print("Результаты классификации:")
-    for category, count in counts.most_common():
+
+    for category, count in summary["by_type"].items():
         print(f"  {category}: {count}")
 
-    print(f"Сохранено в: {OUTPUT}")
-
+    if args.save:
+        path = args.output
+        print(f"Сохранено в: {path.resolve()}")
+    else:
+        print("Файл не сохранён (--save не указан).")
 
 if __name__ == "__main__":
-    classify_data()
+    main()
