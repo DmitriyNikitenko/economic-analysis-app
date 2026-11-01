@@ -42,6 +42,7 @@ import { geoJSON, latLngBounds } from "leaflet";
 import type { Feature } from "geojson";
 import type { Layer, LatLngBounds, PathOptions } from "leaflet";
 import "leaflet/dist/leaflet.css";
+import { SubjectShape } from "./SVGShapes";
 
 import {
   DOMAIN_COLORS,
@@ -147,20 +148,25 @@ export default function MapView({
     return ranges;
   }, [subjects, availableDomains]);
 
-// Масштабируем размер маркера в зависимости от ёмкости объекта
-function getMarkerRadius(capacity: number, domain: Domain): number {
-  const range = capacityRanges.get(domain);
+  // Масштабируем размер маркера в зависимости от ёмкости объекта
+  const MIN_MARKER_RADIUS = 10;
+  const MAX_MARKER_RADIUS = 30;
 
-  if (!range || range.max === range.min) return 12;
+  function getMarkerRadius(capacity: number, domain: Domain) {
+    const range = capacityRanges.get(domain);
 
-  const minRadius = 5;
-  const maxRadius = 20;
+    if (!range || range.min === range.max) {
+      return (MIN_MARKER_RADIUS + MAX_MARKER_RADIUS) / 2;
+    }
 
-  const normalized =
-    (capacity - range.min) / (range.max - range.min);
+    const normalized = (capacity - range.min) / (range.max - range.min);
 
-  return minRadius + normalized * (maxRadius - minRadius);
-}
+    return (
+      MIN_MARKER_RADIUS +
+      Math.max(0, Math.min(1, normalized)) *
+      (MAX_MARKER_RADIUS - MIN_MARKER_RADIUS)
+    );
+  }
 
   // Фильтрация связей между объектами
   const visibleEdges = useMemo(() => {
@@ -272,7 +278,7 @@ function getMarkerRadius(capacity: number, domain: Domain): number {
 
               {/* Отрисовка колец ролей (спрос/предложение) вокруг объекта, если слой ролей включен */}
               {/* Масштабирование колец в зависимости от емкости */}
-              {visibleLayers.roles && roleRings.map(({ domain, role }, index) => {
+              {visibleLayers.roles && roleRings.map(({ domain, role }) => {
                 const color = roleColor(role);
                 const capacity = props.domains[domain]?.capacity ?? 1;
 
@@ -295,19 +301,13 @@ function getMarkerRadius(capacity: number, domain: Domain): number {
 
               {/* Отрисовка основного круга объекта, если слой объектов включен */}
               {visibleLayers.objects && (
-                <CircleMarker
-                  key={`${props.id}-object`}
-                  center={[latitude, longitude]}
-                  radius={4}
-                  interactive={false}
-                  pathOptions={{
-                    color: "#ffffff",
-                    weight: 1.5,
-                    fillColor: "#457b9d",
-                    fillOpacity: 1,
-                  }}
+                <SubjectShape
+                  latitude={latitude}
+                  longitude={longitude}
+                  kind={props.kind}
                 />
               )}
+              
             </Fragment>
           );
         })}
