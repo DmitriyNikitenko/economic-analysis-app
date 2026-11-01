@@ -60,6 +60,7 @@ type SubjectShapeProps = {
     latitude: number;
     longitude: number;
     kind: SubjectKind;
+    onSelect: () => void;
 };
 
 // React компонент SubjectShape, который рисует фигуру на карте в зависимости от типа объекта
@@ -67,6 +68,7 @@ export function SubjectShape({
     latitude,
     longitude,
     kind,
+    onSelect,
 }: SubjectShapeProps) {
     const map = useMap();  // получаем экземпляр карты Leaflet
 
@@ -131,7 +133,10 @@ export function SubjectShape({
                 center={[latitude, longitude]}
                 radius={4}
                 pathOptions={shapeStyle}
-                interactive={false}
+                interactive={true}
+                eventHandlers={{
+                    click: onSelect,
+                }}
             />
         );
     }
@@ -148,7 +153,10 @@ export function SubjectShape({
         <Polygon
             positions={positions}
             pathOptions={shapeStyle}
-            interactive={false}
+            interactive={true}
+            eventHandlers={{
+                click: onSelect,
+            }}
         />
     );
 }
