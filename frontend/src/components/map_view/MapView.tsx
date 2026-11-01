@@ -315,7 +315,14 @@ export default function MapView({
 
       {/* Легенда карты */}
       <div className="flex flex-wrap gap-x-4 gap-y-1 border-t border-slate-200 bg-white p-3 text-sm text-slate-600">
-        {visibleLayers.objects && <span><span style={{ color: "#457b9d" }}>●</span> Объект</span>}
+        {visibleLayers.objects && (
+          <>
+            <span><span style={{ color: "#457b9d" }}>●</span> Населенный пункт</span>
+            <span><span style={{ color: "#457b9d" }}>■</span> Банк</span>
+            <span><span style={{ color: "#457b9d" }}>▲</span> Работодатель</span>
+            <span><span style={{ color: "#457b9d" }}>◆</span> Магазин</span>
+          </>
+        )}
         {visibleLayers.roles && (
           <>
             <span><span style={{ color: "#e45756" }}>⭘</span> Спрос</span>
