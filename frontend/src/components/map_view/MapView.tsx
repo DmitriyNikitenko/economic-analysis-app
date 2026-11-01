@@ -345,6 +345,14 @@ function getMarkerRadius(capacity: number, domain: Domain): number {
               />
               Труд — связи рынка труда
             </span>
+
+            <span className="inline-flex items-center gap-2">
+              Размер круга: ёмкость
+            </span>
+            
+            <span className="inline-flex items-center gap-2">
+              Толщина линии: вес связи
+            </span>
           </>
         )}
       </div>
