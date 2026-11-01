@@ -122,6 +122,46 @@ export default function MapView({
     [data, availableDomains, selection],
   );
 
+  // Получаем диапазон ёмкостей объектов отдельно для каждого домена
+  const capacityRanges = useMemo(() => {
+    const ranges = new Map<Domain, { min: number; max: number }>();
+
+    availableDomains.forEach((domain) => {
+      const capacities = subjects
+        .map((feature) => feature.properties.domains?.[domain]?.capacity)
+        .filter(
+          (capacity): capacity is number =>
+            typeof capacity === "number" &&
+            Number.isFinite(capacity) &&
+            capacity > 0,
+        );
+
+      if (capacities.length === 0) return;
+
+      ranges.set(domain, {
+        min: Math.min(...capacities),
+        max: Math.max(...capacities),
+      });
+    });
+
+    return ranges;
+  }, [subjects, availableDomains]);
+
+// Масштабируем размер маркера в зависимости от ёмкости объекта
+function getMarkerRadius(capacity: number, domain: Domain): number {
+  const range = capacityRanges.get(domain);
+
+  if (!range || range.max === range.min) return 12;
+
+  const minRadius = 5;
+  const maxRadius = 20;
+
+  const normalized =
+    (capacity - range.min) / (range.max - range.min);
+
+  return minRadius + normalized * (maxRadius - minRadius);
+}
+
   // Фильтрация связей между объектами
   const visibleEdges = useMemo(() => {
     const subjectIds = new Set(subjects.map((feature) => feature.properties.id));
@@ -190,13 +230,14 @@ export default function MapView({
         <GeoJSON data={districts} style={districtStyle} onEachFeature={bindDistrictLabel} />
 
         {/* Отображение экономических связей */}
+        {/* Толщина линий зависит от веса ребра */}
         {visibleLayers.edges && visibleEdges.map((edge) => (
           <Polyline
             key={edge.properties.id}
             positions={edge.geometry.coordinates.map(([longitude, latitude]) => [latitude, longitude] as [number, number])}
             pathOptions={{
               color: DOMAIN_COLORS[edge.properties.domain],
-              weight: 2,
+              weight: 1 + edge.properties.weight * 5,
               opacity: 0.8,
             }}
           >
@@ -230,13 +271,16 @@ export default function MapView({
             <Fragment key={props.id}>
 
               {/* Отрисовка колец ролей (спрос/предложение) вокруг объекта, если слой ролей включен */}
+              {/* Масштабирование колец в зависимости от емкости */}
               {visibleLayers.roles && roleRings.map(({ domain, role }, index) => {
                 const color = roleColor(role);
+                const capacity = props.domains[domain]?.capacity ?? 1;
+
                 return (
                   <CircleMarker
                     key={`${props.id}-role-${domain}`}
                     center={[latitude, longitude]}
-                    radius={9 + index * 3}
+                    radius={getMarkerRadius(capacity, domain)}
                     interactive={false}
                     pathOptions={{
                       color,
