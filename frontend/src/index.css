@@ -40,3 +40,9 @@ h2 {
 .leaflet-tooltip.district-label::before {
   display: none;
 }
+
+/* Убираем черную рамку (контур фокуса) при фокусе на карте и интерактивных элементах */
+.leaflet-container:focus,
+.leaflet-interactive:focus {
+  outline: none !important;
+}
