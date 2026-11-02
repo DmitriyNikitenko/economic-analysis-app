@@ -247,18 +247,36 @@ export default function MapView({
     [data, selectedSubjectId],
   );
 
+  // Находим район, к которому относится выбранный объект
+  const selectedDistrictName = useMemo(() => {
+    const districtId = selectedSubject?.properties.district_id;
+
+    if (!districtId) return null;
+
+    const district = districts.features.find(
+      (feature) => feature.properties?.id === districtId,
+    );
+
+    // Если район найден — возвращаем его название
+    // Если название не найдено, показываем его ID.
+    return district?.properties?.name ?? districtId;
+  }, [districts, selectedSubject]);
+
   // Получаем все связи выбранного объекта среди текущих отфильтрованных связей
   const selectedConnections = useMemo(() => {
+    // Если объект не выбран, возвращаем пустой массив
     if (!selectedSubject) return [];
 
+    // Получаем ID выбранного объекта
     const subjectId = selectedSubject.properties.id;
 
+    // Находим все связи, в которых участвует выбранный объект
     return visibleEdges.filter(
       (edge) =>
         edge.properties.from_id === subjectId ||  // from_id — объект со стороны спроса
         edge.properties.to_id === subjectId,  // to_id — объект со стороны предложения
     );
-  }, [visibleEdges, selectedSubject]);
+  }, [visibleEdges, selectedSubject]);  // массив зависимостей: пересчитываем при изменении видимых связей или выбранного объекта
 
   // Сортируем связи по весу и оставляем пять наиболее сильных
   const strongestConnections = useMemo(
@@ -470,6 +488,10 @@ export default function MapView({
                   {KIND_LABELS[selectedSubject.properties.kind]}
                   {" · "}
                   ID: {selectedSubject.properties.id}
+                </p>
+
+                <p className="text-sm text-slate-500">
+                  Район: {selectedDistrictName ?? "Не указан"}
                 </p>
               </div>
 
