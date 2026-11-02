@@ -1,2 +1,6 @@
 duckdb
 pytest
+pandas
+osmnx
+shapely
+PyYAML
