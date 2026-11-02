@@ -82,6 +82,7 @@ const DOMAIN_LABELS: Record<Domain, string> = {
   goods: "Товары и услуги",
 };
 
+// Подписи для типов экономических объектов
 const KIND_LABELS: Record<SubjectProperties["kind"], string> = {
   settlement: "Населённый пункт",
   bank: "Банк",
@@ -89,19 +90,31 @@ const KIND_LABELS: Record<SubjectProperties["kind"], string> = {
   shop: "Магазин",
 };
 
+// Определяем единицу измерения ёмкости в зависимости от типа объекта и домена
 function getCapacityUnit(
   kind: SubjectProperties["kind"],
   domain: Domain,
-) {
+): string {
+  // Ёмкость: население, которое потенциально нуждается в финансовых услугах
+  if (domain === "money" && kind === "settlement") {
+    return "человек";  // единица измерения
+  }
+
+  // Ёмкость: условная мощность банка — способность обслуживать финансовые потребности населения
   if (domain === "money" && kind === "bank") {
     return "усл. ед.";
   }
+  // Ёмкость: Трудоспособное население — потенциальная рабочая сила, которая может быть доступна работодателям
+  if (domain === "labor" && kind === "settlement") {
+    return "человек";
+  }
 
+  // Ёмкость: Количество работников, которых работодатель хочет нанять (число открытых вакансий)
   if (domain === "labor" && kind === "employer") {
     return "вакансий";
   }
 
-  return "человек";
+  return "—";
 }
 
 // Настройка границ карты (ограничение области просмотра) на основе геометрии районов (целой области)
@@ -208,11 +221,13 @@ export default function MapView({
     return edges.features.filter((edge) => {
       const domain = edge.properties.domain;
       const radius = config.domains.find((item) => item.id === domain)?.radius_km ?? 0;
+      
+      // Фильтры:
       return (
-        matchesDomain(domain, selection, availableDomains) &&
-        edge.properties.distance_km <= radius &&
-        subjectIds.has(edge.properties.from_id) &&
-        subjectIds.has(edge.properties.to_id)
+        matchesDomain(domain, selection, availableDomains) &&  // Связь относится к выбранному домену
+        edge.properties.distance_km <= radius &&  // Расстояние не превышает установленный радиус
+        subjectIds.has(edge.properties.from_id) &&  // Начальный объект (спрос) присутствует среди отфильтрованных объектов
+        subjectIds.has(edge.properties.to_id)  // Конечный объект (предложение) присутствует среди отфильтрованных объектов
       );
     });
   }, [edges, config, selection, availableDomains, subjects]);
@@ -523,9 +538,6 @@ export default function MapView({
                   {selectedConnections.length}
                 </p>
 
-                <p className="mt-1 text-sm text-slate-500">
-                  В текущем наборе отфильтрованных связей
-                </p>
               </div>
             </div>
 
