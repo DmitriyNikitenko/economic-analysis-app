@@ -1,3 +1,5 @@
+/* Глобальные стили приложения */
+
 @import "tailwindcss";
 
 body {
@@ -9,11 +11,32 @@ section {
   margin-bottom: 32px;
 }
 
+/* Заголовки */
 h1,
 h2 {
   margin-bottom: 12px;
 }
 
+/* Фон карты */
 .leaflet-container {
   background: #f1f5f9;
+}
+
+/* Подписи районов на карте */
+.leaflet-tooltip.district-label {
+  background: rgba(255, 255, 255, 0.84);
+  border: 1px solid rgba(100, 116, 139, 0.45);
+  border-radius: 4px;
+  box-shadow: none;
+  color: #334155;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.25;
+  padding: 3px 5px;
+  pointer-events: none;
+}
+
+/* Удаление стандартного указателя Leaflet */
+.leaflet-tooltip.district-label::before {
+  display: none;
 }

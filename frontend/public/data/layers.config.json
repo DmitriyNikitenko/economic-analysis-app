@@ -1,0 +1,40 @@
+{
+  "layers": [
+    {
+      "id": "objects",
+      "label": "Объекты",
+      "enabled": true
+    },
+    {
+      "id": "roles",
+      "label": "Спрос и предложение",
+      "enabled": true
+    },
+    {
+      "id": "edges",
+      "label": "Связи",
+      "enabled": true
+    }
+  ],
+  "domains": [
+    {
+      "id": "money",
+      "label": "Деньги",
+      "enabled": true,
+      "radius_km": 12
+    },
+    {
+      "id": "labor",
+      "label": "Труд",
+      "enabled": true,
+      "radius_km": 15
+    },
+    {
+      "id": "goods",
+      "label": "Товары и услуги",
+      "enabled": false,
+      "radius_km": 8.5
+    }
+  ],
+  "show_all_domains_option": true
+}

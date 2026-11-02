@@ -1,7 +1,9 @@
 backend/.venv/
+.venv/
 backend/data/
 data/
 __pycache__/
 .pytest_cache/
 .DS_Store
 .idea/
+node_modules/
