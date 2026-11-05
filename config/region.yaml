@@ -1,0 +1,42 @@
+region:
+  id: yaroslavl  # пишется в osm_objects.region
+  name: "Ярославская область, Россия"
+  crs: "EPSG:4326"
+  # OSM возьмет всю местность
+  place: "Ярославль, Россия"
+  # Используется, только если place пустой: [min_lon, min_lat, max_lon, max_lat]
+  test_bbox: [39.86, 57.61, 39.92, 57.64]
+
+paths:
+  db: data/region.duckdb
+  raw: data/raw/osm_sample.json
+  classified: data/processed/osm_classified.json
+  rules: backend/classification/rules.yaml
+  frontend_data: frontend/public/data
+
+low_data_threshold: 5 # если меньше 5 узлов в районе, метрика помечается ненадёжной
+
+domains:
+  money:
+    label: "Деньги"
+    enabled: true
+    radius_km: 12 # R: ребро строится, только если расстояние не больше R
+    beta: 2.0 # показатель затухания расстояния в весе для Хаффа
+  labor:
+    label: "Труд"
+    enabled: true
+    radius_km: 15
+    beta: 2.0
+  goods:
+    label: "Товары и услуги"
+    enabled: false # заведён, но пока не используется, тк не определена ёмкость
+    radius_km: 8.5
+    beta: 2.0
+
+# Слои карты (уходят во frontend/public/data/layers.config.json)
+layers:
+  - {id: objects, label: "Объекты", enabled: true}
+  - {id: roles, label: "Спрос и предложение", enabled: true}
+  - {id: edges, label: "Связи", enabled: true}
+
+show_all_domains_option: true
