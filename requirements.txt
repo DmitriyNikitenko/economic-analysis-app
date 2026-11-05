@@ -1,6 +1,5 @@
-duckdb
-pytest
-pandas
-osmnx
-shapely
-PyYAML
+duckdb>=1.4,<2
+pandas>=2.2,<3
+osmnx>=2.0,<3
+shapely>=2.0,<3
+PyYAML>=6.0,<7
