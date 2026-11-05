@@ -21,6 +21,7 @@ import {
   type SubjectsData,
   type EdgesData,
   type DistrictsData,
+  type MetricsData,
 } from "./layers";
 
 // Типы данных приложения
@@ -28,6 +29,7 @@ type AppData = {
   subjects: SubjectsData;
   edges: EdgesData;
   districts: DistrictsData;
+  metrics: MetricsData;
 };
 
 // Главный компонент приложения
@@ -57,11 +59,12 @@ export default function App() {
     async function loadData() {
       try {
         // Promise.all() параллельно (одновременно) загружает все файлы
-        const [subjects, edges, districts, loadedConfig] = await Promise.all([
+        const [subjects, edges, districts, loadedConfig, metrics] = await Promise.all([
           fetchJson<SubjectsData>("/data/subjects.geojson"),
           fetchJson<EdgesData>("/data/edges.geojson"),
           fetchJson<DistrictsData>("/data/districts.geojson"),
           fetchJson<LayerConfig>("/data/layers.config.json"),
+          fetchJson<MetricsData>("/data/metrics.json"),
         ]);
 
         /* Когда файлы загружены, приложение:
@@ -74,7 +77,7 @@ export default function App() {
         if (cancelled) return;
 
         const domains = getAvailableDomains(subjects, edges, loadedConfig);
-        setData({ subjects, edges, districts });
+        setData({ subjects, edges, districts, metrics, });
         setConfig(loadedConfig);
         setVisibleLayers(getInitialVisibleLayers(loadedConfig));
         setSelection(
@@ -105,6 +108,11 @@ export default function App() {
     if (!data) return [];
     return getAvailableDomains(data.subjects, data.edges, config);
   }, [data, config]);
+
+  // Домены, включённые в region.yaml и layers.config.json
+  const enabledDomains = config.domains.filter(
+    (domain) => domain.enabled,
+  );
 
   // Функции изменения настроек
 
@@ -142,7 +150,7 @@ export default function App() {
   return (
     <main className="mx-auto flex max-w-7xl flex-col gap-6 p-4">
       <header>
-        <h1 className="text-2xl font-semibold">Экономическая активность Ярославской области</h1>
+        <h1 className="text-2xl font-semibold">Экономическая активность — {data.metrics.region.name ?? "Регион"}</h1>
       </header>
 
       {/* Настройки отображения графа: слои, домен и радиус досягаемости связей */}
@@ -183,7 +191,7 @@ export default function App() {
             )}
   
             {/* Кнопки выбора домена */}
-            {config.domains.map((domain) => {
+            {enabledDomains.map((domain) => {
               const hasData = availableDomains.includes(domain.id);
               const active = selection === domain.id;
               return (
@@ -205,7 +213,7 @@ export default function App() {
           {/* Оно появляется, когда выбранное направление отсутствует среди доступных доменов */}
           {!selectedDomainHasData && (
             <p className="mt-2 text-sm text-amber-800">
-              Для домена «{config.domains.find((domain) => domain.id === selection)?.label ?? selection}» пока нет данных.
+              Для домена «{enabledDomains.find((domain) => domain.id === selection)?.label ?? selection}» пока нет данных.
             </p>
           )}
         </fieldset>
@@ -214,7 +222,7 @@ export default function App() {
           <legend className="mb-2 font-medium">Радиус досягаемости связей</legend>
           {/* Настройки радиуса */}
           <div className="grid gap-3 md:grid-cols-3">
-            {config.domains.map((domain) => (
+            {enabledDomains.map((domain) => (
               <RadiusControl key={domain.id} domain={domain} onChange={updateRadius} />
             ))}
           </div>
