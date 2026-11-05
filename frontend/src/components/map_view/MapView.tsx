@@ -8,11 +8,10 @@
 /* Импорты инструментов React:
     Fragment - позволяет сгруппировать несколько элементов без дополнительного HTML-контейнера
     useCallback - сохраняет функцию между рендерами, пока не меняются её зависимости
-    useEffect - выполняет действия при изменении зависимостей
     useMemo - для мемоизации вычисленных значений
     useState - хранит состояние компонента
 */
-import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
+import { Fragment, useCallback, useMemo, useState } from "react";
 
 /* Импорт компонентов React Leaflet 
     MapContainer - Создаёт контейнер интерактивной карты
@@ -21,7 +20,6 @@ import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
     Polyline - слой для отображения линий (например, связей между объектами)
     CircleMarker - слой для отображения кругов (например, объектов и ролей)
     Tooltip - всплывающая подсказка при наведении на элементы карты
-    useMap - Даёт доступ к экземпляру карты Leaflet
 */  
 import {
   CircleMarker,
@@ -29,21 +27,23 @@ import {
   MapContainer,
   Polyline,
   TileLayer,
-  Tooltip,
-  useMap,
+  Tooltip
 } from "react-leaflet";
 
 /*
   geoJSON - позволяет получить границы географических объектов
   latLngBounds - создаёт прямоугольную географическую область по координатам
   Feature - тип GeoJSON-объекта
-  Layer, LatLngBounds, PathOptions - типы слоёв, границ и стилей Leaflet
+  Layer, PathOptions - типы слоёв и стилей Leaflet
 */
 import { geoJSON, latLngBounds } from "leaflet";
 import type { Feature } from "geojson";
-import type { Layer, LatLngBounds, PathOptions } from "leaflet";
+import type { Layer, PathOptions } from "leaflet";
 import "leaflet/dist/leaflet.css";
+
 import { SubjectShape } from "./SVGShapes";
+import { FitMapToRegion } from "./FitMapToRegion";
+import MapLegend from "./MapLegend";
 
 import {
   DOMAIN_COLORS,
@@ -55,10 +55,18 @@ import {
   type LayerConfig,
   type LayerId,
   type SubjectsData,
-  type SubjectProperties,
   type MetricsData,
   type MetricStats,
 } from "../../layers";
+
+import {
+  roleColor,
+  DOMAIN_LABELS,
+  KIND_LABELS,
+  NO_DATA_COLOR,
+  getCapacityUnit,
+  getDistrictDegreeColor,
+} from "../../utils/mapStyles";
 
 // Типизация входных параметров Props
 type Props = {
@@ -71,108 +79,6 @@ type Props = {
   selection: DomainSelection;
   availableDomains: Domain[];
 };
-
-// Цвет спроса и предложения
-function roleColor(role?: "supply" | "demand") {
-  if (role === "demand") return "#e45756";
-  if (role === "supply") return "#2a9d8f";
-  return "#457b9d";
-}
-
-const DOMAIN_LABELS: Record<Domain, string> = {
-  money: "Деньги",
-  labor: "Труд",
-  goods: "Товары и услуги",
-};
-
-// Цветовая шкала средней степени узлов.
-// Чем выше значение, тем темнее цвет.
-const DISTRICT_DEGREE_COLORS = [
-  "#e0f7fa",
-  "#b2ebf2",
-  "#80deea",
-  "#4dd0e1",
-  "#00acc1",
-];
-
-// Цвет районов с недостаточным количеством данных
-const NO_DATA_COLOR = "#cbd5e1";
-
-// Подписи для типов экономических объектов
-const KIND_LABELS: Record<SubjectProperties["kind"], string> = {
-  settlement: "Населённый пункт",
-  bank: "Банк",
-  employer: "Работодатель",
-  shop: "Магазин",
-};
-
-// Определяем единицу измерения ёмкости в зависимости от типа объекта и домена
-function getCapacityUnit(
-  kind: SubjectProperties["kind"],
-  domain: Domain,
-): string {
-  // Ёмкость: население, которое потенциально нуждается в финансовых услугах
-  if (domain === "money" && kind === "settlement") {
-    return "человек";  // единица измерения
-  }
-
-  // Ёмкость: условная мощность банка — способность обслуживать финансовые потребности населения
-  if (domain === "money" && kind === "bank") {
-    return "усл. ед.";
-  }
-  // Ёмкость: Трудоспособное население — потенциальная рабочая сила, которая может быть доступна работодателям
-  if (domain === "labor" && kind === "settlement") {
-    return "человек";
-  }
-
-  // Ёмкость: Количество работников, которых работодатель хочет нанять (число открытых вакансий)
-  if (domain === "labor" && kind === "employer") {
-    return "вакансий";
-  }
-
-  return "—";
-}
-
-// Определяем цвет района по средней степени узлов
-// Функция получает 3 значения
-function getDistrictDegreeColor(
-  value: number,  // средняя степень конкретного района
-  min: number,  // минимальная средняя степень среди всех районов
-  max: number,  // максимальная средняя степень среди всех районов
-): string {
-  // Если все значения одинаковые, используем средний цвет шкалы
-  if (min === max) {
-    return DISTRICT_DEGREE_COLORS[
-      Math.floor(DISTRICT_DEGREE_COLORS.length / 2)
-    ];
-  }
-
-  // Нормализуем значение в диапазон от 0 до 1
-  // Чтобы распределить значения по цветовой шкале DISTRICT_DEGREE_COLORS
-  const normalized = (value - min) / (max - min);
-
-  // Определяем индекс цвета в палитре
-  const index = Math.min(
-    DISTRICT_DEGREE_COLORS.length - 1,
-    Math.floor(normalized * DISTRICT_DEGREE_COLORS.length),
-  );
-
-  return DISTRICT_DEGREE_COLORS[index];
-}
-
-// Настройка границ карты (ограничение области просмотра) на основе геометрии районов (целой области)
-function FitMapToRegion({ bounds }: { bounds: LatLngBounds }) {
-  const map = useMap();
-
-  useEffect(() => {
-    if (bounds.isValid()) {
-      map.fitBounds(bounds, { padding: [12, 12], maxZoom: 9, animate: false });
-      map.setMaxBounds(bounds);
-    }
-  }, [bounds, map]);
-
-  return null;
-}
 
 // Основной компонент MapView
 // Здесь компонент получает все параметры, объявленные в Props, 
@@ -555,98 +461,12 @@ export default function MapView({
       </MapContainer>
 
       {/* Легенда карты */}
-      <div className="flex flex-wrap gap-x-4 gap-y-1 border-t border-slate-200 bg-white p-3 text-sm text-slate-600">
-        {visibleLayers.objects && (
-          <>
-            <span><span style={{ color: "#457b9d" }}>●</span> Населенный пункт</span>
-            <span><span style={{ color: "#457b9d" }}>■</span> Банк</span>
-            <span><span style={{ color: "#457b9d" }}>▲</span> Работодатель</span>
-            <span><span style={{ color: "#457b9d" }}>◆</span> Магазин</span>
-          </>
-        )}
-        {visibleLayers.roles && (
-          <>
-            <span><span style={{ color: "#e45756" }}>⭘</span> Спрос</span>
-            <span><span style={{ color: "#2a9d8f" }}>⭘</span> Предложение</span>
-          </>
-        )}
-        {visibleLayers.edges && (
-          <>
-            <span className="inline-flex items-center gap-2">
-              <span
-                style={{
-                  display: "inline-block",
-                  width: 28,
-                  borderTop: `3px solid ${DOMAIN_COLORS.money}`,
-                }}
-              />
-              Деньги — финансовые связи
-            </span>
-
-            <span className="inline-flex items-center gap-2">
-              <span
-                style={{
-                  display: "inline-block",
-                  width: 28,
-                  borderTop: `3px solid ${DOMAIN_COLORS.labor}`,
-                }}
-              />
-              Труд — связи рынка труда
-            </span>
-
-            <span className="inline-flex items-center gap-2">
-              Размер круга: ёмкость
-            </span>
-            
-            <span className="inline-flex items-center gap-2">
-              Толщина линии: вес связи
-            </span>
-          </>
-        )}
-      </div>
-
-      {/* Легенда раскраски районов по средней степени */}
-      {visibleLayers.district_degree && (
-        <div className="flex w-full flex-wrap items-center gap-x-3 gap-y-2 border-t border-slate-200 pt-3 pl-3 pb-3">
-
-          <div className="w-full">
-            <p className="font-medium text-slate-700">
-              Среднее число связей на один узел
-            </p>
-
-            <p className="text-xs text-slate-500">
-              Домен:{" "}
-              {selection === "all"
-                ? "Все домены"
-                : DOMAIN_LABELS[selection]}
-            </p>
-          </div>
-
-          <span className="text-xs text-slate-500">
-            Меньше
-          </span>
-
-          {DISTRICT_DEGREE_COLORS.map((color) => (
-            <span
-              key={color}
-              className="inline-block h-5 w-5 rounded-sm border border-slate-300"
-              style={{ backgroundColor: color }}
-            />
-          ))}
-
-          <span className="text-xs text-slate-500">
-            Больше
-          </span>
-
-          <span className="ml-2 inline-flex items-center gap-1 text-xs text-slate-500">
-            <span
-              className="inline-block h-4 w-4 rounded-sm border border-slate-300"
-              style={{ backgroundColor: NO_DATA_COLOR }}
-            />
-            Мало данных / нет данных
-          </span>
-        </div>
-      )}
+      <MapLegend
+        visibleLayers={visibleLayers}
+        selection={selection}
+        availableDomains={availableDomains}
+        config={config}
+      />
 
       {/* Карточка выбранного объекта */}
       <section className="border-t border-slate-200 bg-white p-4">
