@@ -109,15 +109,15 @@ rules:
     match:
       shop: "*"
     type: shop
-    domains: [goods_services]
+    domains: [goods]
     roles:
-      goods_services: supply
+      goods: supply
 
   - id: amenity_service
     priority: 40
     match:
       amenity: "*"
     type: service
-    domains: [goods_services]
+    domains: [goods]
     roles:
-      goods_services: supply
+      goods: supply
