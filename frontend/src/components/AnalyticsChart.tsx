@@ -84,6 +84,8 @@ export default function AnalyticsChart({
                     <tbody>
                         {/* Строка для всего региона */}
                         <tr className="border-b-2 border-slate-300 bg-slate-100">
+
+                            {/* Название региона */}
                             <td className="p-3 font-bold text-slate-900">
                                 {metrics.region.name}
                             </td>
@@ -119,6 +121,7 @@ export default function AnalyticsChart({
                                     </span>
                                 )}
                             </td>
+
                         </tr>
 
                         {/* Строки для отдельных районов */}
@@ -171,6 +174,7 @@ export default function AnalyticsChart({
                                             </span>
                                         )}
                                     </td>
+                                    
                                 </tr>
                             );
                         })}

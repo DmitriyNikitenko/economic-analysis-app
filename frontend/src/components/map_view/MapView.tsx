@@ -56,6 +56,8 @@ import {
   type LayerId,
   type SubjectsData,
   type SubjectProperties,
+  type MetricsData,
+  type MetricStats,
 } from "../../layers";
 
 // Типизация входных параметров Props
@@ -63,6 +65,7 @@ type Props = {
   data: SubjectsData;
   edges: EdgesData;
   districts: DistrictsData;
+  metrics: MetricsData;
   config: LayerConfig;
   visibleLayers: Record<LayerId, boolean>;
   selection: DomainSelection;
@@ -81,6 +84,19 @@ const DOMAIN_LABELS: Record<Domain, string> = {
   labor: "Труд",
   goods: "Товары и услуги",
 };
+
+// Цветовая шкала средней степени узлов.
+// Чем выше значение, тем темнее цвет.
+const DISTRICT_DEGREE_COLORS = [
+  "#e0f7fa",
+  "#b2ebf2",
+  "#80deea",
+  "#4dd0e1",
+  "#00acc1",
+];
+
+// Цвет районов с недостаточным количеством данных
+const NO_DATA_COLOR = "#cbd5e1";
 
 // Подписи для типов экономических объектов
 const KIND_LABELS: Record<SubjectProperties["kind"], string> = {
@@ -117,6 +133,33 @@ function getCapacityUnit(
   return "—";
 }
 
+// Определяем цвет района по средней степени узлов
+// Функция получает 3 значения
+function getDistrictDegreeColor(
+  value: number,  // средняя степень конкретного района
+  min: number,  // минимальная средняя степень среди всех районов
+  max: number,  // максимальная средняя степень среди всех районов
+): string {
+  // Если все значения одинаковые, используем средний цвет шкалы
+  if (min === max) {
+    return DISTRICT_DEGREE_COLORS[
+      Math.floor(DISTRICT_DEGREE_COLORS.length / 2)
+    ];
+  }
+
+  // Нормализуем значение в диапазон от 0 до 1
+  // Чтобы распределить значения по цветовой шкале DISTRICT_DEGREE_COLORS
+  const normalized = (value - min) / (max - min);
+
+  // Определяем индекс цвета в палитре
+  const index = Math.min(
+    DISTRICT_DEGREE_COLORS.length - 1,
+    Math.floor(normalized * DISTRICT_DEGREE_COLORS.length),
+  );
+
+  return DISTRICT_DEGREE_COLORS[index];
+}
+
 // Настройка границ карты (ограничение области просмотра) на основе геометрии районов (целой области)
 function FitMapToRegion({ bounds }: { bounds: LatLngBounds }) {
   const map = useMap();
@@ -138,6 +181,7 @@ export default function MapView({
   data,
   edges,
   districts,
+  metrics,
   config,
   visibleLayers,
   selection,
@@ -168,6 +212,51 @@ export default function MapView({
       ),
     [data, availableDomains, selection],
   );
+
+  // Получаем статистику каждого района для выбранного домена
+  const districtStatsById = useMemo(() => {
+    // Создаем Map, где ключ — ID района, а значение — статистика по выбранному домену
+    const result = new Map<string, MetricStats | undefined>();
+
+    // Проходим по каждому району и извлекаем статистику для выбранного домена
+    metrics.districts.forEach((district) => {
+      // Здесь выбирается статистика в зависимости от домена, 
+      // который пользователь выбрал в интерфейсе
+      const stats =
+        selection === "all"
+          ? district.all
+          : district[selection];
+
+      // Сохраняем статистику в Map с ключом ID района
+      result.set(district.id, stats);
+    });
+
+    return result;  // Возвращаем Map с ID районов и их статистикой
+  }, [metrics, selection]);  // Пересчитываем только при изменении метрик или выбранного домена
+
+  // Определяем минимальную и максимальную среднюю степень
+  // среди районов, у которых достаточно данных
+  const districtDegreeRange = useMemo(() => {
+    // Создаём массив средних степеней узлов для всех районов, у которых есть достоверные данные
+    const values = Array.from(districtStatsById.values())
+      // Фильтруем только те статистические данные, которые существуют, не имеют признака low_data
+      // и имеют конечное значение средней степени узлов
+      .filter(
+        (stats): stats is MetricStats =>  // (stats): stats is MetricStats => (предикат типа) 
+          stats !== undefined &&
+          !stats.low_data &&
+          Number.isFinite(stats.avg_degree),
+      )
+      .map((stats) => stats.avg_degree);  // извлекаем среднюю степень узлов для каждого района
+
+    if (values.length === 0) return null;  // Если нет достоверных данных, возвращаем null
+
+    // Возвращаем объект с минимальной и максимальной средней степенью узлов среди всех районов
+    return {
+      min: Math.min(...values),
+      max: Math.max(...values),
+    };
+  }, [districtStatsById]);  // Пересчитываем только при изменении статистики районов
 
   // Получаем диапазон ёмкостей объектов отдельно для каждого домена
   const capacityRanges = useMemo(() => {
@@ -290,16 +379,50 @@ export default function MapView({
     [selectedConnections],
   );
 
-  // Стиль границ районов
+  // Раскрашиваем районы в зависимости от средней степени узлов
+  // Использует 2 другие константы:
+  //  districtStatsById — статистика каждого района
+  //  districtDegreeRange — минимальная и максимальная средняя степень узлов
+  //
+  // useCallback — запоминает функцию между рендерами React, пока не изменяются её зависимости
+  // feature?: Feature — функция получения GeoJSON-объект района
   const districtStyle = useCallback(
-    (): PathOptions => ({
-      color: "#64748b",
-      weight: 1.5,
-      opacity: 0.9,
-      fillColor: "#cbd5e1",
-      fillOpacity: 0.07,
-    }),
-    [],
+    (feature?: Feature): PathOptions => {
+      // Получаем ID района из GeoJSON
+      const districtId = feature?.properties?.id;
+
+      // Получаем статистику соответствующего района
+      const stats =
+        typeof districtId === "string"
+          ? districtStatsById.get(districtId)
+          : undefined;
+
+      // Проверяем, можно ли использовать показатель для раскраски
+      const hasReliableData =
+        stats !== undefined &&  // 	Статистика района найдена
+        !stats.low_data &&  // Недостатка данных нет
+        Number.isFinite(stats.avg_degree) &&  // Средняя степень является конечным числом
+        districtDegreeRange !== null;  // Диапазон значений для раскраски определён (иначе, все будет покрашено в серый цвет ниже)
+
+      // Определяем цвет заливки
+      const fillColor = hasReliableData
+        ? getDistrictDegreeColor(
+          stats.avg_degree,  // Средняя степень узлов района
+          districtDegreeRange.min,  // Минимальная средняя степень среди всех районов
+          districtDegreeRange.max,  // Максимальная средняя степень среди всех районов
+        )
+        : NO_DATA_COLOR;
+
+      // Возвращаем объект стиля для района
+      return {
+        color: "#64748b",
+        weight: 1.5,
+        opacity: 0.9,
+        fillColor,
+        fillOpacity: hasReliableData ? 0.65 : 0.2,
+      };
+    },
+    [districtStatsById, districtDegreeRange],  // Пересчитываем функцию только при изменении статистики районов или диапазона средней степени узлов
   );
 
   // Подписи районов на карте
@@ -471,6 +594,46 @@ export default function MapView({
         )}
       </div>
 
+      {/* Легенда раскраски районов по средней степени */}
+      <div className="flex w-full flex-wrap items-center gap-x-3 gap-y-2 border-t border-slate-200 pt-3">
+
+        <div className="w-full">
+          <p className="font-medium text-slate-700">
+            Среднее число связей на один узел
+          </p>
+
+          <p className="text-xs text-slate-500">
+            Домен:{" "}
+            {selection === "all"
+              ? "Все домены"
+              : DOMAIN_LABELS[selection]}
+          </p>
+        </div>
+
+        <span className="text-xs text-slate-500">
+          Меньше
+        </span>
+
+        {DISTRICT_DEGREE_COLORS.map((color) => (
+          <span
+            key={color}
+            className="inline-block h-5 w-5 rounded-sm border border-slate-300"
+            style={{ backgroundColor: color }}
+          />
+        ))}
+
+        <span className="text-xs text-slate-500">
+          Больше
+        </span>
+
+        <span className="ml-2 inline-flex items-center gap-1 text-xs text-slate-500">
+          <span
+            className="inline-block h-4 w-4 rounded-sm border border-slate-300"
+            style={{ backgroundColor: NO_DATA_COLOR }}
+          />
+          Мало данных / нет данных
+        </span>
+      </div>
 
       {/* Карточка выбранного объекта */}
       <section className="border-t border-slate-200 bg-white p-4">

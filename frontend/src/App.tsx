@@ -237,6 +237,7 @@ export default function App() {
           data={data.subjects}  /* Экономические объекты */
           edges={data.edges}  /* Связи между объектами */
           districts={data.districts}  /* Границы районов */
+          metrics={data.metrics}  /* Статистика по районам */
           config={config}  /*Настройки доменов и радиусов */
           visibleLayers={visibleLayers}  /* Какие слои отображать */
           selection={selection}  /* Выбранный домен */
@@ -246,9 +247,9 @@ export default function App() {
 
       {/* Аналитика по районам */}
       <AnalyticsChart
-        metrics={data.metrics}
-        selection={selection}
-        config={config}
+        metrics={data.metrics}  /* Статистика по районам */
+        selection={selection}  /* Выбранный домен */
+        config={config}  /* Настройки доменов и радиусов */
       />
       
     </main>
