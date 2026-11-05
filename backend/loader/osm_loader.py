@@ -4,23 +4,7 @@ from shapely.geometry import mapping
 import osmnx as ox
 import pandas as pd
 import argparse
-
-# На первом этапе скачиваем только объекты,
-# полезные для анализа экономической активности.
-TAGS = {
-    "amenity": ["bank", "atm"],
-    "office": True,
-    "shop": True,
-    "place": [
-        "city", "town", "village",
-        "hamlet", "isolated_dwelling"
-    ],
-    "man_made": "works",
-    "industrial": True,
-    "landuse": "industrial",
-}
-
-OUTPUT = Path("data/raw/osm_sample.json")
+from backend.config import get_config
 
 NAME_KEYS = {"name", "alt_name", "official_name", "short_name", "old_name"}
 KEEP_LANGS = {"ru", "en"}
@@ -45,25 +29,55 @@ def keep_tag(key, value):
             return language in KEEP_LANGS
     return True
 
-def get_data(save=False, output_path=None):
-    # Небольшой участок Ярославля для тестирования.
+def get_data(region=None, full_region=False, save=False, output_path=None):
+    """
+    Загружает OSM-объекты и возвращает GeoJSON FeatureCollection.
 
-    bbox = (39.86, 57.61, 39.92, 57.64)
+    region: идентификатор региона для поля region.
+    full_region: использовать place из конфига вместо тестового bbox.
+    save: сохранять ли результат на диск.
+    output_path: путь для сохранения результата.
+    """
 
-    gdf = ox.features.features_from_bbox(
-        bbox=bbox,
-        tags=TAGS,
-    )
-                       
-    # gdf = ox.features_from_place(
-    #     "Ярославская область, Россия",
-    #     tags=TAGS,
-    # )
+    config = get_config()
+    region_id = region or config.region_id
+
+    tags = {
+        "amenity": ["bank", "atm"],
+        "office": True,
+        "shop": True,
+        "place": [
+            "city",
+            "town",
+            "village",
+            "hamlet",
+            "isolated_dwelling",
+        ],
+        "man_made": "works",
+        "industrial": True,
+        "landuse": "industrial",
+    }
+
+    if full_region:
+        if not config.place:
+            raise ValueError(
+                "В config/region.yaml не задан region.place."
+            )
+
+        gdf = ox.features.features_from_place(
+            config.place,
+            tags=tags,
+        )
+    else:
+        gdf = ox.features.features_from_bbox(
+            bbox=config.test_bbox,
+            tags=tags,
+        )
 
     features = []
 
     for (osm_type, osm_id), row in gdf.iterrows():
-        properties = {
+        tags_data = {
             key: value
             for key, value in row.items()
             if key != "geometry" and keep_tag(key, value)
@@ -72,11 +86,16 @@ def get_data(save=False, output_path=None):
             "type": "Feature",
             "id": f"{osm_type}/{osm_id}",
             "properties": {
-                "osm_type": osm_type,
+                "osm_type": str(osm_type),
                 "osm_id": int(osm_id),
-                **properties,
+                "region": region_id,
+                "tags": tags_data
             },
-            "geometry": mapping(row.geometry),
+            "geometry": (
+                mapping(row.geometry)
+                if row.geometry is not None
+                else None
+            ),
         })
 
     data = {
@@ -85,9 +104,13 @@ def get_data(save=False, output_path=None):
     }
 
     if save:
-        path = Path(output_path) if output_path else OUTPUT
+        path = Path(output_path) if output_path else config.paths.raw
 
+        if not path.is_absolute():
+            path = Path.cwd() / path
+        
         path.parent.mkdir(parents=True, exist_ok=True)
+
         path.write_text(
             json.dumps(
                 data,
@@ -102,22 +125,40 @@ def get_data(save=False, output_path=None):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Загрузка объектов OpenStreetMap в JSON."
+        description="Загрузка объектов OpenStreetMap"
     )
+
+    parser.add_argument(
+        "--region",
+        type=str,
+        default=None,
+        help="Идентификатор региона (по умолчанию из конфига).",
+    )
+
+    parser.add_argument(
+        "--full-region",
+        action="store_true",
+        help="Загрузить всю местность из config.region.place.",
+    )
+
     parser.add_argument(
         "--save",
         action="store_true",
         help="Сохранить результат в файл.",
     )
+
     parser.add_argument(
         "--output",
         type=Path,
-        default=OUTPUT,
+        default=None,
         help="Путь к выходному GeoJSON.",
     )
+
     args = parser.parse_args()
 
     data = get_data(
+        region=args.region,
+        full_region=args.full_region,
         save=args.save,
         output_path=args.output,
     )
@@ -125,7 +166,12 @@ def main():
     print(f"Загружено объектов: {len(data['features'])}")
 
     if args.save:
-        path = args.output
+        config = get_config()
+        path = args.output or config.paths.raw
+
+        if not path.is_absolute():
+            path = Path.cwd() / path
+        
         print(f"Сохранено в: {path.resolve()}")
     else:
         print("Файл не сохранён (--save не указан).")
