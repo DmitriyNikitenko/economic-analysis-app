@@ -72,7 +72,7 @@ def classify(properties, rules):
         "type": matched_rule["type"],
         "domains": matched_rule.get("domains", []),
         "roles": matched_rule.get("roles", {}),
-        "matched_rule": matched_rule,
+        "matched_rule": matched_rule.get("id"),
     }
 
 def classify_data(data=None, rules=None, save=False, input_path=None, output_path=None):
