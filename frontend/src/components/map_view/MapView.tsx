@@ -380,6 +380,8 @@ export default function MapView({
   );
 
   // Раскрашиваем районы в зависимости от средней степени узлов
+  // Если слой отключён, показываем только границы районов
+  //
   // Использует 2 другие константы:
   //  districtStatsById — статистика каждого района
   //  districtDegreeRange — минимальная и максимальная средняя степень узлов
@@ -404,6 +406,9 @@ export default function MapView({
         Number.isFinite(stats.avg_degree) &&  // Средняя степень является конечным числом
         districtDegreeRange !== null;  // Диапазон значений для раскраски определён (иначе, все будет покрашено в серый цвет ниже)
 
+      // Проверяем, включена ли раскраска
+      const coloringEnabled = visibleLayers.district_degree;
+
       // Определяем цвет заливки
       const fillColor = hasReliableData
         ? getDistrictDegreeColor(
@@ -419,10 +424,16 @@ export default function MapView({
         weight: 1.5,
         opacity: 0.9,
         fillColor,
-        fillOpacity: hasReliableData ? 0.65 : 0.2,
+        fillOpacity: !coloringEnabled
+          ? 0.07
+          : hasReliableData
+            ? 0.65
+            : 0.2,
       };
     },
-    [districtStatsById, districtDegreeRange],  // Пересчитываем функцию только при изменении статистики районов или диапазона средней степени узлов
+    // Пересчитываем функцию только при изменении статистики районов,
+    // диапазона средней степени узлов или видимости слоя district_degree
+    [districtStatsById, districtDegreeRange, visibleLayers.district_degree],
   );
 
   // Подписи районов на карте
@@ -595,45 +606,47 @@ export default function MapView({
       </div>
 
       {/* Легенда раскраски районов по средней степени */}
-      <div className="flex w-full flex-wrap items-center gap-x-3 gap-y-2 border-t border-slate-200 pt-3">
+      {visibleLayers.district_degree && (
+        <div className="flex w-full flex-wrap items-center gap-x-3 gap-y-2 border-t border-slate-200 pt-3 pl-3 pb-3">
 
-        <div className="w-full">
-          <p className="font-medium text-slate-700">
-            Среднее число связей на один узел
-          </p>
+          <div className="w-full">
+            <p className="font-medium text-slate-700">
+              Среднее число связей на один узел
+            </p>
 
-          <p className="text-xs text-slate-500">
-            Домен:{" "}
-            {selection === "all"
-              ? "Все домены"
-              : DOMAIN_LABELS[selection]}
-          </p>
+            <p className="text-xs text-slate-500">
+              Домен:{" "}
+              {selection === "all"
+                ? "Все домены"
+                : DOMAIN_LABELS[selection]}
+            </p>
+          </div>
+
+          <span className="text-xs text-slate-500">
+            Меньше
+          </span>
+
+          {DISTRICT_DEGREE_COLORS.map((color) => (
+            <span
+              key={color}
+              className="inline-block h-5 w-5 rounded-sm border border-slate-300"
+              style={{ backgroundColor: color }}
+            />
+          ))}
+
+          <span className="text-xs text-slate-500">
+            Больше
+          </span>
+
+          <span className="ml-2 inline-flex items-center gap-1 text-xs text-slate-500">
+            <span
+              className="inline-block h-4 w-4 rounded-sm border border-slate-300"
+              style={{ backgroundColor: NO_DATA_COLOR }}
+            />
+            Мало данных / нет данных
+          </span>
         </div>
-
-        <span className="text-xs text-slate-500">
-          Меньше
-        </span>
-
-        {DISTRICT_DEGREE_COLORS.map((color) => (
-          <span
-            key={color}
-            className="inline-block h-5 w-5 rounded-sm border border-slate-300"
-            style={{ backgroundColor: color }}
-          />
-        ))}
-
-        <span className="text-xs text-slate-500">
-          Больше
-        </span>
-
-        <span className="ml-2 inline-flex items-center gap-1 text-xs text-slate-500">
-          <span
-            className="inline-block h-4 w-4 rounded-sm border border-slate-300"
-            style={{ backgroundColor: NO_DATA_COLOR }}
-          />
-          Мало данных / нет данных
-        </span>
-      </div>
+      )}
 
       {/* Карточка выбранного объекта */}
       <section className="border-t border-slate-200 bg-white p-4">

@@ -12,7 +12,7 @@ import type {
 /* Основные типы экономической модели */
 export type Domain = "money" | "labor" | "goods";  /* Экономические домены: деньги, труд, товары и услуги */
 export type Role = "supply" | "demand";  /* Роль объекта: спрос или предложение */
-export type LayerId = "objects" | "roles" | "edges";  /* Идентификаторы слоёв карты: объекты, роли, связи */
+export type LayerId = "objects" | "roles" | "edges" | "district_degree";  /* Идентификаторы слоёв карты: объекты, роли, связи */
 export type DomainSelection = Domain | "all";  /* Выбор домена для отображения: конкретный домен или все доступные */
 
 /* Свойства экономического объекта */
@@ -60,6 +60,11 @@ export const DEFAULT_CONFIG: LayerConfig = {
     { id: "objects", label: "Объекты", enabled: true },
     { id: "roles", label: "Спрос и предложение", enabled: true },
     { id: "edges", label: "Связи", enabled: true },
+    {
+      id: "district_degree",
+      label: "Окраска районов по средней степени",
+      enabled: true,
+    },
   ],
   domains: [
     { id: "money", label: "Деньги", enabled: true, radius_km: 12 },
@@ -122,6 +127,7 @@ export function getInitialVisibleLayers(config: LayerConfig): Record<LayerId, bo
     objects: configured.objects ?? true,
     roles: configured.roles ?? true,
     edges: configured.edges ?? true,
+    district_degree: configured.district_degree ?? true,
   };
 }
 

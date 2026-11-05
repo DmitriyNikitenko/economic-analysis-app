@@ -14,6 +14,11 @@
       "id": "edges",
       "label": "Связи",
       "enabled": true
+    },
+    {
+      "id": "district_degree",
+      "label": "Окраска районов по средней степени",
+      "enabled": true
     }
   ],
   "domains": [
