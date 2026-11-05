@@ -238,7 +238,6 @@ export default function App() {
       {/* Заглушка аналитики: файл компонента не импортируется и не выполняется. */}
       <section aria-labelledby="analytics-heading" className="rounded-xl border border-dashed border-slate-300 p-4">
         <h2 id="analytics-heading" className="text-lg font-semibold">Аналитика</h2>
-        <p className="text-sm text-slate-600">Раздел аналитики пока не реализован.</p>
       </section>
     </main>
   );

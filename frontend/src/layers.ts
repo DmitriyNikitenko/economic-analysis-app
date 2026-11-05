@@ -69,6 +69,49 @@ export const DEFAULT_CONFIG: LayerConfig = {
   show_all_domains_option: true,
 };
 
+// Единый набор статистических показателей
+export type MetricStats = {
+  node_count: number;  // количество узлов
+  edge_count: number;  // количество связей
+  avg_degree: number;  // средняя степень узла
+  low_data: boolean;  // флаг недостаточного количества данных
+};
+
+// Статистика по всем доменам и отдельно по каждому домену
+//
+// Т.к. не все домены могут быть представлены в данных (например, goods),
+// используем Partial<Record<Domain, MetricStats>>
+//
+// Это означает, что у группы обязательно есть общая статистика all, 
+// а статистика отдельных доменов может присутствовать или отсутствовать
+export type MetricsGroup = {
+  all: MetricStats;
+} & Partial<Record<Domain, MetricStats>>;
+
+// Статистика отдельного района
+export type DistrictMetrics = MetricsGroup & {
+  id: string;
+  name: string;
+};
+
+// Полная структура metrics.json
+export type MetricsData = {
+  generated_at: string;
+
+  // Начальное значение генератора случайных чисел,
+  // использованное для синтетических данных
+  seed: number;  
+  
+  synthetic: boolean;
+
+  region: MetricsGroup & {
+    name: string;
+    boundary_is_approximate: boolean;
+  };
+
+  districts: DistrictMetrics[];
+};
+
 // Функция читает настройки слоёв из конфигурации и создаёт объект, который показывает, какие слои включены
 export function getInitialVisibleLayers(config: LayerConfig): Record<LayerId, boolean> {
   const configured = Object.fromEntries(
@@ -122,3 +165,4 @@ export const DOMAIN_COLORS: Record<Domain, string> = {
   labor: "#8b5cf6",
   goods: "#f59e0b",
 };
+
