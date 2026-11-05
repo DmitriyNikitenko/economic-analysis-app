@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import MapView from "./components/map_view/MapView";
 import { fetchJson } from "./api/fetchJson";
 import RadiusControl from "./components/RadiusControl";
+import AnalyticsChart from "./components/AnalyticsChart";
 
 // Импорт типов и функций из layers.ts 
 /* Они нужны, чтобы использовать настройки слоёв,
@@ -243,10 +244,13 @@ export default function App() {
         />
       </section>
 
-      {/* Заглушка аналитики: файл компонента не импортируется и не выполняется. */}
-      <section aria-labelledby="analytics-heading" className="rounded-xl border border-dashed border-slate-300 p-4">
-        <h2 id="analytics-heading" className="text-lg font-semibold">Аналитика</h2>
-      </section>
+      {/* Аналитика по районам */}
+      <AnalyticsChart
+        metrics={data.metrics}
+        selection={selection}
+        config={config}
+      />
+      
     </main>
   );
 }
