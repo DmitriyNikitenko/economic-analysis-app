@@ -18,6 +18,7 @@ import { DOMAIN_COLORS } from "../../layers";
 import {
     DISTRICT_DEGREE_COLORS,
     NO_DATA_COLOR,
+    SELECTED_EDGE_COLOR,
 } from "../../utils/mapStyles";
 
 // Параметры компонента
@@ -26,6 +27,7 @@ type Props = {
     selection: DomainSelection;
     availableDomains: Domain[];
     config: LayerConfig;
+    hasSelectedSubject: boolean;
 };
 
 // Компонент легенды карты
@@ -34,6 +36,7 @@ export default function MapLegend({
     selection,
     availableDomains,
     config,
+    hasSelectedSubject,
 }: Props) {
     
     // Получаем название выбранного домена
@@ -120,6 +123,19 @@ export default function MapLegend({
                         <span className="inline-flex items-center gap-2">
                             Толщина линии: вес связи
                         </span>
+
+                        {/* Если выбран объект, показываем легенду для связей выбранного объекта */}
+                        {hasSelectedSubject && (
+                            <span className="inline-flex items-center gap-2">
+                                <span
+                                    className="inline-block w-7"
+                                    style={{
+                                        borderTop: `3px solid ${SELECTED_EDGE_COLOR}`,
+                                    }}
+                                />
+                                Связи выбранного объекта
+                            </span>
+                        )}
                     </>
                 )}
             </div>

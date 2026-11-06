@@ -62,8 +62,9 @@ import {
 import {
   roleColor,
   DOMAIN_LABELS,
-  KIND_LABELS,
   NO_DATA_COLOR,
+  SELECTED_EDGE_COLOR,
+  KIND_LABELS,
   getCapacityUnit,
   getDistrictDegreeColor,
 } from "../../utils/mapStyles";
@@ -410,22 +411,75 @@ export default function MapView({
 
         {/* Отображение экономических связей */}
         {/* Толщина линий зависит от веса ребра */}
-        {visibleLayers.edges && visibleEdges.map((edge) => (
-          <Polyline
-            key={edge.properties.id}
-            positions={edge.geometry.coordinates.map(([longitude, latitude]) => [latitude, longitude] as [number, number])}
-            pathOptions={{
-              color: DOMAIN_COLORS[edge.properties.domain],
-              weight: 1 + edge.properties.weight * 5,
-              opacity: 0.8,
-            }}
-          >
-            {/* Подсказка при наведении на связь, показывающая домен и расстояние */}
-            <Tooltip>
-              {config.domains.find((item) => item.id === edge.properties.domain)?.label ?? edge.properties.domain}: {edge.properties.distance_km.toFixed(1)} км
-            </Tooltip>
-          </Polyline>
-        ))}
+        {/* Цвет линии зависит от домена связи */}
+        {/* Если выбран объект, то его связи становятся более заметными, 
+            а остальные связи, не относящиеся к нему, становятся прозрачными */}
+        {visibleLayers.edges && visibleEdges.map((edge) => {
+
+          // Проверяем, относится ли связь к выбранному объекту
+          const isSelectedConnection =
+            // Если объект не выбран, то ни одна связь не выделена
+            selectedSubject !== null &&
+            (
+              // Если выбранный объект является началом связи (спрос)
+              // или концом связи (предложение)
+              edge.properties.from_id === selectedSubject.properties.id ||
+              edge.properties.to_id === selectedSubject.properties.id
+            );
+
+          // Вычисляем толщину линии в зависимости от веса связи
+          const edgeWeight = 1 + edge.properties.weight * 5;
+
+          return (
+            <Polyline
+
+              // Уникальный ключ для каждой линии связи
+              key={edge.properties.id}
+
+              // Leaflet использует координаты в формате [широта, долгота],
+              // но в GeoJSON они представлены в формате [долгота, широта]
+              // Координаты нужны для построения линии между объектами на карте
+              positions={edge.geometry.coordinates.map(
+                ([longitude, latitude]) =>
+                  [latitude, longitude] as [number, number]
+              )}
+
+              // Настройки стиля линии связи
+              pathOptions={{
+                // Цвет связи
+                // Если связь относится к выбранному объекту, используем специальный цвет SELECTED_EDGE_COLOR
+                // Если связь не относится к выбранному объекту, используем цвет, соответствующий домену связи из DOMAIN_COLORS
+                color: isSelectedConnection
+                  ? SELECTED_EDGE_COLOR
+                  : DOMAIN_COLORS[edge.properties.domain],
+
+                // Увеличиваем толщину выделенных связей
+                // Если связь относится к выбранному объекту, увеличиваем толщину линии до 5 пикселей
+                weight: isSelectedConnection
+                  ? Math.max(edgeWeight, 5)
+                  : edgeWeight,
+
+                // При выборе объекта остальные связи становятся прозрачнее
+                // 0.8 — стандартная прозрачность для всех связей, когда объект не выбран
+                // 0.18 — прозрачность для связей, не относящихся к выбранному объекту
+                opacity: selectedSubject
+                  ? isSelectedConnection
+                    ? 1
+                    : 0.18
+                  : 0.8,
+              }}
+            >
+              {/* Всплывающая подсказка для линии связи (Tooltip) */}
+              <Tooltip>
+                {/* Отображаем название домена связи и расстояние между объектами */}
+                {config.domains.find(
+                  (item) => item.id === edge.properties.domain
+                )?.label ?? edge.properties.domain}:{" "}
+                {edge.properties.distance_km.toFixed(1)} км
+              </Tooltip>
+            </Polyline>
+          );
+        })}
 
         {/* Отображение экономических объектов и их ролей */}
         {(visibleLayers.objects || visibleLayers.roles) && subjects.map((feature) => {
@@ -493,6 +547,7 @@ export default function MapView({
         selection={selection}
         availableDomains={availableDomains}
         config={config}
+        hasSelectedSubject={selectedSubject !== null}
       />
 
       {/* Карточка выбранного объекта */}

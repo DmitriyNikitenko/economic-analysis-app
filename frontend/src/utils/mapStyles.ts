@@ -29,6 +29,9 @@ export const DISTRICT_DEGREE_COLORS = [
 // Цвет районов с недостаточным количеством данных
 export const NO_DATA_COLOR = "#cbd5e1";
 
+// Цвет связей выбранного объекта
+export const SELECTED_EDGE_COLOR = "#00BFFF";
+
 // Подписи для типов экономических объектов
 export const KIND_LABELS: Record<SubjectProperties["kind"], string> = {
     settlement: "Населённый пункт",
