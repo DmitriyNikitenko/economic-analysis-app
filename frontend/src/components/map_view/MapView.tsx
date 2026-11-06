@@ -105,6 +105,37 @@ export default function MapView({
     return bounds.isValid() ? bounds.pad(0.06) : latLngBounds([56.8, 38.0], [59.0, 40.8]);
   }, [districts]);
 
+  // Создаём Map (справочник) для быстрого получения названия района по его ID
+  // useMemo() — React-хук, который запоминает результат вычислений между рендерами компонента
+  // Функция внутри useMemo будет выполняться заново только тогда, когда изменится зависимость districts
+  const districtNameById = useMemo(() => {
+    // Создаем пустую коллекцию Map, 
+    // где ключ — ID района, а значение — его название
+    const result = new Map<string, string>();
+
+    // Проходим по каждому району в данных districts
+    // и извлекаем его ID и название
+    //
+    // districts — загруженные данные о районах
+    // features — массив географических объектов GeoJSON
+    // feature — текущий район, который мы обрабатываем
+    districts.features.forEach((feature) => {
+      const id = feature.properties?.id;
+      const name = feature.properties?.name;
+
+      // Проверяем, что ID и название существуют и являются строками
+      if (
+        typeof id === "string" &&
+        typeof name === "string" &&
+        name.trim()
+      ) {
+        result.set(id, name);
+      }
+    });
+
+    return result;
+  }, [districts]);
+
   // Фильтрация экономических объектов
   // Показываем только узлы, участвующие в активном домене/наборе доступных доменов.
   const subjects = useMemo(
@@ -248,13 +279,9 @@ export default function MapView({
 
     if (!districtId) return null;
 
-    const district = districts.features.find(
-      (feature) => feature.properties?.id === districtId,
-    );
-
     // Если район найден — возвращаем его название
     // Если название не найдено, показываем его ID.
-    return district?.properties?.name ?? districtId;
+    return districtNameById.get(districtId) ?? districtId;
   }, [districts, selectedSubject]);
 
   // Получаем все связи выбранного объекта среди текущих отфильтрованных связей
@@ -568,18 +595,33 @@ export default function MapView({
               {strongestConnections.length > 0 ? (
                 <div className="space-y-2">
                   {strongestConnections.map((edge) => {
+                    // Определяем тип связи (по отношению к выбранному объекту):
+                    // входящая (к выбранному объекту)
+                    // или исходящая (от выбранного объекта)
                     const isOutgoing =
                       edge.properties.from_id ===
                       selectedSubject.properties.id;
 
+                    // Определяем ID связанного объекта в зависимости от типа связи
                     const relatedId = isOutgoing
-                      ? edge.properties.to_id
-                      : edge.properties.from_id;
+                      ? edge.properties.to_id  // Входящая связь: предложение
+                      : edge.properties.from_id;  // Исходящая связь: спрос
 
+                    // Находим связанный объект в данных data.features по его ID
+                    // Это нужно для того, чтобы получить его ID и название
                     const relatedSubject = data.features.find(
                       (feature) =>
                         feature.properties.id === relatedId,
                     );
+
+                    // Получаем ID района связанного объекта
+                    const relatedDistrictId =
+                      relatedSubject?.properties.district_id;
+
+                    // Получаем название района
+                    const relatedDistrictName = relatedDistrictId
+                      ? districtNameById.get(relatedDistrictId) ?? relatedDistrictId
+                      : "Не указан";
 
                     return (
                       <div
@@ -590,6 +632,10 @@ export default function MapView({
                           <p className="font-medium text-slate-800">
                             {relatedSubject?.properties.name ??
                               relatedId}
+                          </p>
+
+                          <p className="text-xs text-slate-500">
+                            Район: {relatedDistrictName}
                           </p>
 
                           <p className="text-xs text-slate-500">

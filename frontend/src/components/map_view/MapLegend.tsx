@@ -35,6 +35,7 @@ export default function MapLegend({
     availableDomains,
     config,
 }: Props) {
+    
     // Получаем название выбранного домена
     const selectedDomainLabel =
         selection === "all"

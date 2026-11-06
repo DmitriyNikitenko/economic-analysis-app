@@ -116,7 +116,7 @@ export default function App() {
   );
 
   // Функции изменения настроек
-
+  //
   // Переключение слоев
   function toggleLayer(layerId: LayerId, enabled: boolean) {
     setVisibleLayers((current) => ({ ...current, [layerId]: enabled }));
