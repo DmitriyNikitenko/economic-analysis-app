@@ -1,52 +1,29 @@
-# Расчёт метрик графа: число узлов, число рёбер и средняя степень по районам и региону
-# на вход получает списки, на выход отдаёт строки метрик
+# Расчёт метрик графа: число узлов, рёбер и средняя степень по районам и региону
+# Модуль не знает про базу данных: на вход получает списки, на выход отдаёт строки метрик
 from collections import Counter
-from dataclasses import dataclass
+from backend.economy.models import Edge, Metric, Subject
 
-ALL = "all"  # значение domain для расчёта по всем включённым доменам сразу
-
-@dataclass(frozen=True)
-class Node:
-    subject_id: str
-    domain: str
-    district_id: str | None
-
-
-@dataclass(frozen=True)
-class Edge:
-    domain: str
-    from_id: str
-    to_id: str
-
-
-@dataclass(frozen=True)
-class MetricRow:
-    scope: str  # district или region
-    district_id: str | None # для region пусто
-    domain: str
-    node_count: int
-    edge_count: int
-    avg_degree: float
-    low_data: bool
-
+ALL = "all"
 
 def compute_metrics(
-    nodes: list[Node],
+    subjects: list[Subject],
     edges: list[Edge],
     district_ids: list[str],
     domains: list[str],
     low_data_threshold: int,
-) -> list[MetricRow]:
-    # Возвращает строки для таблицы metrics: сначала регион, потом районы.
-    # Для каждой области считаются отдельные домены и общий расчёт all.
-    nodes = [n for n in nodes if n.domain in domains]
+) -> list[Metric]:
+    # Возвращает строки для таблицы metrics: сначала регион, потом районы
+    # Для каждой области считаются отдельные домены из domains и общий расчёт 
     edges = [e for e in edges if e.domain in domains]
-    district_of = {n.subject_id: n.district_id for n in nodes}
+    # Узел это пара (субъект, домен)
+    nodes = {(s.id, c.domain) for s in subjects for c in s.capacities if c.domain in domains}
+    district_of = {s.id: s.district_id for s in subjects}
 
-    rows: list[MetricRow] = []
+    rows: list[Metric] = []
     for scope, district_id in [("region", None)] + [("district", d) for d in district_ids]:
         for domain in [*domains, ALL]:
-            rows.append(_compute_row(scope, district_id, domain, nodes, edges, district_of, low_data_threshold))
+            rows.append(_compute_row(
+                scope, district_id, domain, nodes, edges, district_of, low_data_threshold))
     return rows
 
 
@@ -54,13 +31,13 @@ def _compute_row(
     scope: str,
     district_id: str | None,
     domain: str,
-    nodes: list[Node],
+    nodes: set[tuple[str, str]],
     edges: list[Edge],
     district_of: dict[str, str | None],
     threshold: int,
-) -> MetricRow:
-    # Узлы и рёбра выбранного домена 
-    domain_nodes = {n.subject_id for n in nodes if domain == ALL or n.domain == domain}
+) -> Metric:
+    # Узлы и рёбра выбранного домена
+    domain_nodes = {subject_id for subject_id, d in nodes if domain == ALL or d == domain}
     domain_edges = [e for e in edges if domain == ALL or e.domain == domain]
 
     # Степень считаем по всем рёбрам домена: ребро входит в степень обоих концов
@@ -80,12 +57,13 @@ def _compute_row(
         area_nodes = {s for s in domain_nodes if district_of[s] == district_id}
 
     # Ребро принадлежит области, если хотя бы один его конец лежит в ней
-    area_edge_count = sum(1 for e in domain_edges if e.from_id in area_nodes or e.to_id in area_nodes)
+    area_edge_count = sum(
+        1 for e in domain_edges if e.from_id in area_nodes or e.to_id in area_nodes)
 
     node_count = len(area_nodes)
     avg_degree = sum(degree[s] for s in area_nodes) / node_count if node_count else 0.0
 
-    return MetricRow(
+    return Metric(
         scope=scope,
         district_id=district_id,
         domain=domain,
