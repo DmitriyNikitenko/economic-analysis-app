@@ -5,13 +5,12 @@ import pytest
 from backend.economy.db import init_schema
 from backend.economy.repository import OsmObjectRepository
 from backend.export_gjs.exporter import export_osm_to_geojson
-
+from backend.economy.db import connect
 
 @pytest.fixture
 def populated_db(monkeypatch):
     # Подменяем подключение к БД в экспортере на тестовую базу в памяти
-    import duckdb
-    con = duckdb.connect(":memory:")
+    con = connect(":memory:")
     init_schema(con)
 
     # Заполняем тестовыми данными
