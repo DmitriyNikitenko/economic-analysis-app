@@ -3,7 +3,7 @@ from datetime import datetime
 from pathlib import Path
 from backend.economy.models import Subject, Edge, District, Metric
 from backend.economy.repository import Repository
-
+from backend.export_gjs.validator import validate_export_data
 
 def build_subjects_geojson(subjects: list[Subject]) -> dict:
     features = []
@@ -37,7 +37,10 @@ def build_edges_geojson(edges: list[Edge], subjects: list[Subject]) -> dict:
     features = []
     for e in edges:
         if e.from_id not in coords_map or e.to_id not in coords_map:
-            continue
+            raise ValueError(
+                f"Integrity error: edge {e.id} references a non-existent node "
+                f"(from_id={e.from_id}, to_id={e.to_id})"
+            )
 
         features.append({
             "type": "Feature",
@@ -106,7 +109,7 @@ def build_metrics_json(metrics: list[Metric], districts: list[District]) -> dict
     }
 
 
-def run_export(repo: Repository, output_dir: str | Path) -> None:
+def run_export(repo: Repository, output_dir: str | Path, enabled_domains: list[str]) -> None:
     out_path = Path(output_dir)
     out_path.mkdir(parents=True, exist_ok=True)
 
@@ -115,6 +118,16 @@ def run_export(repo: Repository, output_dir: str | Path) -> None:
     edges = repo.get_edges()
     districts = repo.get_districts()
     metrics = repo.get_metrics()
+
+
+    # Удаляем отключенные домены
+    active_domains = set(enabled_domains)
+    edges = [e for e in edges if e.domain in active_domains]
+    for s in subjects:
+        s.capacities = [c for c in s.capacities if c.domain in active_domains]
+
+    # Проверяем целостность данных
+    validate_export_data(subjects, edges, districts, enabled_domains)
 
     # Формируем GeoJSON и JSON
     subjects_gjs = build_subjects_geojson(subjects)
