@@ -13,17 +13,28 @@ def _in_clause(column: str, values: list[str]) -> str:
 class Repository:
     def __init__(self, con: duckdb.DuckDBPyConnection) -> None:
         self._con = con
-        
+        self._in_transaction = False
+
     @contextmanager
     def _transaction(self):
+        if self._in_transaction:  # вложенный вызов: внешняя транзакция уже открыта
+            yield
+            return
         self._con.execute("BEGIN")
+        self._in_transaction = True
         try:
             yield
             self._con.execute("COMMIT")
         except Exception:
             self._con.execute("ROLLBACK")
             raise
+        finally:
+            self._in_transaction = False
 
+    def transaction(self):
+        # Несколько операций одной транзакцией: with repo.transaction(): ...
+        return self._transaction()
+    
     def _insert_many(self, sql: str, rows: list[tuple]) -> None:
         if rows:
             self._con.executemany(sql, rows)
@@ -93,14 +104,27 @@ class Repository:
         ).fetchall()
         return [Edge(*row) for row in rows]
 
+    def _insert_edges(self, edges: list[Edge]) -> None:
+        # вставка без транзакции: вызывается внутри транзакций методов ниже
+        self._insert_many(
+            "INSERT INTO edges (id, domain, from_id, to_id, distance_km, weight) "
+            "VALUES (?, ?, ?, ?, ?, ?)",
+            [(e.id, e.domain, e.from_id, e.to_id, e.distance_km, e.weight) for e in edges],
+        )
+
     def save_edges(self, edges: list[Edge]) -> None:
         with self._transaction():
             self._con.execute("DELETE FROM edges")
-            self._insert_many(
-                "INSERT INTO edges (id, domain, from_id, to_id, distance_km, weight) "
-                "VALUES (?, ?, ?, ?, ?, ?)",
-                [(e.id, e.domain, e.from_id, e.to_id, e.distance_km, e.weight) for e in edges],
-            )
+            self._insert_edges(edges)
+
+    def insert_edges(self, edges: list[Edge]) -> None:
+        # добавляет рёбра к уже существующим, ничего не удаляя
+        with self._transaction():
+            self._insert_edges(edges)
+
+    def delete_edges_by_domain(self, domain: str) -> None:
+        # удаляет рёбра одного домена, рёбра других доменов остаются
+        self._con.execute("DELETE FROM edges WHERE domain = ?", [domain])
 
     # ---------- districts ----------
     def get_districts(self) -> list[District]:
