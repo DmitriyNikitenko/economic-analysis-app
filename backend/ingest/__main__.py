@@ -1,7 +1,6 @@
 import argparse
 import json
 from pathlib import Path
-from typing import Any
 
 from backend.config import get_config
 from backend.economy.db import connect, init_schema
@@ -13,6 +12,8 @@ KIND_MAPPING = {
     "financial_service": "bank",
 
     "settlement": "settlement",
+
+    "residential_building": "residential_building",
 
     "industrial_area": "employer",
     "industrial_facility": "employer",

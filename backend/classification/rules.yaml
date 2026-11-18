@@ -50,6 +50,25 @@ rules:
       money: demand
       labor: supply
 
+  - id: residential_building
+    priority: 30
+    match:
+      building:
+        - residential
+        - apartments
+        - house
+        - detached
+        - semidetached_house
+        - terrace
+        - bungalow
+        - dormitory
+        - farm
+    type: residential_building
+    domains: [money, labor]
+    roles:
+      money: demand
+      labor: supply
+
   - id: industrial_land
     priority: 70
     match:
