@@ -5,6 +5,8 @@ from typing import Any
 
 from backend.config import get_config
 from backend.economy.db import connect, init_schema
+from backend.economy.repository import Repository
+from backend.economy.models import District
 
 # Упрощенные категории (временно)
 KIND_MAPPING = {
@@ -173,9 +175,74 @@ def prepare_classification(
 
     return rows
 
+def load_districts(path: Path) -> list[District]:
+    """
+    Читает GeoJSON районов и преобразует его в список District
+    """
+
+    if not path.exists():
+        raise FileNotFoundError(
+            f"Файл районов не найден: {path}"
+        )
+
+    with path.open("r", encoding="utf-8") as file:
+        data = json.load(file)
+
+    if data.get("type") != "FeatureCollection":
+        raise ValueError(
+            "Ожидался GeoJSON типа FeatureCollection для районов."
+        )
+
+    districts = []
+    seen_ids = set()
+
+    for feature in data.get("features", []):
+        properties = feature.get("properties") or {}
+
+        district_id = properties.get("id")
+        name = properties.get("name")
+        geometry = feature.get("geometry")
+
+        if not district_id:
+            raise ValueError("У района отсутствует id.")
+
+        if district_id in seen_ids:
+            raise ValueError(
+                f"Повторяется ID района: {district_id}"
+            )
+
+        if not isinstance(name, str) or not name.strip():
+            raise ValueError(
+                f"У района {district_id} отсутствует название."
+            )
+
+        if not isinstance(geometry, dict):
+            raise ValueError(
+                f"У района {district_id} отсутствует геометрия."
+            )
+
+        if geometry.get("type") not in ("Polygon", "MultiPolygon"):
+            raise ValueError(
+                f"У района {district_id} неподходящий тип геометрии: "
+                f"{geometry.get('type')}"
+            )
+
+        seen_ids.add(district_id)
+
+        districts.append(
+            District(
+                district_id,
+                name,
+                geometry,
+            )
+        )
+
+    return districts
+
 def ingest(
     input_path = None,
     db_path = None,
+    districts_path=None
 ):
     """
     Загружает классифицированные объекты в DuckDB.
@@ -186,6 +253,17 @@ def ingest(
     """
 
     config = get_config()
+
+    districts_path = (
+        Path(districts_path)
+        if districts_path
+        else Path("data/raw/districts.json")
+    )
+
+    if not districts_path.is_absolute():
+        districts_path = Path.cwd() / districts_path
+
+    districts = load_districts(districts_path)
 
     input_path = input_path or config.paths.classified
     db_path = db_path or config.paths.db
@@ -308,6 +386,10 @@ def ingest(
 
         conn.execute("COMMIT")
 
+        # Сохраняем административные границы районов.
+        repository = Repository(conn)
+        repository.save_districts(districts)
+
     except Exception:
         conn.execute("ROLLBACK")
         raise
@@ -318,6 +400,7 @@ def ingest(
     return {
         "objects": len(objects),
         "classifications": len(classifications),
+        "districts": len(districts),
         "unclassified": sum(
             1
             for feature in data["features"]
@@ -351,11 +434,19 @@ def main():
         help="Путь к файлу DuckDB",
     )
 
+    parser.add_argument(
+        "--districts",
+        type=Path,
+        default=Path("data/raw/districts.json"),
+        help="Путь к GeoJSON муниципальных районов.",
+    )
+
     args = parser.parse_args()
 
     result = ingest(
         input_path=args.input,
         db_path=args.db,
+        districts_path=args.districts,
     )
 
     print("Загрузка завершена.")
@@ -368,6 +459,7 @@ def main():
         "Неклассифицированных объектов: "
         f"{result['unclassified']}"
     )
+    print(f"Муниципальных районов записано: {result['districts']}")
 
 
 if __name__ == "__main__":
