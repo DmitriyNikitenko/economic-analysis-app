@@ -8,11 +8,10 @@
 /* Импорты инструментов React:
     Fragment - позволяет сгруппировать несколько элементов без дополнительного HTML-контейнера
     useCallback - сохраняет функцию между рендерами, пока не меняются её зависимости
-    useEffect - выполняет действия при изменении зависимостей
     useMemo - для мемоизации вычисленных значений
     useState - хранит состояние компонента
 */
-import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
+import { Fragment, useCallback, useMemo, useState } from "react";
 
 /* Импорт компонентов React Leaflet 
     MapContainer - Создаёт контейнер интерактивной карты
@@ -21,7 +20,6 @@ import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
     Polyline - слой для отображения линий (например, связей между объектами)
     CircleMarker - слой для отображения кругов (например, объектов и ролей)
     Tooltip - всплывающая подсказка при наведении на элементы карты
-    useMap - Даёт доступ к экземпляру карты Leaflet
 */  
 import {
   CircleMarker,
@@ -29,21 +27,23 @@ import {
   MapContainer,
   Polyline,
   TileLayer,
-  Tooltip,
-  useMap,
+  Tooltip
 } from "react-leaflet";
 
 /*
   geoJSON - позволяет получить границы географических объектов
   latLngBounds - создаёт прямоугольную географическую область по координатам
   Feature - тип GeoJSON-объекта
-  Layer, LatLngBounds, PathOptions - типы слоёв, границ и стилей Leaflet
+  Layer, PathOptions - типы слоёв и стилей Leaflet
 */
 import { geoJSON, latLngBounds } from "leaflet";
 import type { Feature } from "geojson";
-import type { Layer, LatLngBounds, PathOptions } from "leaflet";
+import type { Layer, PathOptions } from "leaflet";
 import "leaflet/dist/leaflet.css";
+
 import { SubjectShape } from "./SVGShapes";
+import { FitMapToRegion } from "./FitMapToRegion";
+import MapLegend from "./MapLegend";
 
 import {
   DOMAIN_COLORS,
@@ -55,81 +55,31 @@ import {
   type LayerConfig,
   type LayerId,
   type SubjectsData,
-  type SubjectProperties,
+  type MetricsData,
+  type MetricStats,
 } from "../../layers";
+
+import {
+  roleColor,
+  DOMAIN_LABELS,
+  NO_DATA_COLOR,
+  SELECTED_EDGE_COLOR,
+  KIND_LABELS,
+  getCapacityUnit,
+  getDistrictDegreeColor,
+} from "../../utils/mapStyles";
 
 // Типизация входных параметров Props
 type Props = {
   data: SubjectsData;
   edges: EdgesData;
   districts: DistrictsData;
+  metrics: MetricsData;
   config: LayerConfig;
   visibleLayers: Record<LayerId, boolean>;
   selection: DomainSelection;
   availableDomains: Domain[];
 };
-
-// Цвет спроса и предложения
-function roleColor(role?: "supply" | "demand") {
-  if (role === "demand") return "#e45756";
-  if (role === "supply") return "#2a9d8f";
-  return "#457b9d";
-}
-
-const DOMAIN_LABELS: Record<Domain, string> = {
-  money: "Деньги",
-  labor: "Труд",
-  goods: "Товары и услуги",
-};
-
-// Подписи для типов экономических объектов
-const KIND_LABELS: Record<SubjectProperties["kind"], string> = {
-  settlement: "Населённый пункт",
-  bank: "Банк",
-  employer: "Работодатель",
-  shop: "Магазин",
-};
-
-// Определяем единицу измерения ёмкости в зависимости от типа объекта и домена
-function getCapacityUnit(
-  kind: SubjectProperties["kind"],
-  domain: Domain,
-): string {
-  // Ёмкость: население, которое потенциально нуждается в финансовых услугах
-  if (domain === "money" && kind === "settlement") {
-    return "человек";  // единица измерения
-  }
-
-  // Ёмкость: условная мощность банка — способность обслуживать финансовые потребности населения
-  if (domain === "money" && kind === "bank") {
-    return "усл. ед.";
-  }
-  // Ёмкость: Трудоспособное население — потенциальная рабочая сила, которая может быть доступна работодателям
-  if (domain === "labor" && kind === "settlement") {
-    return "человек";
-  }
-
-  // Ёмкость: Количество работников, которых работодатель хочет нанять (число открытых вакансий)
-  if (domain === "labor" && kind === "employer") {
-    return "вакансий";
-  }
-
-  return "—";
-}
-
-// Настройка границ карты (ограничение области просмотра) на основе геометрии районов (целой области)
-function FitMapToRegion({ bounds }: { bounds: LatLngBounds }) {
-  const map = useMap();
-
-  useEffect(() => {
-    if (bounds.isValid()) {
-      map.fitBounds(bounds, { padding: [12, 12], maxZoom: 9, animate: false });
-      map.setMaxBounds(bounds);
-    }
-  }, [bounds, map]);
-
-  return null;
-}
 
 // Основной компонент MapView
 // Здесь компонент получает все параметры, объявленные в Props, 
@@ -138,6 +88,7 @@ export default function MapView({
   data,
   edges,
   districts,
+  metrics,
   config,
   visibleLayers,
   selection,
@@ -155,6 +106,37 @@ export default function MapView({
     return bounds.isValid() ? bounds.pad(0.06) : latLngBounds([56.8, 38.0], [59.0, 40.8]);
   }, [districts]);
 
+  // Создаём Map (справочник) для быстрого получения названия района по его ID
+  // useMemo() — React-хук, который запоминает результат вычислений между рендерами компонента
+  // Функция внутри useMemo будет выполняться заново только тогда, когда изменится зависимость districts
+  const districtNameById = useMemo(() => {
+    // Создаем пустую коллекцию Map, 
+    // где ключ — ID района, а значение — его название
+    const result = new Map<string, string>();
+
+    // Проходим по каждому району в данных districts
+    // и извлекаем его ID и название
+    //
+    // districts — загруженные данные о районах
+    // features — массив географических объектов GeoJSON
+    // feature — текущий район, который мы обрабатываем
+    districts.features.forEach((feature) => {
+      const id = feature.properties?.id;
+      const name = feature.properties?.name;
+
+      // Проверяем, что ID и название существуют и являются строками
+      if (
+        typeof id === "string" &&
+        typeof name === "string" &&
+        name.trim()
+      ) {
+        result.set(id, name);
+      }
+    });
+
+    return result;
+  }, [districts]);
+
   // Фильтрация экономических объектов
   // Показываем только узлы, участвующие в активном домене/наборе доступных доменов.
   const subjects = useMemo(
@@ -168,6 +150,51 @@ export default function MapView({
       ),
     [data, availableDomains, selection],
   );
+
+  // Получаем статистику каждого района для выбранного домена
+  const districtStatsById = useMemo(() => {
+    // Создаем Map, где ключ — ID района, а значение — статистика по выбранному домену
+    const result = new Map<string, MetricStats | undefined>();
+
+    // Проходим по каждому району и извлекаем статистику для выбранного домена
+    metrics.districts.forEach((district) => {
+      // Здесь выбирается статистика в зависимости от домена, 
+      // который пользователь выбрал в интерфейсе
+      const stats =
+        selection === "all"
+          ? district.all
+          : district[selection];
+
+      // Сохраняем статистику в Map с ключом ID района
+      result.set(district.id, stats);
+    });
+
+    return result;  // Возвращаем Map с ID районов и их статистикой
+  }, [metrics, selection]);  // Пересчитываем только при изменении метрик или выбранного домена
+
+  // Определяем минимальную и максимальную среднюю степень
+  // среди районов, у которых достаточно данных
+  const districtDegreeRange = useMemo(() => {
+    // Создаём массив средних степеней узлов для всех районов, у которых есть достоверные данные
+    const values = Array.from(districtStatsById.values())
+      // Фильтруем только те статистические данные, которые существуют, не имеют признака low_data
+      // и имеют конечное значение средней степени узлов
+      .filter(
+        (stats): stats is MetricStats =>  // (stats): stats is MetricStats => (предикат типа) 
+          stats !== undefined &&
+          !stats.low_data &&
+          Number.isFinite(stats.avg_degree),
+      )
+      .map((stats) => stats.avg_degree);  // извлекаем среднюю степень узлов для каждого района
+
+    if (values.length === 0) return null;  // Если нет достоверных данных, возвращаем null
+
+    // Возвращаем объект с минимальной и максимальной средней степенью узлов среди всех районов
+    return {
+      min: Math.min(...values),
+      max: Math.max(...values),
+    };
+  }, [districtStatsById]);  // Пересчитываем только при изменении статистики районов
 
   // Получаем диапазон ёмкостей объектов отдельно для каждого домена
   const capacityRanges = useMemo(() => {
@@ -253,13 +280,9 @@ export default function MapView({
 
     if (!districtId) return null;
 
-    const district = districts.features.find(
-      (feature) => feature.properties?.id === districtId,
-    );
-
     // Если район найден — возвращаем его название
     // Если название не найдено, показываем его ID.
-    return district?.properties?.name ?? districtId;
+    return districtNameById.get(districtId) ?? districtId;
   }, [districts, selectedSubject]);
 
   // Получаем все связи выбранного объекта среди текущих отфильтрованных связей
@@ -290,16 +313,61 @@ export default function MapView({
     [selectedConnections],
   );
 
-  // Стиль границ районов
+  // Раскрашиваем районы в зависимости от средней степени узлов
+  // Если слой отключён, показываем только границы районов
+  //
+  // Использует 2 другие константы:
+  //  districtStatsById — статистика каждого района
+  //  districtDegreeRange — минимальная и максимальная средняя степень узлов
+  //
+  // useCallback — запоминает функцию между рендерами React, пока не изменяются её зависимости
+  // feature?: Feature — функция получения GeoJSON-объект района
   const districtStyle = useCallback(
-    (): PathOptions => ({
-      color: "#64748b",
-      weight: 1.5,
-      opacity: 0.9,
-      fillColor: "#cbd5e1",
-      fillOpacity: 0.07,
-    }),
-    [],
+    (feature?: Feature): PathOptions => {
+      // Получаем ID района из GeoJSON
+      const districtId = feature?.properties?.id;
+
+      // Получаем статистику соответствующего района
+      const stats =
+        typeof districtId === "string"
+          ? districtStatsById.get(districtId)
+          : undefined;
+
+      // Проверяем, можно ли использовать показатель для раскраски
+      const hasReliableData =
+        stats !== undefined &&  // 	Статистика района найдена
+        !stats.low_data &&  // Недостатка данных нет
+        Number.isFinite(stats.avg_degree) &&  // Средняя степень является конечным числом
+        districtDegreeRange !== null;  // Диапазон значений для раскраски определён (иначе, все будет покрашено в серый цвет ниже)
+
+      // Проверяем, включена ли раскраска
+      const coloringEnabled = visibleLayers.district_degree;
+
+      // Определяем цвет заливки
+      const fillColor = hasReliableData
+        ? getDistrictDegreeColor(
+          stats.avg_degree,  // Средняя степень узлов района
+          districtDegreeRange.min,  // Минимальная средняя степень среди всех районов
+          districtDegreeRange.max,  // Максимальная средняя степень среди всех районов
+        )
+        : NO_DATA_COLOR;
+
+      // Возвращаем объект стиля для района
+      return {
+        color: "#64748b",
+        weight: 1.5,
+        opacity: 0.9,
+        fillColor,
+        fillOpacity: !coloringEnabled
+          ? 0.07
+          : hasReliableData
+            ? 0.65
+            : 0.2,
+      };
+    },
+    // Пересчитываем функцию только при изменении статистики районов,
+    // диапазона средней степени узлов или видимости слоя district_degree
+    [districtStatsById, districtDegreeRange, visibleLayers.district_degree],
   );
 
   // Подписи районов на карте
@@ -343,22 +411,75 @@ export default function MapView({
 
         {/* Отображение экономических связей */}
         {/* Толщина линий зависит от веса ребра */}
-        {visibleLayers.edges && visibleEdges.map((edge) => (
-          <Polyline
-            key={edge.properties.id}
-            positions={edge.geometry.coordinates.map(([longitude, latitude]) => [latitude, longitude] as [number, number])}
-            pathOptions={{
-              color: DOMAIN_COLORS[edge.properties.domain],
-              weight: 1 + edge.properties.weight * 5,
-              opacity: 0.8,
-            }}
-          >
-            {/* Подсказка при наведении на связь, показывающая домен и расстояние */}
-            <Tooltip>
-              {config.domains.find((item) => item.id === edge.properties.domain)?.label ?? edge.properties.domain}: {edge.properties.distance_km.toFixed(1)} км
-            </Tooltip>
-          </Polyline>
-        ))}
+        {/* Цвет линии зависит от домена связи */}
+        {/* Если выбран объект, то его связи становятся более заметными, 
+            а остальные связи, не относящиеся к нему, становятся прозрачными */}
+        {visibleLayers.edges && visibleEdges.map((edge) => {
+
+          // Проверяем, относится ли связь к выбранному объекту
+          const isSelectedConnection =
+            // Если объект не выбран, то ни одна связь не выделена
+            selectedSubject !== null &&
+            (
+              // Если выбранный объект является началом связи (спрос)
+              // или концом связи (предложение)
+              edge.properties.from_id === selectedSubject.properties.id ||
+              edge.properties.to_id === selectedSubject.properties.id
+            );
+
+          // Вычисляем толщину линии в зависимости от веса связи
+          const edgeWeight = 1 + edge.properties.weight * 5;
+
+          return (
+            <Polyline
+
+              // Уникальный ключ для каждой линии связи
+              key={edge.properties.id}
+
+              // Leaflet использует координаты в формате [широта, долгота],
+              // но в GeoJSON они представлены в формате [долгота, широта]
+              // Координаты нужны для построения линии между объектами на карте
+              positions={edge.geometry.coordinates.map(
+                ([longitude, latitude]) =>
+                  [latitude, longitude] as [number, number]
+              )}
+
+              // Настройки стиля линии связи
+              pathOptions={{
+                // Цвет связи
+                // Если связь относится к выбранному объекту, используем специальный цвет SELECTED_EDGE_COLOR
+                // Если связь не относится к выбранному объекту, используем цвет, соответствующий домену связи из DOMAIN_COLORS
+                color: isSelectedConnection
+                  ? SELECTED_EDGE_COLOR
+                  : DOMAIN_COLORS[edge.properties.domain],
+
+                // Увеличиваем толщину выделенных связей
+                // Если связь относится к выбранному объекту, увеличиваем толщину линии до 5 пикселей
+                weight: isSelectedConnection
+                  ? Math.max(edgeWeight, 5)
+                  : edgeWeight,
+
+                // При выборе объекта остальные связи становятся прозрачнее
+                // 0.8 — стандартная прозрачность для всех связей, когда объект не выбран
+                // 0.18 — прозрачность для связей, не относящихся к выбранному объекту
+                opacity: selectedSubject
+                  ? isSelectedConnection
+                    ? 1
+                    : 0.18
+                  : 0.8,
+              }}
+            >
+              {/* Всплывающая подсказка для линии связи (Tooltip) */}
+              <Tooltip>
+                {/* Отображаем название домена связи и расстояние между объектами */}
+                {config.domains.find(
+                  (item) => item.id === edge.properties.domain
+                )?.label ?? edge.properties.domain}:{" "}
+                {edge.properties.distance_km.toFixed(1)} км
+              </Tooltip>
+            </Polyline>
+          );
+        })}
 
         {/* Отображение экономических объектов и их ролей */}
         {(visibleLayers.objects || visibleLayers.roles) && subjects.map((feature) => {
@@ -421,56 +542,13 @@ export default function MapView({
       </MapContainer>
 
       {/* Легенда карты */}
-      <div className="flex flex-wrap gap-x-4 gap-y-1 border-t border-slate-200 bg-white p-3 text-sm text-slate-600">
-        {visibleLayers.objects && (
-          <>
-            <span><span style={{ color: "#457b9d" }}>●</span> Населенный пункт</span>
-            <span><span style={{ color: "#457b9d" }}>■</span> Банк</span>
-            <span><span style={{ color: "#457b9d" }}>▲</span> Работодатель</span>
-            <span><span style={{ color: "#457b9d" }}>◆</span> Магазин</span>
-          </>
-        )}
-        {visibleLayers.roles && (
-          <>
-            <span><span style={{ color: "#e45756" }}>⭘</span> Спрос</span>
-            <span><span style={{ color: "#2a9d8f" }}>⭘</span> Предложение</span>
-          </>
-        )}
-        {visibleLayers.edges && (
-          <>
-            <span className="inline-flex items-center gap-2">
-              <span
-                style={{
-                  display: "inline-block",
-                  width: 28,
-                  borderTop: `3px solid ${DOMAIN_COLORS.money}`,
-                }}
-              />
-              Деньги — финансовые связи
-            </span>
-
-            <span className="inline-flex items-center gap-2">
-              <span
-                style={{
-                  display: "inline-block",
-                  width: 28,
-                  borderTop: `3px solid ${DOMAIN_COLORS.labor}`,
-                }}
-              />
-              Труд — связи рынка труда
-            </span>
-
-            <span className="inline-flex items-center gap-2">
-              Размер круга: ёмкость
-            </span>
-            
-            <span className="inline-flex items-center gap-2">
-              Толщина линии: вес связи
-            </span>
-          </>
-        )}
-      </div>
-
+      <MapLegend
+        visibleLayers={visibleLayers}
+        selection={selection}
+        availableDomains={availableDomains}
+        config={config}
+        hasSelectedSubject={selectedSubject !== null}
+      />
 
       {/* Карточка выбранного объекта */}
       <section className="border-t border-slate-200 bg-white p-4">
@@ -572,18 +650,33 @@ export default function MapView({
               {strongestConnections.length > 0 ? (
                 <div className="space-y-2">
                   {strongestConnections.map((edge) => {
+                    // Определяем тип связи (по отношению к выбранному объекту):
+                    // входящая (к выбранному объекту)
+                    // или исходящая (от выбранного объекта)
                     const isOutgoing =
                       edge.properties.from_id ===
                       selectedSubject.properties.id;
 
+                    // Определяем ID связанного объекта в зависимости от типа связи
                     const relatedId = isOutgoing
-                      ? edge.properties.to_id
-                      : edge.properties.from_id;
+                      ? edge.properties.to_id  // Входящая связь: предложение
+                      : edge.properties.from_id;  // Исходящая связь: спрос
 
+                    // Находим связанный объект в данных data.features по его ID
+                    // Это нужно для того, чтобы получить его ID и название
                     const relatedSubject = data.features.find(
                       (feature) =>
                         feature.properties.id === relatedId,
                     );
+
+                    // Получаем ID района связанного объекта
+                    const relatedDistrictId =
+                      relatedSubject?.properties.district_id;
+
+                    // Получаем название района
+                    const relatedDistrictName = relatedDistrictId
+                      ? districtNameById.get(relatedDistrictId) ?? relatedDistrictId
+                      : "Не указан";
 
                     return (
                       <div
@@ -594,6 +687,10 @@ export default function MapView({
                           <p className="font-medium text-slate-800">
                             {relatedSubject?.properties.name ??
                               relatedId}
+                          </p>
+
+                          <p className="text-xs text-slate-500">
+                            Район: {relatedDistrictName}
                           </p>
 
                           <p className="text-xs text-slate-500">

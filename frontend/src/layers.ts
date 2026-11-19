@@ -12,7 +12,7 @@ import type {
 /* Основные типы экономической модели */
 export type Domain = "money" | "labor" | "goods";  /* Экономические домены: деньги, труд, товары и услуги */
 export type Role = "supply" | "demand";  /* Роль объекта: спрос или предложение */
-export type LayerId = "objects" | "roles" | "edges";  /* Идентификаторы слоёв карты: объекты, роли, связи */
+export type LayerId = "objects" | "roles" | "edges" | "district_degree";  /* Идентификаторы слоёв карты: объекты, роли, связи */
 export type DomainSelection = Domain | "all";  /* Выбор домена для отображения: конкретный домен или все доступные */
 
 /* Свойства экономического объекта */
@@ -60,6 +60,11 @@ export const DEFAULT_CONFIG: LayerConfig = {
     { id: "objects", label: "Объекты", enabled: true },
     { id: "roles", label: "Спрос и предложение", enabled: true },
     { id: "edges", label: "Связи", enabled: true },
+    {
+      id: "district_degree",
+      label: "Окраска районов по средней степени",
+      enabled: true,
+    },
   ],
   domains: [
     { id: "money", label: "Деньги", enabled: true, radius_km: 12 },
@@ -67,6 +72,49 @@ export const DEFAULT_CONFIG: LayerConfig = {
     { id: "goods", label: "Товары и услуги", enabled: false, radius_km: 8.5 },
   ],
   show_all_domains_option: true,
+};
+
+// Единый набор статистических показателей
+export type MetricStats = {
+  node_count: number;  // количество узлов
+  edge_count: number;  // количество связей
+  avg_degree: number;  // средняя степень узла
+  low_data: boolean;  // флаг недостаточного количества данных
+};
+
+// Статистика по всем доменам и отдельно по каждому домену
+//
+// Т.к. не все домены могут быть представлены в данных (например, goods),
+// используем Partial<Record<Domain, MetricStats>>
+//
+// Это означает, что у группы обязательно есть общая статистика all, 
+// а статистика отдельных доменов может присутствовать или отсутствовать
+export type MetricsGroup = {
+  all: MetricStats;
+} & Partial<Record<Domain, MetricStats>>;
+
+// Статистика отдельного района
+export type DistrictMetrics = MetricsGroup & {
+  id: string;
+  name: string;
+};
+
+// Полная структура metrics.json
+export type MetricsData = {
+  generated_at: string;
+
+  // Начальное значение генератора случайных чисел,
+  // использованное для синтетических данных
+  seed: number;  
+  
+  synthetic: boolean;
+
+  region: MetricsGroup & {
+    name: string;
+    boundary_is_approximate: boolean;
+  };
+
+  districts: DistrictMetrics[];
 };
 
 // Функция читает настройки слоёв из конфигурации и создаёт объект, который показывает, какие слои включены
@@ -79,6 +127,7 @@ export function getInitialVisibleLayers(config: LayerConfig): Record<LayerId, bo
     objects: configured.objects ?? true,
     roles: configured.roles ?? true,
     edges: configured.edges ?? true,
+    district_degree: configured.district_degree ?? true,
   };
 }
 
@@ -122,3 +171,4 @@ export const DOMAIN_COLORS: Record<Domain, string> = {
   labor: "#8b5cf6",
   goods: "#f59e0b",
 };
+

@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import MapView from "./components/map_view/MapView";
 import { fetchJson } from "./api/fetchJson";
 import RadiusControl from "./components/RadiusControl";
+import AnalyticsChart from "./components/AnalyticsChart";
 
 // Импорт типов и функций из layers.ts 
 /* Они нужны, чтобы использовать настройки слоёв,
@@ -21,6 +22,7 @@ import {
   type SubjectsData,
   type EdgesData,
   type DistrictsData,
+  type MetricsData,
 } from "./layers";
 
 // Типы данных приложения
@@ -28,6 +30,7 @@ type AppData = {
   subjects: SubjectsData;
   edges: EdgesData;
   districts: DistrictsData;
+  metrics: MetricsData;
 };
 
 // Главный компонент приложения
@@ -57,11 +60,12 @@ export default function App() {
     async function loadData() {
       try {
         // Promise.all() параллельно (одновременно) загружает все файлы
-        const [subjects, edges, districts, loadedConfig] = await Promise.all([
+        const [subjects, edges, districts, loadedConfig, metrics] = await Promise.all([
           fetchJson<SubjectsData>("/data/subjects.geojson"),
           fetchJson<EdgesData>("/data/edges.geojson"),
           fetchJson<DistrictsData>("/data/districts.geojson"),
           fetchJson<LayerConfig>("/data/layers.config.json"),
+          fetchJson<MetricsData>("/data/metrics.json"),
         ]);
 
         /* Когда файлы загружены, приложение:
@@ -74,7 +78,7 @@ export default function App() {
         if (cancelled) return;
 
         const domains = getAvailableDomains(subjects, edges, loadedConfig);
-        setData({ subjects, edges, districts });
+        setData({ subjects, edges, districts, metrics, });
         setConfig(loadedConfig);
         setVisibleLayers(getInitialVisibleLayers(loadedConfig));
         setSelection(
@@ -106,8 +110,13 @@ export default function App() {
     return getAvailableDomains(data.subjects, data.edges, config);
   }, [data, config]);
 
-  // Функции изменения настроек
+  // Домены, включённые в region.yaml и layers.config.json
+  const enabledDomains = config.domains.filter(
+    (domain) => domain.enabled,
+  );
 
+  // Функции изменения настроек
+  //
   // Переключение слоев
   function toggleLayer(layerId: LayerId, enabled: boolean) {
     setVisibleLayers((current) => ({ ...current, [layerId]: enabled }));
@@ -142,7 +151,7 @@ export default function App() {
   return (
     <main className="mx-auto flex max-w-7xl flex-col gap-6 p-4">
       <header>
-        <h1 className="text-2xl font-semibold">Экономическая активность Ярославской области</h1>
+        <h1 className="text-2xl font-semibold">Экономическая активность — {data.metrics.region.name ?? "Регион"}</h1>
       </header>
 
       {/* Настройки отображения графа: слои, домен и радиус досягаемости связей */}
@@ -183,7 +192,7 @@ export default function App() {
             )}
   
             {/* Кнопки выбора домена */}
-            {config.domains.map((domain) => {
+            {enabledDomains.map((domain) => {
               const hasData = availableDomains.includes(domain.id);
               const active = selection === domain.id;
               return (
@@ -205,7 +214,7 @@ export default function App() {
           {/* Оно появляется, когда выбранное направление отсутствует среди доступных доменов */}
           {!selectedDomainHasData && (
             <p className="mt-2 text-sm text-amber-800">
-              Для домена «{config.domains.find((domain) => domain.id === selection)?.label ?? selection}» пока нет данных.
+              Для домена «{enabledDomains.find((domain) => domain.id === selection)?.label ?? selection}» пока нет данных.
             </p>
           )}
         </fieldset>
@@ -214,7 +223,7 @@ export default function App() {
           <legend className="mb-2 font-medium">Радиус досягаемости связей</legend>
           {/* Настройки радиуса */}
           <div className="grid gap-3 md:grid-cols-3">
-            {config.domains.map((domain) => (
+            {enabledDomains.map((domain) => (
               <RadiusControl key={domain.id} domain={domain} onChange={updateRadius} />
             ))}
           </div>
@@ -228,6 +237,7 @@ export default function App() {
           data={data.subjects}  /* Экономические объекты */
           edges={data.edges}  /* Связи между объектами */
           districts={data.districts}  /* Границы районов */
+          metrics={data.metrics}  /* Статистика по районам */
           config={config}  /*Настройки доменов и радиусов */
           visibleLayers={visibleLayers}  /* Какие слои отображать */
           selection={selection}  /* Выбранный домен */
@@ -235,11 +245,13 @@ export default function App() {
         />
       </section>
 
-      {/* Заглушка аналитики: файл компонента не импортируется и не выполняется. */}
-      <section aria-labelledby="analytics-heading" className="rounded-xl border border-dashed border-slate-300 p-4">
-        <h2 id="analytics-heading" className="text-lg font-semibold">Аналитика</h2>
-        <p className="text-sm text-slate-600">Раздел аналитики пока не реализован.</p>
-      </section>
+      {/* Аналитика по районам */}
+      <AnalyticsChart
+        metrics={data.metrics}  /* Статистика по районам */
+        selection={selection}  /* Выбранный домен */
+        config={config}  /* Настройки доменов и радиусов */
+      />
+      
     </main>
   );
 }
