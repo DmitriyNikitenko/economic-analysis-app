@@ -46,6 +46,17 @@ def get_data(region=None, full_region=False, save=False, output_path=None):
         "amenity": ["bank", "atm"],
         "office": True,
         "shop": True,
+        "building": [
+            "residential",
+            "apartments",
+            "house",
+            "detached",
+            "semidetached_house",
+            "terrace",
+            "bungalow",
+            "dormitory",
+            "farm",
+        ],
         "place": [
             "city",
             "town",
