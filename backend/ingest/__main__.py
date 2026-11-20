@@ -2,6 +2,8 @@ import argparse
 import json
 from pathlib import Path
 
+import duckdb
+
 from backend.config import get_config
 from backend.economy.db import connect, init_schema
 from backend.economy.repository import Repository
@@ -264,7 +266,23 @@ def ingest(
     if not districts_path.is_absolute():
         districts_path = Path.cwd() / districts_path
 
-    districts = load_districts(districts_path)
+    districts = None
+
+    if districts_path.exists():
+        loaded_districts = load_districts(districts_path)
+
+        if loaded_districts:
+            districts = loaded_districts
+        else:
+            print(
+                f"Файл районов {districts_path} пуст. "
+                "Районы не обновлены."
+            )
+    else:
+        print(
+            f"Файл районов {districts_path} не найден. "
+            "Районы не обновлены."
+        )
 
     input_path = input_path or config.paths.classified
     db_path = db_path or config.paths.db
@@ -321,6 +339,12 @@ def ingest(
     try:
         init_schema(conn)
 
+        # Сначала сохраняем районы
+        if districts is not None:
+            repository = Repository(conn)
+            repository.save_districts(districts)
+
+        # Затем отдельно сохраняем экономические объекты
         conn.execute("BEGIN TRANSACTION")
 
         # Удаляем старую классификацию объектов этого региона.
@@ -340,8 +364,7 @@ def ingest(
             [region],
         )
 
-        # Удаляем старые объекты региона.
-        # Это также удалит объекты, которых больше нет в GeoJSON.
+        # Удаляем старые объекты региона
         conn.execute(
             """
             DELETE FROM osm_objects
@@ -387,12 +410,11 @@ def ingest(
 
         conn.execute("COMMIT")
 
-        # Сохраняем административные границы районов.
-        repository = Repository(conn)
-        repository.save_districts(districts)
-
     except Exception:
-        conn.execute("ROLLBACK")
+        try:
+            conn.execute("ROLLBACK")
+        except duckdb.Error:
+            pass
         raise
 
     finally:
@@ -401,7 +423,7 @@ def ingest(
     return {
         "objects": len(objects),
         "classifications": len(classifications),
-        "districts": len(districts),
+        "districts": len(districts) if districts is not None else 0,
         "unclassified": sum(
             1
             for feature in data["features"]
@@ -452,15 +474,24 @@ def main():
 
     print("Загрузка завершена.")
     print(f"Объектов записано: {result['objects']}")
+
     print(
         "Записей классификации: "
         f"{result['classifications']}"
     )
+
     print(
         "Неклассифицированных объектов: "
         f"{result['unclassified']}"
     )
-    print(f"Муниципальных районов записано: {result['districts']}")
+
+    if result["districts_updated"]:
+        print(
+            f"Муниципальных районов записано: "
+            f"{result['districts']}"
+        )
+    else:
+        print("Муниципальные районы не обновлялись.")
 
 
 if __name__ == "__main__":
