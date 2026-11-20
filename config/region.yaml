@@ -38,6 +38,6 @@ domains:
 layers:
   - {id: objects, label: "Объекты", enabled: true}
   - {id: roles, label: "Спрос и предложение", enabled: true}
-  - {id: edges, label: "Связи", enabled: true}
+  - {id: edges, label: "Связи", enabled: false}
 
 show_all_domains_option: true

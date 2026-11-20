@@ -10,6 +10,8 @@ import type { SubjectProperties } from "../../layers";  // тип объекта
 type SubjectKind = SubjectProperties["kind"];
 type PixelOffset = [number, number];  // смещение по X, смещение по Y
 
+const SHAPE_SCALE = 1.5;  // коэффициент масштабирования для фигур
+
 // Задаём геометрию каждой фигуры через координаты её вершин относительно центра объекта
 // Record<SubjectKind, PixelOffset[]> означает:
 //  для каждого допустимого типа объекта должна быть запись 
@@ -57,19 +59,12 @@ const SHAPE_OFFSETS: Record<SubjectKind, PixelOffset[]> = {
     ],
 };
 
-// Стили фигур
-const shapeStyle = {
-    color: "#ffffff",
-    weight: 1.5,  // толщина контура в пикселях
-    fillColor: "#457b9d",
-    fillOpacity: 1,  // непрозрчность заливки (1 - полностью непрозрачная, 0 - полностью прозрачная)
-};
-
 // Интерфейс компонента SubjectShape, который принимает координаты и тип объекта
 type SubjectShapeProps = {
     latitude: number;
     longitude: number;
     kind: SubjectKind;
+    selected: boolean;
     onSelect: () => void;
 };
 
@@ -78,9 +73,20 @@ export function SubjectShape({
     latitude,
     longitude,
     kind,
+    selected,
     onSelect,
 }: SubjectShapeProps) {
     const map = useMap();  // получаем экземпляр карты Leaflet
+
+    // Стили фигур
+    // selected — выбран ли объект (true/false)
+    // Если объект выбран, то цвет заливки будет ярко-голубым
+    const shapeStyle = {
+        color: "#ffffff",
+        weight: selected ? 3 : 1.5,   // толщина контура в пикселях
+        fillColor: selected ? "#00BFFF" : "#457b9d",
+        fillOpacity: 1,  // непрозрчность заливки (1 - полностью непрозрачная, 0 - полностью прозрачная)
+    };
 
     // Хранение координат вершин фигуры в состоянии компонента
     //  positions — текущие координаты вершин фигуры
@@ -108,8 +114,8 @@ export function SubjectShape({
             // 5. Результат сохраняется в nextPositions
             const nextPositions: LatLng[] = offsets.map(([dx, dy]) =>
                 map.layerPointToLatLng([
-                    center.x + dx,
-                    center.y + dy,
+                    center.x + dx * SHAPE_SCALE,  // умножаем смещение на коэффициент масштабирования
+                    center.y + dy * SHAPE_SCALE,
                 ])
             );
 
@@ -141,7 +147,7 @@ export function SubjectShape({
         return (
             <CircleMarker
                 center={[latitude, longitude]}
-                radius={4}
+                radius={6}
                 pathOptions={shapeStyle}
                 interactive={true}
                 eventHandlers={{

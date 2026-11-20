@@ -13,7 +13,7 @@
     {
       "id": "edges",
       "label": "Связи",
-      "enabled": true
+      "enabled": false 
     },
     {
       "id": "district_degree",

@@ -59,7 +59,7 @@ export const DEFAULT_CONFIG: LayerConfig = {
   layers: [
     { id: "objects", label: "Объекты", enabled: true },
     { id: "roles", label: "Спрос и предложение", enabled: true },
-    { id: "edges", label: "Связи", enabled: true },
+    { id: "edges", label: "Связи", enabled: false },
     {
       id: "district_degree",
       label: "Окраска районов по средней степени",
