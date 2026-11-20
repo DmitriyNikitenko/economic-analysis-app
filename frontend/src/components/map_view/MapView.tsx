@@ -94,8 +94,30 @@ export default function MapView({
   selection,
   availableDomains,
 }: Props) {
-  // ID объекта, который пользователь выбрал на карте
-  const [selectedSubjectId, setSelectedSubjectId] = useState<string | null>(null);
+
+  // ID выбранных вершин.
+  // Пользователь может выбрать максимум две вершины.
+  const [selectedSubjectIds, setSelectedSubjectIds] =
+    useState<string[]>([]);
+
+  // Обработка выбора вершины.
+  const handleSubjectSelect = useCallback((subjectId: string) => {
+    setSelectedSubjectIds((current) => {
+      // Повторный клик снимает выбор вершины.
+      if (current.includes(subjectId)) {
+        return current.filter((id) => id !== subjectId);
+      }
+
+      // Если выбрано меньше двух вершин, добавляем новую.
+      if (current.length < 2) {
+        return [...current, subjectId];
+      }
+
+      // Если уже выбраны две вершины,
+      // оставляем вторую и добавляем новую.
+      return [current[1], subjectId];
+    });
+  }, []);
 
   // Код определяет область, в пределах которой будет отображаться карта
   // используя геометрию районов из GeoJSON. 
@@ -274,7 +296,13 @@ export default function MapView({
     });
   }, [edges, config, selection, availableDomains, subjects]);
 
-  // Получаем полные данные выбранного объекта:
+  // ID первой выбранной вершины.
+  const selectedSubjectId = selectedSubjectIds[0] ?? null;
+
+  // ID второй выбранной вершины.
+  const secondSelectedSubjectId = selectedSubjectIds[1] ?? null;
+
+  // Получаем полные данные первой выбранной вершины:
   // 1. Если пользователь ещё ничего не выбрал, возвращаем null
   // 2. Если ID есть, ищем объект в data.features
   // 3. Если объект найден, сохраняем всю GeoJSON Feature
@@ -287,6 +315,17 @@ export default function MapView({
           (feature) => feature.properties.id === selectedSubjectId,
         ) ?? null,
     [data, selectedSubjectId],
+  );
+
+  // Получаем данные второй выбранной вершины.
+  const secondSelectedSubject = useMemo(
+    () =>
+      secondSelectedSubjectId === null
+        ? null
+        : data.features.find(
+          (feature) => feature.properties.id === secondSelectedSubjectId,
+        ) ?? null,
+    [data, secondSelectedSubjectId],
   );
 
   // Находим район, к которому относится выбранный объект
@@ -316,20 +355,53 @@ export default function MapView({
     );
   }, [visibleEdges, selectedSubject]);  // массив зависимостей: пересчитываем при изменении видимых связей или выбранного объекта
 
+  // Ищем прямые связи между двумя выбранными вершинами.
+  const selectedPairConnections = useMemo(() => {
+    if (selectedSubjectIds.length !== 2) {
+      return [];
+    }
+
+    const [firstId, secondId] = selectedSubjectIds;
+
+    return visibleEdges.filter((edge) => {
+      const { from_id, to_id } = edge.properties;
+
+      // Проверяем оба направления связи.
+      return (
+        (from_id === firstId && to_id === secondId) ||
+        (from_id === secondId && to_id === firstId)
+      );
+    });
+  }, [visibleEdges, selectedSubjectIds]);
+
+  // Если выбрана одна вершина — показываем её связи.
+  // Если выбраны две — только связь между выбранной парой.
+  const connectionsForSelection =
+    selectedSubjectIds.length === 2
+      ? selectedPairConnections
+      : selectedConnections;
+
+  // Проверяем наличие связей для текущего выбора.
+  const hasSelectedConnections =
+    connectionsForSelection.length > 0;
+
+  // Если слой связей выключен, отображаем только выбранные связи.
+  // Если включен — отображаем весь граф.
+  const edgesToRender = visibleLayers.edges
+    ? visibleEdges
+    : connectionsForSelection;
+
   // Сортируем связи по весу и оставляем пять наиболее сильных
   const strongestConnections = useMemo(
     () =>
-      [...selectedConnections]
+      [...connectionsForSelection]
         .sort(
           (a, b) =>
             b.properties.weight - a.properties.weight,
         )
         .slice(0, 5),
-    [selectedConnections],
+    [connectionsForSelection],
   );
-
-  // Проверяем, есть ли у выбранного объекта экономические связи
-  const hasSelectedConnections = selectedConnections.length > 0;
 
   // Раскрашиваем районы в зависимости от средней степени узлов
   // Если слой отключён, показываем только границы районов
@@ -432,18 +504,13 @@ export default function MapView({
         {/* Цвет линии зависит от домена связи */}
         {/* Если выбран объект, то его связи становятся более заметными, 
             а остальные связи, не относящиеся к нему, становятся прозрачными */}
-        {visibleLayers.edges && visibleEdges.map((edge) => {
+        {edgesToRender.map((edge) => {
 
-          // Проверяем, относится ли связь к выбранному объекту
-          const isSelectedConnection =
-            // Если объект не выбран, то ни одна связь не выделена
-            selectedSubject !== null &&
-            (
-              // Если выбранный объект является началом связи (спрос)
-              // или концом связи (предложение)
-              edge.properties.from_id === selectedSubject.properties.id ||
-              edge.properties.to_id === selectedSubject.properties.id
-            );
+          // Проверяем, относится ли связь к текущему выбору.
+          const isSelectedConnection = connectionsForSelection.some(
+            (connection) =>
+              connection.properties.id === edge.properties.id,
+          );
 
           // Вычисляем толщину линии в зависимости от веса связи
           const edgeWeight = 1 + edge.properties.weight * 5;
@@ -550,7 +617,7 @@ export default function MapView({
                   latitude={latitude}
                   longitude={longitude}
                   kind={props.kind}
-                  onSelect={() => setSelectedSubjectId(props.id)}
+                  onSelect={() => handleSubjectSelect(props.id)}
                 />
               )}
               
@@ -565,7 +632,7 @@ export default function MapView({
         selection={selection}
         availableDomains={availableDomains}
         config={config}
-        hasSelectedConnections={selectedSubject !== null}
+        hasSelectedConnections={hasSelectedConnections}
       />
 
       {/* Карточка выбранного объекта */}
@@ -591,9 +658,47 @@ export default function MapView({
                 </p>
               </div>
 
+              {/* Информация о связи между двумя выбранными вершинами */}
+              {secondSelectedSubject && (
+                <div className="mb-4 text-sm">
+
+                  <p className="font-medium text-slate-700">
+                    Проверка прямой связи:
+                  </p>
+
+                  <p className="mt-1 text-slate-500">
+                    {selectedSubject.properties.name}
+                    {" ↔ "}
+                    {secondSelectedSubject.properties.name}
+                  </p>
+
+                  {selectedPairConnections.length > 0 ? (
+                    <div className="mt-2 space-y-1">
+                      {selectedPairConnections.map((edge) => (
+                        <p
+                          key={edge.properties.id}
+                          className="font-medium text-teal-700"
+                        >
+                          Прямая связь найдена:{" "}
+                          {DOMAIN_LABELS[edge.properties.domain]}
+                          {" · "}
+                          {edge.properties.distance_km.toFixed(1)} км
+                        </p>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="mt-2 text-amber-700">
+                      Прямой связи между выбранными вершинами
+                      в текущем наборе доменов и радиусов нет.
+                    </p>
+                  )}
+
+                </div>
+              )}
+
               <button
                 type="button"
-                onClick={() => setSelectedSubjectId(null)}
+                onClick={() => setSelectedSubjectIds([])}
                 className="rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-600 hover:bg-slate-50"
               >
                 Сбросить выбор
@@ -785,6 +890,13 @@ export default function MapView({
               число связей, самые сильные связи и фрагмент
               GeoJSON, из которого он нарисован.
             </p>
+
+              <p className="mt-2 text-sm text-slate-500">
+                Выберите второй объект, чтобы проверить наличие
+                прямой связи между объектами.
+                Повторный клик по второй вершине снимает выбор.
+                Выбор еще одного объекта заменяет первый выбранный объект.
+              </p>
           </div>
         )}
       </section>

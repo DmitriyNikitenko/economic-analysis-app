@@ -128,21 +128,22 @@ export default function MapLegend({
                         <span className="inline-flex items-center gap-2">
                             Толщина линии: вес связи
                         </span>
-
-                        {/* Если выбран объект, показываем легенду для связей выбранного объекта */}
-                        {hasSelectedConnections && (
-                            <span className="inline-flex items-center gap-2">
-                                <span
-                                    className="inline-block w-7"
-                                    style={{
-                                        borderTop: `3px solid ${SELECTED_EDGE_COLOR}`,
-                                    }}
-                                />
-                                Связи выбранного объекта
-                            </span>
-                        )}
                     </>
                 )}
+
+                {/* Если выбран объект, показываем легенду для связей выбранного объекта */}
+                {hasSelectedConnections && (
+                    <span className="inline-flex items-center gap-2">
+                        <span
+                            className="inline-block w-7"
+                            style={{
+                                borderTop: `3px solid ${SELECTED_EDGE_COLOR}`,
+                            }}
+                        />
+                        Связи выбранного объекта
+                    </span>
+                )}
+
             </div>
 
             {/* Легенда раскраски районов по средней степени */}
