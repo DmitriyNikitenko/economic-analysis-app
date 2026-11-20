@@ -134,6 +134,125 @@ def get_data(region=None, full_region=False, save=False, output_path=None):
 
     return data
 
+def get_districts(region=None, full_region=False, save=False, output_path=None):
+    """
+    Загружает муниципальные районы из OSM
+
+    Ищет административные границы (boundary=administrative) 
+    с admin_level=6
+
+    Возвращает отдельный GeoJSON FeatureCollection
+    """
+
+
+    config = get_config()
+    region_id = region or config.region_id
+
+    tags = {
+        "admin_level": "6",
+    }
+
+
+    if full_region:
+        if not config.place:
+            raise ValueError(
+                "В config/region.yaml не задан region.place."
+            )
+
+        gdf = ox.features.features_from_place(
+            config.place,
+            tags=tags,
+        )
+    else:
+        gdf = ox.features.features_from_bbox(
+            bbox=config.test_bbox,
+            tags=tags,
+        )
+
+    
+    features = []
+
+    for (osm_type, osm_id), row in gdf.iterrows():
+        # Проверяем условия
+        if row.get("boundary") != "administrative":
+            continue
+
+        geometry = row.geometry
+
+        if geometry is None or geometry.is_empty:
+            continue
+
+        # Для районов ожидаем полигональную геометрию
+        if geometry.geom_type not in ("Polygon", "MultiPolygon"):
+            continue
+
+        name = None
+
+        for key in (
+            "name:ru",
+            "name",
+            "official_name:ru",
+            "official_name",
+        ):
+            value = row.get(key)
+
+            if isinstance(value, str) and value.strip():
+                name = value.strip()
+                break
+
+        if name is None:
+            name = f"Район OSM {osm_id}"
+
+        tags_data = {
+            key: value
+            for key, value in row.items()
+            if key != "geometry" and keep_tag(key, value)
+        }
+
+        features.append({
+            "type": "Feature",
+            "id": f"{osm_type}/{osm_id}",
+            "properties": {
+                "id": f"{osm_type}/{osm_id}",
+                "name": name,
+                "osm_type": str(osm_type),
+                "osm_id": int(osm_id),
+                "region": region_id,
+                "tags": tags_data,
+            },
+            "geometry": mapping(geometry),
+        })
+
+    data = {
+        "type": "FeatureCollection",
+        "features": features,
+    }
+
+    if save:
+        path = (
+            Path(output_path)
+            if output_path
+            else config.paths.districts
+        )
+
+        if not path.is_absolute():
+            path = Path.cwd() / path
+
+        path.parent.mkdir(parents=True, exist_ok=True)
+
+        path.write_text(
+            json.dumps(
+                data,
+                ensure_ascii=False,
+                indent=2,
+                default=str,
+            ),
+            encoding="utf-8",
+        )
+
+    return data
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Загрузка объектов OpenStreetMap"
@@ -186,6 +305,17 @@ def main():
         print(f"Сохранено в: {path.resolve()}")
     else:
         print("Файл не сохранён (--save не указан).")
+
+    districts = get_districts(
+        region=args.region,
+        full_region=args.full_region,
+        save=args.save,
+    )
+
+    print(f"Загружено муниципальных районов: {len(districts['features'])}")
+
+    if args.save:
+        print("Районы сохранены в: data/raw/districts.json")
 
 
 if __name__ == "__main__":

@@ -4,12 +4,13 @@ region:
   crs: "EPSG:4326"
   # OSM возьмет всю местность
   place: "Ярославль, Россия"
-  # Используется, только если place пустой: [min_lon, min_lat, max_lon, max_lat]
+  # Тестовый прямоугольник [min_lon, min_lat, max_lon, max_lat]; берётся, если --full-region не указан
   test_bbox: [39.86, 57.61, 39.92, 57.64]
 
 paths:
   db: data/region.duckdb
   raw: data/raw/osm_sample.json
+  districts: data/raw/districts.json
   classified: data/processed/osm_classified.json
   rules: backend/classification/rules.yaml
   frontend_data: frontend/public/data
