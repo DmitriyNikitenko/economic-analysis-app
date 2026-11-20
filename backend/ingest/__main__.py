@@ -260,7 +260,7 @@ def ingest(
     districts_path = (
         Path(districts_path)
         if districts_path
-        else Path("data/raw/districts.json")
+        else config.paths.districts
     )
 
     if not districts_path.is_absolute():
@@ -460,7 +460,7 @@ def main():
     parser.add_argument(
         "--districts",
         type=Path,
-        default=Path("data/raw/districts.json"),
+        default=config.paths.districts,
         help="Путь к GeoJSON муниципальных районов.",
     )
 

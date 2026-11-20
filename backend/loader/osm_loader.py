@@ -232,7 +232,7 @@ def get_districts(region=None, full_region=False, save=False, output_path=None):
         path = (
             Path(output_path)
             if output_path
-            else Path("data/raw/districts.json")
+            else config.paths.districts
         )
 
         if not path.is_absolute():

@@ -33,6 +33,7 @@ class LayerConfig:
 class Paths:
     db: Path
     raw: Path
+    districts: Path
     classified: Path
     rules: Path
     frontend_data: Path
@@ -114,7 +115,7 @@ def load_config(path: str | Path = CONFIG_PATH) -> Config:
         place=region.get("place") or None,
         test_bbox=bbox,
         paths=Paths(**{key: _path(_require(raw_paths, key, "paths"))
-                       for key in ("db", "raw", "classified", "rules", "frontend_data")}),
+                       for key in ("db", "raw", "districts", "classified", "rules", "frontend_data")}),
         low_data_threshold=int(_require(data, "low_data_threshold", "конфиг")),
         domains={d: _parse_domain(d, raw_domains[d]) for d in DOMAINS},
         layers=tuple(layers),
