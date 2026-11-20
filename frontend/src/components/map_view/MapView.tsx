@@ -253,9 +253,9 @@ export default function MapView({
     return ranges;
   }, [subjects, availableDomains]);
 
-  // Масштабируем размер маркера в зависимости от ёмкости объекта
-  const MIN_MARKER_RADIUS = 10;
-  const MAX_MARKER_RADIUS = 30;
+  // Масштабируем размер маркера (спрос/предложение) в зависимости от ёмкости объекта
+  const MIN_MARKER_RADIUS = 15;
+  const MAX_MARKER_RADIUS = 35;
 
   function getMarkerRadius(capacity: number, domain: Domain) {
     const range = capacityRanges.get(domain);
@@ -617,6 +617,7 @@ export default function MapView({
                   latitude={latitude}
                   longitude={longitude}
                   kind={props.kind}
+                  selected={selectedSubjectIds.includes(props.id)}
                   onSelect={() => handleSubjectSelect(props.id)}
                 />
               )}
