@@ -19,7 +19,7 @@ export type DomainSelection = Domain | "all";  /* Выбор домена для
 export type SubjectProperties = {
   id: string;
   name: string;
-  kind: "settlement" | "bank" | "employer" | "shop";  /* Тип объекта: населённый пункт, банк, работодатель, магазин */
+  kind: "settlement" | "residence" | "bank" | "employer" | "shop";  /* Тип объекта: населённый пункт, жилое здание, банк, работодатель, магазин */
   district_id: string;
   address?: string | null;
   domains: Partial<Record<Domain, { role: Role; capacity: number }>>;
@@ -141,12 +141,20 @@ export function getAvailableDomains(
 
   /* Поиск доменов в объектах */
   subjects.features.forEach(({ properties }) => {
+    /* Учитываем домены только экономических объектов */
+    if (properties.kind === "settlement") return;
+
     (Object.keys(properties.domains ?? {}) as Domain[]).forEach((domain) => {
-      if (properties.domains?.[domain]) present.add(domain);
+      if (properties.domains?.[domain]) {
+        present.add(domain);
+      }
     });
   });
+  
   /* Поиск доменов в связях */
-  edges.features.forEach(({ properties }) => present.add(properties.domain));
+  edges.features.forEach(({ properties }) => {
+    present.add(properties.domain);
+  });
 
   /* Возврат списка доступных доменов, которые включены в конфигурации и присутствуют в данных */
   return config.domains

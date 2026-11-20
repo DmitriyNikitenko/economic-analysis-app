@@ -7,26 +7,16 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          39.8938,
-          57.6261
+          39.3188,
+          57.8968
         ]
       },
       "properties": {
-        "id": "s_000001",
-        "name": "Ярославль",
+        "id": "settlement_d_01",
+        "name": "Населённый пункт — Ярославский",
         "kind": "settlement",
         "district_id": "d_01",
-        "address": null,
-        "domains": {
-          "money": {
-            "role": "demand",
-            "capacity": 3466.0
-          },
-          "labor": {
-            "role": "supply",
-            "capacity": 1940.0
-          }
-        }
+        "domains": {}
       }
     },
     {
@@ -34,1381 +24,19 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          39.526,
-          57.189
+          39.65,
+          57.514
         ]
       },
       "properties": {
-        "id": "s_000002",
-        "name": "Ростов",
-        "kind": "settlement",
-        "district_id": "d_02",
-        "address": null,
-        "domains": {
-          "money": {
-            "role": "demand",
-            "capacity": 5406.0
-          },
-          "labor": {
-            "role": "supply",
-            "capacity": 3027.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          38.856,
-          56.84
-        ]
-      },
-      "properties": {
-        "id": "s_000003",
-        "name": "Переславль-Залесский",
-        "kind": "settlement",
-        "district_id": "d_03",
-        "address": null,
-        "domains": {
-          "money": {
-            "role": "demand",
-            "capacity": 4759.0
-          },
-          "labor": {
-            "role": "supply",
-            "capacity": 2665.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          38.8526,
-          58.0485
-        ]
-      },
-      "properties": {
-        "id": "s_000004",
-        "name": "Рыбинск",
-        "kind": "settlement",
-        "district_id": "d_04",
-        "address": null,
-        "domains": {
-          "money": {
-            "role": "demand",
-            "capacity": 1513.0
-          },
-          "labor": {
-            "role": "supply",
-            "capacity": 847.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          38.3225,
-          57.5275
-        ]
-      },
-      "properties": {
-        "id": "s_000005",
-        "name": "Углич",
-        "kind": "settlement",
-        "district_id": "d_05",
-        "address": null,
-        "domains": {
-          "money": {
-            "role": "demand",
-            "capacity": 1667.0
-          },
-          "labor": {
-            "role": "supply",
-            "capacity": 933.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          39.27,
-          58.54
-        ]
-      },
-      "properties": {
-        "id": "s_000006",
-        "name": "Пошехонье",
-        "kind": "settlement",
-        "district_id": "d_06",
-        "address": null,
-        "domains": {
-          "money": {
-            "role": "demand",
-            "capacity": 2634.0
-          },
-          "labor": {
-            "role": "supply",
-            "capacity": 1475.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          40.687,
-          58.362
-        ]
-      },
-      "properties": {
-        "id": "s_000007",
-        "name": "Любим",
-        "kind": "settlement",
-        "district_id": "d_07",
-        "address": null,
-        "domains": {
-          "money": {
-            "role": "demand",
-            "capacity": 2485.0
-          },
-          "labor": {
-            "role": "supply",
-            "capacity": 1391.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          39.22,
-          58.09
-        ]
-      },
-      "properties": {
-        "id": "s_000008",
-        "name": "Некоуз",
-        "kind": "settlement",
-        "district_id": "d_08",
-        "address": null,
-        "domains": {
-          "money": {
-            "role": "demand",
-            "capacity": 5184.0
-          },
-          "labor": {
-            "role": "supply",
-            "capacity": 2903.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          39.074906,
-          58.110251
-        ]
-      },
-      "properties": {
-        "id": "s_000009",
-        "name": "Населённый пункт 1",
-        "kind": "settlement",
-        "district_id": "d_04",
-        "address": null,
-        "domains": {
-          "money": {
-            "role": "demand",
-            "capacity": 682.0
-          },
-          "labor": {
-            "role": "supply",
-            "capacity": 381.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          39.251511,
-          57.136247
-        ]
-      },
-      "properties": {
-        "id": "s_000010",
-        "name": "Населённый пункт 2",
-        "kind": "settlement",
-        "district_id": "d_02",
-        "address": null,
-        "domains": {
-          "money": {
-            "role": "demand",
-            "capacity": 1125.0
-          },
-          "labor": {
-            "role": "supply",
-            "capacity": 630.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          38.59966,
-          58.145593
-        ]
-      },
-      "properties": {
-        "id": "s_000011",
-        "name": "Населённый пункт 3",
-        "kind": "settlement",
-        "district_id": "d_04",
-        "address": null,
-        "domains": {
-          "money": {
-            "role": "demand",
-            "capacity": 321.0
-          },
-          "labor": {
-            "role": "supply",
-            "capacity": 179.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          40.478512,
-          58.34807
-        ]
-      },
-      "properties": {
-        "id": "s_000012",
-        "name": "Населённый пункт 4",
-        "kind": "settlement",
-        "district_id": "d_07",
-        "address": null,
-        "domains": {
-          "money": {
-            "role": "demand",
-            "capacity": 1881.0
-          },
-          "labor": {
-            "role": "supply",
-            "capacity": 1053.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          38.823191,
-          57.892683
-        ]
-      },
-      "properties": {
-        "id": "s_000013",
-        "name": "Населённый пункт 5",
-        "kind": "settlement",
-        "district_id": "d_04",
-        "address": null,
-        "domains": {
-          "money": {
-            "role": "demand",
-            "capacity": 459.0
-          },
-          "labor": {
-            "role": "supply",
-            "capacity": 257.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          39.731265,
-          58.154497
-        ]
-      },
-      "properties": {
-        "id": "s_000014",
-        "name": "Населённый пункт 6",
-        "kind": "settlement",
-        "district_id": "d_08",
-        "address": null,
-        "domains": {
-          "money": {
-            "role": "demand",
-            "capacity": 431.0
-          },
-          "labor": {
-            "role": "supply",
-            "capacity": 241.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          39.770748,
-          58.849881
-        ]
-      },
-      "properties": {
-        "id": "s_000015",
-        "name": "Населённый пункт 7",
-        "kind": "settlement",
-        "district_id": "d_06",
-        "address": null,
-        "domains": {
-          "money": {
-            "role": "demand",
-            "capacity": 1791.0
-          },
-          "labor": {
-            "role": "supply",
-            "capacity": 1002.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          39.560139,
-          58.832746
-        ]
-      },
-      "properties": {
-        "id": "s_000016",
-        "name": "Населённый пункт 8",
-        "kind": "settlement",
-        "district_id": "d_06",
-        "address": null,
-        "domains": {
-          "money": {
-            "role": "demand",
-            "capacity": 881.0
-          },
-          "labor": {
-            "role": "supply",
-            "capacity": 493.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          39.199858,
-          57.198957
-        ]
-      },
-      "properties": {
-        "id": "s_000017",
-        "name": "Населённый пункт 9",
-        "kind": "settlement",
-        "district_id": "d_02",
-        "address": null,
-        "domains": {
-          "money": {
-            "role": "demand",
-            "capacity": 1482.0
-          },
-          "labor": {
-            "role": "supply",
-            "capacity": 829.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          40.554765,
-          58.39441
-        ]
-      },
-      "properties": {
-        "id": "s_000018",
-        "name": "Населённый пункт 10",
-        "kind": "settlement",
-        "district_id": "d_07",
-        "address": null,
-        "domains": {
-          "money": {
-            "role": "demand",
-            "capacity": 1924.0
-          },
-          "labor": {
-            "role": "supply",
-            "capacity": 1077.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          39.329689,
-          57.182202
-        ]
-      },
-      "properties": {
-        "id": "s_000019",
-        "name": "Населённый пункт 11",
-        "kind": "settlement",
-        "district_id": "d_02",
-        "address": null,
-        "domains": {
-          "money": {
-            "role": "demand",
-            "capacity": 362.0
-          },
-          "labor": {
-            "role": "supply",
-            "capacity": 202.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          40.215381,
-          58.568432
-        ]
-      },
-      "properties": {
-        "id": "s_000020",
-        "name": "Населённый пункт 12",
-        "kind": "settlement",
-        "district_id": "d_07",
-        "address": null,
-        "domains": {
-          "money": {
-            "role": "demand",
-            "capacity": 384.0
-          },
-          "labor": {
-            "role": "supply",
-            "capacity": 215.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          38.386128,
-          57.319342
-        ]
-      },
-      "properties": {
-        "id": "s_000021",
-        "name": "Населённый пункт 13",
-        "kind": "settlement",
-        "district_id": "d_05",
-        "address": null,
-        "domains": {
-          "money": {
-            "role": "demand",
-            "capacity": 1575.0
-          },
-          "labor": {
-            "role": "supply",
-            "capacity": 882.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          40.675861,
-          58.438109
-        ]
-      },
-      "properties": {
-        "id": "s_000022",
-        "name": "Населённый пункт 14",
-        "kind": "settlement",
-        "district_id": "d_07",
-        "address": null,
-        "domains": {
-          "money": {
-            "role": "demand",
-            "capacity": 754.0
-          },
-          "labor": {
-            "role": "supply",
-            "capacity": 422.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          39.505747,
-          57.231467
-        ]
-      },
-      "properties": {
-        "id": "s_000023",
-        "name": "Населённый пункт 15",
-        "kind": "settlement",
-        "district_id": "d_02",
-        "address": null,
-        "domains": {
-          "money": {
-            "role": "demand",
-            "capacity": 504.0
-          },
-          "labor": {
-            "role": "supply",
-            "capacity": 282.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          38.848852,
-          56.955562
-        ]
-      },
-      "properties": {
-        "id": "s_000024",
-        "name": "Населённый пункт 16",
-        "kind": "settlement",
-        "district_id": "d_03",
-        "address": null,
-        "domains": {
-          "money": {
-            "role": "demand",
-            "capacity": 777.0
-          },
-          "labor": {
-            "role": "supply",
-            "capacity": 435.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          39.914376,
-          58.703026
-        ]
-      },
-      "properties": {
-        "id": "s_000025",
-        "name": "Населённый пункт 17",
-        "kind": "settlement",
-        "district_id": "d_06",
-        "address": null,
-        "domains": {
-          "money": {
-            "role": "demand",
-            "capacity": 939.0
-          },
-          "labor": {
-            "role": "supply",
-            "capacity": 525.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          39.341259,
-          57.699479
-        ]
-      },
-      "properties": {
-        "id": "s_000026",
-        "name": "Населённый пункт 18",
-        "kind": "settlement",
-        "district_id": "d_01",
-        "address": null,
-        "domains": {
-          "money": {
-            "role": "demand",
-            "capacity": 1002.0
-          },
-          "labor": {
-            "role": "supply",
-            "capacity": 561.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          40.618852,
-          58.529372
-        ]
-      },
-      "properties": {
-        "id": "s_000027",
-        "name": "Населённый пункт 19",
-        "kind": "settlement",
-        "district_id": "d_07",
-        "address": null,
-        "domains": {
-          "money": {
-            "role": "demand",
-            "capacity": 609.0
-          },
-          "labor": {
-            "role": "supply",
-            "capacity": 341.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          39.582394,
-          58.72097
-        ]
-      },
-      "properties": {
-        "id": "s_000028",
-        "name": "Населённый пункт 20",
-        "kind": "settlement",
-        "district_id": "d_06",
-        "address": null,
-        "domains": {
-          "money": {
-            "role": "demand",
-            "capacity": 1054.0
-          },
-          "labor": {
-            "role": "supply",
-            "capacity": 590.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          39.597966,
-          58.723574
-        ]
-      },
-      "properties": {
-        "id": "s_000029",
-        "name": "Населённый пункт 21",
-        "kind": "settlement",
-        "district_id": "d_06",
-        "address": null,
-        "domains": {
-          "money": {
-            "role": "demand",
-            "capacity": 532.0
-          },
-          "labor": {
-            "role": "supply",
-            "capacity": 297.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          38.379208,
-          57.410398
-        ]
-      },
-      "properties": {
-        "id": "s_000030",
-        "name": "Населённый пункт 22",
-        "kind": "settlement",
-        "district_id": "d_05",
-        "address": null,
-        "domains": {
-          "money": {
-            "role": "demand",
-            "capacity": 869.0
-          },
-          "labor": {
-            "role": "supply",
-            "capacity": 486.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          39.727261,
-          58.245943
-        ]
-      },
-      "properties": {
-        "id": "s_000031",
-        "name": "Населённый пункт 23",
-        "kind": "settlement",
-        "district_id": "d_08",
-        "address": null,
-        "domains": {
-          "money": {
-            "role": "demand",
-            "capacity": 880.0
-          },
-          "labor": {
-            "role": "supply",
-            "capacity": 492.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          39.449423,
-          57.049937
-        ]
-      },
-      "properties": {
-        "id": "s_000032",
-        "name": "Населённый пункт 24",
-        "kind": "settlement",
-        "district_id": "d_02",
-        "address": null,
-        "domains": {
-          "money": {
-            "role": "demand",
-            "capacity": 830.0
-          },
-          "labor": {
-            "role": "supply",
-            "capacity": 464.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          39.493409,
-          57.779107
-        ]
-      },
-      "properties": {
-        "id": "s_000033",
-        "name": "Населённый пункт 25",
-        "kind": "settlement",
-        "district_id": "d_01",
-        "address": null,
-        "domains": {
-          "money": {
-            "role": "demand",
-            "capacity": 477.0
-          },
-          "labor": {
-            "role": "supply",
-            "capacity": 267.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          39.405725,
-          57.121873
-        ]
-      },
-      "properties": {
-        "id": "s_000034",
-        "name": "Населённый пункт 26",
-        "kind": "settlement",
-        "district_id": "d_02",
-        "address": null,
-        "domains": {
-          "money": {
-            "role": "demand",
-            "capacity": 751.0
-          },
-          "labor": {
-            "role": "supply",
-            "capacity": 420.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          38.458037,
-          58.012683
-        ]
-      },
-      "properties": {
-        "id": "s_000035",
-        "name": "Населённый пункт 27",
-        "kind": "settlement",
-        "district_id": "d_04",
-        "address": null,
-        "domains": {
-          "money": {
-            "role": "demand",
-            "capacity": 703.0
-          },
-          "labor": {
-            "role": "supply",
-            "capacity": 393.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          38.859376,
-          57.866946
-        ]
-      },
-      "properties": {
-        "id": "s_000036",
-        "name": "Населённый пункт 28",
-        "kind": "settlement",
-        "district_id": "d_04",
-        "address": null,
-        "domains": {
-          "money": {
-            "role": "demand",
-            "capacity": 1268.0
-          },
-          "labor": {
-            "role": "supply",
-            "capacity": 710.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          39.526348,
-          58.265976
-        ]
-      },
-      "properties": {
-        "id": "s_000037",
-        "name": "Населённый пункт 29",
-        "kind": "settlement",
-        "district_id": "d_08",
-        "address": null,
-        "domains": {
-          "money": {
-            "role": "demand",
-            "capacity": 432.0
-          },
-          "labor": {
-            "role": "supply",
-            "capacity": 241.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          38.296796,
-          57.585028
-        ]
-      },
-      "properties": {
-        "id": "s_000038",
-        "name": "Населённый пункт 30",
-        "kind": "settlement",
-        "district_id": "d_05",
-        "address": null,
-        "domains": {
-          "money": {
-            "role": "demand",
-            "capacity": 362.0
-          },
-          "labor": {
-            "role": "supply",
-            "capacity": 202.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          39.814995,
-          58.721941
-        ]
-      },
-      "properties": {
-        "id": "s_000039",
-        "name": "Населённый пункт 31",
-        "kind": "settlement",
-        "district_id": "d_06",
-        "address": null,
-        "domains": {
-          "money": {
-            "role": "demand",
-            "capacity": 599.0
-          },
-          "labor": {
-            "role": "supply",
-            "capacity": 335.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          38.646812,
-          58.153277
-        ]
-      },
-      "properties": {
-        "id": "s_000040",
-        "name": "Населённый пункт 32",
-        "kind": "settlement",
-        "district_id": "d_04",
-        "address": null,
-        "domains": {
-          "money": {
-            "role": "demand",
-            "capacity": 551.0
-          },
-          "labor": {
-            "role": "supply",
-            "capacity": 308.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          39.70278,
-          57.105731
-        ]
-      },
-      "properties": {
-        "id": "s_000041",
-        "name": "Населённый пункт 33",
-        "kind": "settlement",
-        "district_id": "d_02",
-        "address": null,
-        "domains": {
-          "money": {
-            "role": "demand",
-            "capacity": 1532.0
-          },
-          "labor": {
-            "role": "supply",
-            "capacity": 857.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          38.643979,
-          56.985315
-        ]
-      },
-      "properties": {
-        "id": "s_000042",
-        "name": "Населённый пункт 34",
-        "kind": "settlement",
-        "district_id": "d_03",
-        "address": null,
-        "domains": {
-          "money": {
-            "role": "demand",
-            "capacity": 1423.0
-          },
-          "labor": {
-            "role": "supply",
-            "capacity": 796.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          39.433482,
-          57.132256
-        ]
-      },
-      "properties": {
-        "id": "s_000043",
-        "name": "Населённый пункт 35",
-        "kind": "settlement",
-        "district_id": "d_02",
-        "address": null,
-        "domains": {
-          "money": {
-            "role": "demand",
-            "capacity": 550.0
-          },
-          "labor": {
-            "role": "supply",
-            "capacity": 308.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          39.580954,
-          58.205932
-        ]
-      },
-      "properties": {
-        "id": "s_000044",
-        "name": "Населённый пункт 36",
-        "kind": "settlement",
-        "district_id": "d_08",
-        "address": null,
-        "domains": {
-          "money": {
-            "role": "demand",
-            "capacity": 1176.0
-          },
-          "labor": {
-            "role": "supply",
-            "capacity": 658.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          39.131344,
-          56.964798
-        ]
-      },
-      "properties": {
-        "id": "s_000045",
-        "name": "Населённый пункт 37",
-        "kind": "settlement",
-        "district_id": "d_03",
-        "address": null,
-        "domains": {
-          "money": {
-            "role": "demand",
-            "capacity": 1189.0
-          },
-          "labor": {
-            "role": "supply",
-            "capacity": 665.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          38.556339,
-          57.000437
-        ]
-      },
-      "properties": {
-        "id": "s_000046",
-        "name": "Населённый пункт 38",
-        "kind": "settlement",
-        "district_id": "d_03",
-        "address": null,
-        "domains": {
-          "money": {
-            "role": "demand",
-            "capacity": 1423.0
-          },
-          "labor": {
-            "role": "supply",
-            "capacity": 796.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          38.277057,
-          57.571153
-        ]
-      },
-      "properties": {
-        "id": "s_000047",
-        "name": "Населённый пункт 39",
-        "kind": "settlement",
-        "district_id": "d_05",
-        "address": null,
-        "domains": {
-          "money": {
-            "role": "demand",
-            "capacity": 1388.0
-          },
-          "labor": {
-            "role": "supply",
-            "capacity": 777.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          40.476766,
-          58.421721
-        ]
-      },
-      "properties": {
-        "id": "s_000048",
-        "name": "Населённый пункт 40",
-        "kind": "settlement",
-        "district_id": "d_07",
-        "address": null,
-        "domains": {
-          "money": {
-            "role": "demand",
-            "capacity": 2391.0
-          },
-          "labor": {
-            "role": "supply",
-            "capacity": 1338.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          40.524418,
-          58.49942
-        ]
-      },
-      "properties": {
-        "id": "b_000001",
-        "name": "Банк / отделение 1",
-        "kind": "bank",
-        "district_id": "d_07",
-        "address": null,
-        "domains": {
-          "money": {
-            "role": "supply",
-            "capacity": 5546.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          38.579277,
-          56.864502
-        ]
-      },
-      "properties": {
-        "id": "b_000002",
-        "name": "Банк / отделение 2",
-        "kind": "bank",
-        "district_id": "d_03",
-        "address": null,
-        "domains": {
-          "money": {
-            "role": "supply",
-            "capacity": 2711.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          39.268091,
-          57.148891
-        ]
-      },
-      "properties": {
-        "id": "b_000003",
-        "name": "Банк / отделение 3",
-        "kind": "bank",
-        "district_id": "d_02",
-        "address": null,
-        "domains": {
-          "money": {
-            "role": "supply",
-            "capacity": 5219.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          39.505483,
-          57.156912
-        ]
-      },
-      "properties": {
-        "id": "b_000004",
-        "name": "Банк / отделение 4",
-        "kind": "bank",
-        "district_id": "d_02",
-        "address": null,
-        "domains": {
-          "money": {
-            "role": "supply",
-            "capacity": 1684.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          39.389853,
-          57.708063
-        ]
-      },
-      "properties": {
-        "id": "b_000005",
-        "name": "Банк / отделение 5",
+        "id": "bank_d_01_01",
+        "name": "Банк 01-01",
         "kind": "bank",
         "district_id": "d_01",
-        "address": null,
         "domains": {
           "money": {
             "role": "supply",
-            "capacity": 4997.0
+            "capacity": 1366
           }
         }
       }
@@ -1418,158 +46,19 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          38.10137,
-          57.498941
+          39.65,
+          57.746
         ]
       },
       "properties": {
-        "id": "b_000006",
-        "name": "Банк / отделение 6",
-        "kind": "bank",
-        "district_id": "d_05",
-        "address": null,
-        "domains": {
-          "money": {
-            "role": "supply",
-            "capacity": 2842.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          38.290287,
-          57.589962
-        ]
-      },
-      "properties": {
-        "id": "b_000007",
-        "name": "Банк / отделение 7",
-        "kind": "bank",
-        "district_id": "d_05",
-        "address": null,
-        "domains": {
-          "money": {
-            "role": "supply",
-            "capacity": 4023.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          39.802968,
-          58.793898
-        ]
-      },
-      "properties": {
-        "id": "b_000008",
-        "name": "Банк / отделение 8",
-        "kind": "bank",
-        "district_id": "d_06",
-        "address": null,
-        "domains": {
-          "money": {
-            "role": "supply",
-            "capacity": 1000.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          39.808329,
-          58.730834
-        ]
-      },
-      "properties": {
-        "id": "b_000009",
-        "name": "Банк / отделение 9",
-        "kind": "bank",
-        "district_id": "d_06",
-        "address": null,
-        "domains": {
-          "money": {
-            "role": "supply",
-            "capacity": 14713.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          39.705915,
-          58.384843
-        ]
-      },
-      "properties": {
-        "id": "b_000010",
-        "name": "Банк / отделение 10",
-        "kind": "bank",
-        "district_id": "d_08",
-        "address": null,
-        "domains": {
-          "money": {
-            "role": "supply",
-            "capacity": 1246.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          40.38325,
-          58.515769
-        ]
-      },
-      "properties": {
-        "id": "b_000011",
-        "name": "Банк / отделение 11",
-        "kind": "bank",
-        "district_id": "d_07",
-        "address": null,
-        "domains": {
-          "money": {
-            "role": "supply",
-            "capacity": 1896.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          39.532725,
-          57.783126
-        ]
-      },
-      "properties": {
-        "id": "b_000012",
-        "name": "Банк / отделение 12",
+        "id": "bank_d_01_02",
+        "name": "Банк 01-02",
         "kind": "bank",
         "district_id": "d_01",
-        "address": null,
         "domains": {
           "money": {
             "role": "supply",
-            "capacity": 7951.0
+            "capacity": 1376
           }
         }
       }
@@ -1579,20 +68,19 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          38.204202,
-          57.446229
+          39.668382,
+          57.548558
         ]
       },
       "properties": {
-        "id": "b_000013",
-        "name": "Банк / отделение 13",
-        "kind": "bank",
-        "district_id": "d_05",
-        "address": null,
+        "id": "emp_d_01_01",
+        "name": "Работодатель 01-01",
+        "kind": "employer",
+        "district_id": "d_01",
         "domains": {
-          "money": {
-            "role": "supply",
-            "capacity": 8583.0
+          "labor": {
+            "role": "demand",
+            "capacity": 83
           }
         }
       }
@@ -1602,20 +90,19 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          38.642361,
-          57.004176
+          39.631618,
+          57.711442
         ]
       },
       "properties": {
-        "id": "b_000014",
-        "name": "Банк / отделение 14",
-        "kind": "bank",
-        "district_id": "d_03",
-        "address": null,
+        "id": "emp_d_01_02",
+        "name": "Работодатель 01-02",
+        "kind": "employer",
+        "district_id": "d_01",
         "domains": {
-          "money": {
-            "role": "supply",
-            "capacity": 5128.0
+          "labor": {
+            "role": "demand",
+            "capacity": 72
           }
         }
       }
@@ -1625,20 +112,19 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          39.716875,
-          58.774658
+          39.717115,
+          57.63
         ]
       },
       "properties": {
-        "id": "b_000015",
-        "name": "Банк / отделение 15",
-        "kind": "bank",
-        "district_id": "d_06",
-        "address": null,
+        "id": "emp_d_01_03",
+        "name": "Работодатель 01-03",
+        "kind": "employer",
+        "district_id": "d_01",
         "domains": {
-          "money": {
-            "role": "supply",
-            "capacity": 7923.0
+          "labor": {
+            "role": "demand",
+            "capacity": 114
           }
         }
       }
@@ -1648,20 +134,296 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          39.445227,
-          57.198442
+          39.739415,
+          57.551541
         ]
       },
       "properties": {
-        "id": "b_000016",
-        "name": "Банк / отделение 16",
+        "id": "res_d_01_01",
+        "name": "Жилое здание 01-01",
+        "kind": "residence",
+        "district_id": "d_01",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 81
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 49
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.610241,
+          57.572156
+        ]
+      },
+      "properties": {
+        "id": "res_d_01_02",
+        "name": "Жилое здание 01-02",
+        "kind": "residence",
+        "district_id": "d_01",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 163
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 79
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.531346,
+          57.511666
+        ]
+      },
+      "properties": {
+        "id": "res_d_01_03",
+        "name": "Жилое здание 01-03",
+        "kind": "residence",
+        "district_id": "d_01",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 209
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 101
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.618354,
+          57.454506
+        ]
+      },
+      "properties": {
+        "id": "res_d_01_04",
+        "name": "Жилое здание 01-04",
+        "kind": "residence",
+        "district_id": "d_01",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 194
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 108
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.742656,
+          57.480671
+        ]
+      },
+      "properties": {
+        "id": "res_d_01_05",
+        "name": "Жилое здание 01-05",
+        "kind": "residence",
+        "district_id": "d_01",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 56
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 35
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.739471,
+          57.783565
+        ]
+      },
+      "properties": {
+        "id": "res_d_01_06",
+        "name": "Жилое здание 01-06",
+        "kind": "residence",
+        "district_id": "d_01",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 126
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 64
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.610188,
+          57.804233
+        ]
+      },
+      "properties": {
+        "id": "res_d_01_07",
+        "name": "Жилое здание 01-07",
+        "kind": "residence",
+        "district_id": "d_01",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 78
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 43
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.536493,
+          57.743767
+        ]
+      },
+      "properties": {
+        "id": "res_d_01_08",
+        "name": "Жилое здание 01-08",
+        "kind": "residence",
+        "district_id": "d_01",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 122
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 76
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.617525,
+          57.684947
+        ]
+      },
+      "properties": {
+        "id": "res_d_01_09",
+        "name": "Жилое здание 01-09",
+        "kind": "residence",
+        "district_id": "d_01",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 151
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 75
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.746454,
+          57.711304
+        ]
+      },
+      "properties": {
+        "id": "res_d_01_10",
+        "name": "Жилое здание 01-10",
+        "kind": "residence",
+        "district_id": "d_01",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 147
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 86
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.0912,
+          57.0144
+        ]
+      },
+      "properties": {
+        "id": "settlement_d_02",
+        "name": "Населённый пункт — Ростовский",
+        "kind": "settlement",
+        "district_id": "d_02",
+        "domains": {}
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.294,
+          57.18
+        ]
+      },
+      "properties": {
+        "id": "bank_d_02_01",
+        "name": "Банк 02-01",
         "kind": "bank",
         "district_id": "d_02",
-        "address": null,
         "domains": {
           "money": {
             "role": "supply",
-            "capacity": 2183.0
+            "capacity": 1030
           }
         }
       }
@@ -1671,20 +433,19 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          38.559539,
-          58.085033
+          39.606,
+          57.18
         ]
       },
       "properties": {
-        "id": "b_000017",
-        "name": "Банк / отделение 17",
+        "id": "bank_d_02_02",
+        "name": "Банк 02-02",
         "kind": "bank",
-        "district_id": "d_04",
-        "address": null,
+        "district_id": "d_02",
         "domains": {
           "money": {
             "role": "supply",
-            "capacity": 14117.0
+            "capacity": 1858
           }
         }
       }
@@ -1694,135 +455,19 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          38.222977,
-          57.422346
+          39.310273,
+          57.214833
         ]
       },
       "properties": {
-        "id": "b_000018",
-        "name": "Банк / отделение 18",
-        "kind": "bank",
-        "district_id": "d_05",
-        "address": null,
-        "domains": {
-          "money": {
-            "role": "supply",
-            "capacity": 12418.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          38.902031,
-          57.014712
-        ]
-      },
-      "properties": {
-        "id": "b_000019",
-        "name": "Банк / отделение 19",
-        "kind": "bank",
-        "district_id": "d_03",
-        "address": null,
-        "domains": {
-          "money": {
-            "role": "supply",
-            "capacity": 1506.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          38.072675,
-          57.517176
-        ]
-      },
-      "properties": {
-        "id": "b_000020",
-        "name": "Банк / отделение 20",
-        "kind": "bank",
-        "district_id": "d_05",
-        "address": null,
-        "domains": {
-          "money": {
-            "role": "supply",
-            "capacity": 1000.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          38.273654,
-          57.455965
-        ]
-      },
-      "properties": {
-        "id": "e_000001",
-        "name": "Работодатель 1",
-        "kind": "employer",
-        "district_id": "d_05",
-        "address": null,
-        "domains": {
-          "labor": {
-            "role": "demand",
-            "capacity": 263.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          38.586655,
-          58.040985
-        ]
-      },
-      "properties": {
-        "id": "e_000002",
-        "name": "Работодатель 2",
-        "kind": "employer",
-        "district_id": "d_04",
-        "address": null,
-        "domains": {
-          "labor": {
-            "role": "demand",
-            "capacity": 233.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          39.277594,
-          57.057492
-        ]
-      },
-      "properties": {
-        "id": "e_000003",
-        "name": "Работодатель 3",
+        "id": "emp_d_02_01",
+        "name": "Работодатель 02-01",
         "kind": "employer",
         "district_id": "d_02",
-        "address": null,
         "domains": {
           "labor": {
             "role": "demand",
-            "capacity": 341.0
+            "capacity": 135
           }
         }
       }
@@ -1832,526 +477,19 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          39.71992,
-          58.233075
+          39.589727,
+          57.145167
         ]
       },
       "properties": {
-        "id": "e_000004",
-        "name": "Работодатель 4",
-        "kind": "employer",
-        "district_id": "d_08",
-        "address": null,
-        "domains": {
-          "labor": {
-            "role": "demand",
-            "capacity": 115.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          38.522968,
-          58.262096
-        ]
-      },
-      "properties": {
-        "id": "e_000005",
-        "name": "Работодатель 5",
-        "kind": "employer",
-        "district_id": "d_04",
-        "address": null,
-        "domains": {
-          "labor": {
-            "role": "demand",
-            "capacity": 330.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          38.696107,
-          56.990838
-        ]
-      },
-      "properties": {
-        "id": "e_000006",
-        "name": "Работодатель 6",
-        "kind": "employer",
-        "district_id": "d_03",
-        "address": null,
-        "domains": {
-          "labor": {
-            "role": "demand",
-            "capacity": 32.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          39.131399,
-          56.959828
-        ]
-      },
-      "properties": {
-        "id": "e_000007",
-        "name": "Работодатель 7",
-        "kind": "employer",
-        "district_id": "d_03",
-        "address": null,
-        "domains": {
-          "labor": {
-            "role": "demand",
-            "capacity": 135.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          40.491479,
-          58.492251
-        ]
-      },
-      "properties": {
-        "id": "e_000008",
-        "name": "Работодатель 8",
-        "kind": "employer",
-        "district_id": "d_07",
-        "address": null,
-        "domains": {
-          "labor": {
-            "role": "demand",
-            "capacity": 200.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          38.092542,
-          57.329932
-        ]
-      },
-      "properties": {
-        "id": "e_000009",
-        "name": "Работодатель 9",
-        "kind": "employer",
-        "district_id": "d_05",
-        "address": null,
-        "domains": {
-          "labor": {
-            "role": "demand",
-            "capacity": 28.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          39.613063,
-          58.327382
-        ]
-      },
-      "properties": {
-        "id": "e_000010",
-        "name": "Работодатель 10",
-        "kind": "employer",
-        "district_id": "d_08",
-        "address": null,
-        "domains": {
-          "labor": {
-            "role": "demand",
-            "capacity": 6.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          38.176033,
-          57.540472
-        ]
-      },
-      "properties": {
-        "id": "e_000011",
-        "name": "Работодатель 11",
-        "kind": "employer",
-        "district_id": "d_05",
-        "address": null,
-        "domains": {
-          "labor": {
-            "role": "demand",
-            "capacity": 285.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          39.571195,
-          58.867485
-        ]
-      },
-      "properties": {
-        "id": "e_000012",
-        "name": "Работодатель 12",
-        "kind": "employer",
-        "district_id": "d_06",
-        "address": null,
-        "domains": {
-          "labor": {
-            "role": "demand",
-            "capacity": 5.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          39.458285,
-          58.853247
-        ]
-      },
-      "properties": {
-        "id": "e_000013",
-        "name": "Работодатель 13",
-        "kind": "employer",
-        "district_id": "d_06",
-        "address": null,
-        "domains": {
-          "labor": {
-            "role": "demand",
-            "capacity": 262.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          39.088711,
-          58.183848
-        ]
-      },
-      "properties": {
-        "id": "e_000014",
-        "name": "Работодатель 14",
-        "kind": "employer",
-        "district_id": "d_04",
-        "address": null,
-        "domains": {
-          "labor": {
-            "role": "demand",
-            "capacity": 78.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          40.287085,
-          58.388944
-        ]
-      },
-      "properties": {
-        "id": "e_000015",
-        "name": "Работодатель 15",
-        "kind": "employer",
-        "district_id": "d_07",
-        "address": null,
-        "domains": {
-          "labor": {
-            "role": "demand",
-            "capacity": 158.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          38.21368,
-          57.408916
-        ]
-      },
-      "properties": {
-        "id": "e_000016",
-        "name": "Работодатель 16",
-        "kind": "employer",
-        "district_id": "d_05",
-        "address": null,
-        "domains": {
-          "labor": {
-            "role": "demand",
-            "capacity": 275.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          38.674456,
-          56.846011
-        ]
-      },
-      "properties": {
-        "id": "e_000017",
-        "name": "Работодатель 17",
-        "kind": "employer",
-        "district_id": "d_03",
-        "address": null,
-        "domains": {
-          "labor": {
-            "role": "demand",
-            "capacity": 310.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          40.294412,
-          58.453509
-        ]
-      },
-      "properties": {
-        "id": "e_000018",
-        "name": "Работодатель 18",
-        "kind": "employer",
-        "district_id": "d_07",
-        "address": null,
-        "domains": {
-          "labor": {
-            "role": "demand",
-            "capacity": 321.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          39.07044,
-          56.880826
-        ]
-      },
-      "properties": {
-        "id": "e_000019",
-        "name": "Работодатель 19",
-        "kind": "employer",
-        "district_id": "d_03",
-        "address": null,
-        "domains": {
-          "labor": {
-            "role": "demand",
-            "capacity": 263.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          39.134478,
-          56.879682
-        ]
-      },
-      "properties": {
-        "id": "e_000020",
-        "name": "Работодатель 20",
-        "kind": "employer",
-        "district_id": "d_03",
-        "address": null,
-        "domains": {
-          "labor": {
-            "role": "demand",
-            "capacity": 296.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          39.773331,
-          57.43921
-        ]
-      },
-      "properties": {
-        "id": "e_000021",
-        "name": "Работодатель 21",
-        "kind": "employer",
-        "district_id": "d_01",
-        "address": null,
-        "domains": {
-          "labor": {
-            "role": "demand",
-            "capacity": 334.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          38.804958,
-          58.070028
-        ]
-      },
-      "properties": {
-        "id": "e_000022",
-        "name": "Работодатель 22",
-        "kind": "employer",
-        "district_id": "d_04",
-        "address": null,
-        "domains": {
-          "labor": {
-            "role": "demand",
-            "capacity": 331.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          39.866037,
-          58.71712
-        ]
-      },
-      "properties": {
-        "id": "e_000023",
-        "name": "Работодатель 23",
-        "kind": "employer",
-        "district_id": "d_06",
-        "address": null,
-        "domains": {
-          "labor": {
-            "role": "demand",
-            "capacity": 236.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          39.453516,
-          57.466119
-        ]
-      },
-      "properties": {
-        "id": "e_000024",
-        "name": "Работодатель 24",
-        "kind": "employer",
-        "district_id": "d_01",
-        "address": null,
-        "domains": {
-          "labor": {
-            "role": "demand",
-            "capacity": 130.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          39.530718,
-          58.367134
-        ]
-      },
-      "properties": {
-        "id": "e_000025",
-        "name": "Работодатель 25",
-        "kind": "employer",
-        "district_id": "d_08",
-        "address": null,
-        "domains": {
-          "labor": {
-            "role": "demand",
-            "capacity": 40.0
-          }
-        }
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          39.406438,
-          57.148625
-        ]
-      },
-      "properties": {
-        "id": "e_000026",
-        "name": "Работодатель 26",
+        "id": "emp_d_02_02",
+        "name": "Работодатель 02-02",
         "kind": "employer",
         "district_id": "d_02",
-        "address": null,
         "domains": {
           "labor": {
             "role": "demand",
-            "capacity": 247.0
+            "capacity": 39
           }
         }
       }
@@ -2361,20 +499,19 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          38.272043,
-          57.643305
+          39.45,
+          57.215932
         ]
       },
       "properties": {
-        "id": "e_000027",
-        "name": "Работодатель 27",
+        "id": "emp_d_02_03",
+        "name": "Работодатель 02-03",
         "kind": "employer",
-        "district_id": "d_05",
-        "address": null,
+        "district_id": "d_02",
         "domains": {
           "labor": {
             "role": "demand",
-            "capacity": 240.0
+            "capacity": 59
           }
         }
       }
@@ -2384,20 +521,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          39.595504,
-          58.214914
+          39.38319,
+          57.220263
         ]
       },
       "properties": {
-        "id": "e_000028",
-        "name": "Работодатель 28",
-        "kind": "employer",
-        "district_id": "d_08",
-        "address": null,
+        "id": "res_d_02_01",
+        "name": "Жилое здание 02-01",
+        "kind": "residence",
+        "district_id": "d_02",
         "domains": {
-          "labor": {
+          "money": {
             "role": "demand",
-            "capacity": 152.0
+            "capacity": 117
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 60
           }
         }
       }
@@ -2407,20 +547,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          39.435412,
-          57.473748
+          39.250387,
+          57.239127
         ]
       },
       "properties": {
-        "id": "e_000029",
-        "name": "Работодатель 29",
-        "kind": "employer",
-        "district_id": "d_01",
-        "address": null,
+        "id": "res_d_02_02",
+        "name": "Жилое здание 02-02",
+        "kind": "residence",
+        "district_id": "d_02",
         "domains": {
-          "labor": {
+          "money": {
             "role": "demand",
-            "capacity": 44.0
+            "capacity": 218
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 132
           }
         }
       }
@@ -2430,20 +573,2527 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          38.706126,
-          57.049142
+          39.176288,
+          57.175772
         ]
       },
       "properties": {
-        "id": "e_000030",
-        "name": "Работодатель 30",
+        "id": "res_d_02_03",
+        "name": "Жилое здание 02-03",
+        "kind": "residence",
+        "district_id": "d_02",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 69
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 36
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.266843,
+          57.121869
+        ]
+      },
+      "properties": {
+        "id": "res_d_02_04",
+        "name": "Жилое здание 02-04",
+        "kind": "residence",
+        "district_id": "d_02",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 123
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 61
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.39342,
+          57.146054
+        ]
+      },
+      "properties": {
+        "id": "res_d_02_05",
+        "name": "Жилое здание 02-05",
+        "kind": "residence",
+        "district_id": "d_02",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 135
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 70
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.697858,
+          57.221468
+        ]
+      },
+      "properties": {
+        "id": "res_d_02_06",
+        "name": "Жилое здание 02-06",
+        "kind": "residence",
+        "district_id": "d_02",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 219
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 123
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.564347,
+          57.236469
+        ]
+      },
+      "properties": {
+        "id": "res_d_02_07",
+        "name": "Жилое здание 02-07",
+        "kind": "residence",
+        "district_id": "d_02",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 198
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 114
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.49026,
+          57.175843
+        ]
+      },
+      "properties": {
+        "id": "res_d_02_08",
+        "name": "Жилое здание 02-08",
+        "kind": "residence",
+        "district_id": "d_02",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 204
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 113
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.577544,
+          57.119089
+        ]
+      },
+      "properties": {
+        "id": "res_d_02_09",
+        "name": "Жилое здание 02-09",
+        "kind": "residence",
+        "district_id": "d_02",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 185
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 105
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.705454,
+          57.146043
+        ]
+      },
+      "properties": {
+        "id": "res_d_02_10",
+        "name": "Жилое здание 02-10",
+        "kind": "residence",
+        "district_id": "d_02",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 94
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 56
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          38.5188,
+          56.8212
+        ]
+      },
+      "properties": {
+        "id": "settlement_d_03",
+        "name": "Населённый пункт — Переславский",
+        "kind": "settlement",
+        "district_id": "d_03",
+        "domains": {}
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          38.706,
+          56.95
+        ]
+      },
+      "properties": {
+        "id": "bank_d_03_01",
+        "name": "Банк 03-01",
+        "kind": "bank",
+        "district_id": "d_03",
+        "domains": {
+          "money": {
+            "role": "supply",
+            "capacity": 1333
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          38.994,
+          56.95
+        ]
+      },
+      "properties": {
+        "id": "bank_d_03_02",
+        "name": "Банк 03-02",
+        "kind": "bank",
+        "district_id": "d_03",
+        "domains": {
+          "money": {
+            "role": "supply",
+            "capacity": 2312
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          38.733133,
+          56.982744
+        ]
+      },
+      "properties": {
+        "id": "emp_d_03_01",
+        "name": "Работодатель 03-01",
         "kind": "employer",
         "district_id": "d_03",
-        "address": null,
         "domains": {
           "labor": {
             "role": "demand",
-            "capacity": 160.0
+            "capacity": 110
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          38.966867,
+          56.917256
+        ]
+      },
+      "properties": {
+        "id": "emp_d_03_02",
+        "name": "Работодатель 03-02",
+        "kind": "employer",
+        "district_id": "d_03",
+        "domains": {
+          "labor": {
+            "role": "demand",
+            "capacity": 91
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          38.85,
+          56.985932
+        ]
+      },
+      "properties": {
+        "id": "emp_d_03_03",
+        "name": "Работодатель 03-03",
+        "kind": "employer",
+        "district_id": "d_03",
+        "domains": {
+          "labor": {
+            "role": "demand",
+            "capacity": 33
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          38.810154,
+          56.982375
+        ]
+      },
+      "properties": {
+        "id": "res_d_03_01",
+        "name": "Жилое здание 03-01",
+        "kind": "residence",
+        "district_id": "d_03",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 55
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 36
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          38.682293,
+          57.012534
+        ]
+      },
+      "properties": {
+        "id": "res_d_03_02",
+        "name": "Жилое здание 03-02",
+        "kind": "residence",
+        "district_id": "d_03",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 183
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 113
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          38.595297,
+          56.956685
+        ]
+      },
+      "properties": {
+        "id": "res_d_03_03",
+        "name": "Жилое здание 03-03",
+        "kind": "residence",
+        "district_id": "d_03",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 215
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 115
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          38.657032,
+          56.890905
+        ]
+      },
+      "properties": {
+        "id": "res_d_03_04",
+        "name": "Жилое здание 03-04",
+        "kind": "residence",
+        "district_id": "d_03",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 94
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 51
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          38.787749,
+          56.909405
+        ]
+      },
+      "properties": {
+        "id": "res_d_03_05",
+        "name": "Жилое здание 03-05",
+        "kind": "residence",
+        "district_id": "d_03",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 190
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 123
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.09771,
+          56.982237
+        ]
+      },
+      "properties": {
+        "id": "res_d_03_06",
+        "name": "Жилое здание 03-06",
+        "kind": "residence",
+        "district_id": "d_03",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 83
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 54
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          38.970915,
+          57.010894
+        ]
+      },
+      "properties": {
+        "id": "res_d_03_07",
+        "name": "Жилое здание 03-07",
+        "kind": "residence",
+        "district_id": "d_03",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 133
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 70
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          38.882999,
+          56.956703
+        ]
+      },
+      "properties": {
+        "id": "res_d_03_08",
+        "name": "Жилое здание 03-08",
+        "kind": "residence",
+        "district_id": "d_03",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 75
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 37
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          38.945784,
+          56.891813
+        ]
+      },
+      "properties": {
+        "id": "res_d_03_09",
+        "name": "Жилое здание 03-09",
+        "kind": "residence",
+        "district_id": "d_03",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 191
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 118
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.075622,
+          56.909469
+        ]
+      },
+      "properties": {
+        "id": "res_d_03_10",
+        "name": "Жилое здание 03-10",
+        "kind": "residence",
+        "district_id": "d_03",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 195
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 99
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          38.3912,
+          58.2708
+        ]
+      },
+      "properties": {
+        "id": "settlement_d_04",
+        "name": "Населённый пункт — Рыбинский",
+        "kind": "settlement",
+        "district_id": "d_04",
+        "domains": {}
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          38.75,
+          57.954
+        ]
+      },
+      "properties": {
+        "id": "bank_d_04_01",
+        "name": "Банк 04-01",
+        "kind": "bank",
+        "district_id": "d_04",
+        "domains": {
+          "money": {
+            "role": "supply",
+            "capacity": 1003
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          38.75,
+          58.146
+        ]
+      },
+      "properties": {
+        "id": "bank_d_04_02",
+        "name": "Банк 04-02",
+        "kind": "bank",
+        "district_id": "d_04",
+        "domains": {
+          "money": {
+            "role": "supply",
+            "capacity": 930
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          38.774504,
+          57.987511
+        ]
+      },
+      "properties": {
+        "id": "emp_d_04_01",
+        "name": "Работодатель 04-01",
+        "kind": "employer",
+        "district_id": "d_04",
+        "domains": {
+          "labor": {
+            "role": "demand",
+            "capacity": 133
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          38.725496,
+          58.112489
+        ]
+      },
+      "properties": {
+        "id": "emp_d_04_02",
+        "name": "Работодатель 04-02",
+        "kind": "employer",
+        "district_id": "d_04",
+        "domains": {
+          "labor": {
+            "role": "demand",
+            "capacity": 86
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          38.817902,
+          58.05
+        ]
+      },
+      "properties": {
+        "id": "emp_d_04_03",
+        "name": "Работодатель 04-03",
+        "kind": "employer",
+        "district_id": "d_04",
+        "domains": {
+          "labor": {
+            "role": "demand",
+            "capacity": 32
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          38.851582,
+          57.988704
+        ]
+      },
+      "properties": {
+        "id": "res_d_04_01",
+        "name": "Жилое здание 04-01",
+        "kind": "residence",
+        "district_id": "d_04",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 73
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 44
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          38.721065,
+          58.011764
+        ]
+      },
+      "properties": {
+        "id": "res_d_04_02",
+        "name": "Жилое здание 04-02",
+        "kind": "residence",
+        "district_id": "d_04",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 63
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 40
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          38.629309,
+          57.957519
+        ]
+      },
+      "properties": {
+        "id": "res_d_04_03",
+        "name": "Жилое здание 04-03",
+        "kind": "residence",
+        "district_id": "d_04",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 179
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 93
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          38.706297,
+          57.894232
+        ]
+      },
+      "properties": {
+        "id": "res_d_04_04",
+        "name": "Жилое здание 04-04",
+        "kind": "residence",
+        "district_id": "d_04",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 201
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 117
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          38.838809,
+          57.915734
+        ]
+      },
+      "properties": {
+        "id": "res_d_04_05",
+        "name": "Жилое здание 04-05",
+        "kind": "residence",
+        "district_id": "d_04",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 159
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 82
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          38.850891,
+          58.180468
+        ]
+      },
+      "properties": {
+        "id": "res_d_04_06",
+        "name": "Жилое здание 04-06",
+        "kind": "residence",
+        "district_id": "d_04",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 163
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 90
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          38.719585,
+          58.206719
+        ]
+      },
+      "properties": {
+        "id": "res_d_04_07",
+        "name": "Жилое здание 04-07",
+        "kind": "residence",
+        "district_id": "d_04",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 220
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 109
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          38.635353,
+          58.149343
+        ]
+      },
+      "properties": {
+        "id": "res_d_04_08",
+        "name": "Жилое здание 04-08",
+        "kind": "residence",
+        "district_id": "d_04",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 82
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 43
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          38.707382,
+          58.087717
+        ]
+      },
+      "properties": {
+        "id": "res_d_04_09",
+        "name": "Жилое здание 04-09",
+        "kind": "residence",
+        "district_id": "d_04",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 163
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 84
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          38.844695,
+          58.105198
+        ]
+      },
+      "properties": {
+        "id": "res_d_04_10",
+        "name": "Жилое здание 04-10",
+        "kind": "residence",
+        "district_id": "d_04",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 74
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 41
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          38.043,
+          57.2292
+        ]
+      },
+      "properties": {
+        "id": "settlement_d_05",
+        "name": "Населённый пункт — Угличский",
+        "kind": "settlement",
+        "district_id": "d_05",
+        "domains": {}
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          38.25,
+          57.354
+        ]
+      },
+      "properties": {
+        "id": "bank_d_05_01",
+        "name": "Банк 05-01",
+        "kind": "bank",
+        "district_id": "d_05",
+        "domains": {
+          "money": {
+            "role": "supply",
+            "capacity": 1514
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          38.25,
+          57.546
+        ]
+      },
+      "properties": {
+        "id": "bank_d_05_02",
+        "name": "Банк 05-02",
+        "kind": "bank",
+        "district_id": "d_05",
+        "domains": {
+          "money": {
+            "role": "supply",
+            "capacity": 1048
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          38.273066,
+          57.387721
+        ]
+      },
+      "properties": {
+        "id": "emp_d_05_01",
+        "name": "Работодатель 05-01",
+        "kind": "employer",
+        "district_id": "d_05",
+        "domains": {
+          "labor": {
+            "role": "demand",
+            "capacity": 97
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          38.226934,
+          57.512279
+        ]
+      },
+      "properties": {
+        "id": "emp_d_05_02",
+        "name": "Работодатель 05-02",
+        "kind": "employer",
+        "district_id": "d_05",
+        "domains": {
+          "labor": {
+            "role": "demand",
+            "capacity": 52
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          38.316785,
+          57.45
+        ]
+      },
+      "properties": {
+        "id": "emp_d_05_03",
+        "name": "Работодатель 05-03",
+        "kind": "employer",
+        "district_id": "d_05",
+        "domains": {
+          "labor": {
+            "role": "demand",
+            "capacity": 69
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          38.342362,
+          57.387261
+        ]
+      },
+      "properties": {
+        "id": "res_d_05_01",
+        "name": "Жилое здание 05-01",
+        "kind": "residence",
+        "district_id": "d_05",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 171
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 91
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          38.218338,
+          57.414221
+        ]
+      },
+      "properties": {
+        "id": "res_d_05_02",
+        "name": "Жилое здание 05-02",
+        "kind": "residence",
+        "district_id": "d_05",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 197
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 118
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          38.136192,
+          57.356358
+        ]
+      },
+      "properties": {
+        "id": "res_d_05_03",
+        "name": "Жилое здание 05-03",
+        "kind": "residence",
+        "district_id": "d_05",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 110
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 72
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          38.211503,
+          57.29772
+        ]
+      },
+      "properties": {
+        "id": "res_d_05_04",
+        "name": "Жилое здание 05-04",
+        "kind": "residence",
+        "district_id": "d_05",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 135
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 66
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          38.34089,
+          57.315511
+        ]
+      },
+      "properties": {
+        "id": "res_d_05_05",
+        "name": "Жилое здание 05-05",
+        "kind": "residence",
+        "district_id": "d_05",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 190
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 97
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          38.348766,
+          57.581567
+        ]
+      },
+      "properties": {
+        "id": "res_d_05_06",
+        "name": "Жилое здание 05-06",
+        "kind": "residence",
+        "district_id": "d_05",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 102
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 50
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          38.217346,
+          57.60811
+        ]
+      },
+      "properties": {
+        "id": "res_d_05_07",
+        "name": "Жилое здание 05-07",
+        "kind": "residence",
+        "district_id": "d_05",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 158
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 79
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          38.137611,
+          57.548328
+        ]
+      },
+      "properties": {
+        "id": "res_d_05_08",
+        "name": "Жилое здание 05-08",
+        "kind": "residence",
+        "district_id": "d_05",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 207
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 101
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          38.20785,
+          57.48438
+        ]
+      },
+      "properties": {
+        "id": "res_d_05_09",
+        "name": "Жилое здание 05-09",
+        "kind": "residence",
+        "district_id": "d_05",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 199
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 114
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          38.341403,
+          57.507294
+        ]
+      },
+      "properties": {
+        "id": "res_d_05_10",
+        "name": "Жилое здание 05-10",
+        "kind": "residence",
+        "district_id": "d_05",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 135
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 71
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.2728,
+          58.9708
+        ]
+      },
+      "properties": {
+        "id": "settlement_d_06",
+        "name": "Населённый пункт — Пошехонский",
+        "kind": "settlement",
+        "district_id": "d_06",
+        "domains": {}
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.65,
+          58.654
+        ]
+      },
+      "properties": {
+        "id": "bank_d_06_01",
+        "name": "Банк 06-01",
+        "kind": "bank",
+        "district_id": "d_06",
+        "domains": {
+          "money": {
+            "role": "supply",
+            "capacity": 1205
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.65,
+          58.846
+        ]
+      },
+      "properties": {
+        "id": "bank_d_06_02",
+        "name": "Банк 06-02",
+        "kind": "bank",
+        "district_id": "d_06",
+        "domains": {
+          "money": {
+            "role": "supply",
+            "capacity": 2092
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.691839,
+          58.682636
+        ]
+      },
+      "properties": {
+        "id": "emp_d_06_01",
+        "name": "Работодатель 06-01",
+        "kind": "employer",
+        "district_id": "d_06",
+        "domains": {
+          "labor": {
+            "role": "demand",
+            "capacity": 30
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.608161,
+          58.817364
+        ]
+      },
+      "properties": {
+        "id": "emp_d_06_02",
+        "name": "Работодатель 06-02",
+        "kind": "employer",
+        "district_id": "d_06",
+        "domains": {
+          "labor": {
+            "role": "demand",
+            "capacity": 126
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.719264,
+          58.75
+        ]
+      },
+      "properties": {
+        "id": "emp_d_06_03",
+        "name": "Работодатель 06-03",
+        "kind": "employer",
+        "district_id": "d_06",
+        "domains": {
+          "labor": {
+            "role": "demand",
+            "capacity": 70
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.760582,
+          58.671363
+        ]
+      },
+      "properties": {
+        "id": "res_d_06_01",
+        "name": "Жилое здание 06-01",
+        "kind": "residence",
+        "district_id": "d_06",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 194
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 118
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.652497,
+          58.717945
+        ]
+      },
+      "properties": {
+        "id": "res_d_06_02",
+        "name": "Жилое здание 06-02",
+        "kind": "residence",
+        "district_id": "d_06",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 190
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 91
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.5403,
+          58.673774
+        ]
+      },
+      "properties": {
+        "id": "res_d_06_03",
+        "name": "Жилое здание 06-03",
+        "kind": "residence",
+        "district_id": "d_06",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 81
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 53
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.578309,
+          58.604932
+        ]
+      },
+      "properties": {
+        "id": "res_d_06_04",
+        "name": "Жилое здание 06-04",
+        "kind": "residence",
+        "district_id": "d_06",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 82
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 50
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.720211,
+          58.60167
+        ]
+      },
+      "properties": {
+        "id": "res_d_06_05",
+        "name": "Жилое здание 06-05",
+        "kind": "residence",
+        "district_id": "d_06",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 108
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 66
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.767549,
+          58.864457
+        ]
+      },
+      "properties": {
+        "id": "res_d_06_06",
+        "name": "Жилое здание 06-06",
+        "kind": "residence",
+        "district_id": "d_06",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 122
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 70
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.652405,
+          58.907578
+        ]
+      },
+      "properties": {
+        "id": "res_d_06_07",
+        "name": "Жилое здание 06-07",
+        "kind": "residence",
+        "district_id": "d_06",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 68
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 34
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.536554,
+          58.866449
+        ]
+      },
+      "properties": {
+        "id": "res_d_06_08",
+        "name": "Жилое здание 06-08",
+        "kind": "residence",
+        "district_id": "d_06",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 55
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 30
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.578638,
+          58.797158
+        ]
+      },
+      "properties": {
+        "id": "res_d_06_09",
+        "name": "Жилое здание 06-09",
+        "kind": "residence",
+        "district_id": "d_06",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 96
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 59
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.721243,
+          58.792901
+        ]
+      },
+      "properties": {
+        "id": "res_d_06_10",
+        "name": "Жилое здание 06-10",
+        "kind": "residence",
+        "district_id": "d_06",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 57
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 29
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          40.1372,
+          58.2568
+        ]
+      },
+      "properties": {
+        "id": "settlement_d_07",
+        "name": "Населённый пункт — Любимский",
+        "kind": "settlement",
+        "district_id": "d_07",
+        "domains": {}
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          40.45,
+          58.366
+        ]
+      },
+      "properties": {
+        "id": "bank_d_07_01",
+        "name": "Банк 07-01",
+        "kind": "bank",
+        "district_id": "d_07",
+        "domains": {
+          "money": {
+            "role": "supply",
+            "capacity": 956
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          40.45,
+          58.534
+        ]
+      },
+      "properties": {
+        "id": "bank_d_07_02",
+        "name": "Банк 07-02",
+        "kind": "bank",
+        "district_id": "d_07",
+        "domains": {
+          "money": {
+            "role": "supply",
+            "capacity": 1265
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          40.507742,
+          58.38545
+        ]
+      },
+      "properties": {
+        "id": "emp_d_07_01",
+        "name": "Работодатель 07-01",
+        "kind": "employer",
+        "district_id": "d_07",
+        "domains": {
+          "labor": {
+            "role": "demand",
+            "capacity": 29
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          40.392258,
+          58.51455
+        ]
+      },
+      "properties": {
+        "id": "emp_d_07_02",
+        "name": "Работодатель 07-02",
+        "kind": "employer",
+        "district_id": "d_07",
+        "domains": {
+          "labor": {
+            "role": "demand",
+            "capacity": 118
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          40.518673,
+          58.45
+        ]
+      },
+      "properties": {
+        "id": "emp_d_07_03",
+        "name": "Работодатель 07-03",
+        "kind": "employer",
+        "district_id": "d_07",
+        "domains": {
+          "labor": {
+            "role": "demand",
+            "capacity": 150
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          40.567126,
+          58.362544
+        ]
+      },
+      "properties": {
+        "id": "res_d_07_01",
+        "name": "Жилое здание 07-01",
+        "kind": "residence",
+        "district_id": "d_07",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 159
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 104
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          40.492652,
+          58.423457
+        ]
+      },
+      "properties": {
+        "id": "res_d_07_02",
+        "name": "Жилое здание 07-02",
+        "kind": "residence",
+        "district_id": "d_07",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 115
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 73
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          40.35376,
+          58.40711
+        ]
+      },
+      "properties": {
+        "id": "res_d_07_03",
+        "name": "Жилое здание 07-03",
+        "kind": "residence",
+        "district_id": "d_07",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 160
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 78
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          40.352318,
+          58.333095
+        ]
+      },
+      "properties": {
+        "id": "res_d_07_04",
+        "name": "Жилое здание 07-04",
+        "kind": "residence",
+        "district_id": "d_07",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 160
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 100
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          40.480317,
+          58.305844
+        ]
+      },
+      "properties": {
+        "id": "res_d_07_05",
+        "name": "Жилое здание 07-05",
+        "kind": "residence",
+        "district_id": "d_07",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 123
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 63
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          40.575418,
+          58.5303
+        ]
+      },
+      "properties": {
+        "id": "res_d_07_06",
+        "name": "Жилое здание 07-06",
+        "kind": "residence",
+        "district_id": "d_07",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 64
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 41
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          40.492503,
+          58.591256
+        ]
+      },
+      "properties": {
+        "id": "res_d_07_07",
+        "name": "Жилое здание 07-07",
+        "kind": "residence",
+        "district_id": "d_07",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 172
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 93
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          40.360755,
+          58.572122
+        ]
+      },
+      "properties": {
+        "id": "res_d_07_08",
+        "name": "Жилое здание 07-08",
+        "kind": "residence",
+        "district_id": "d_07",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 112
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 54
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          40.35237,
+          58.501113
+        ]
+      },
+      "properties": {
+        "id": "res_d_07_09",
+        "name": "Жилое здание 07-09",
+        "kind": "residence",
+        "district_id": "d_07",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 72
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 47
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          40.479216,
+          58.476029
+        ]
+      },
+      "properties": {
+        "id": "res_d_07_10",
+        "name": "Жилое здание 07-10",
+        "kind": "residence",
+        "district_id": "d_07",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 157
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 95
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.2188,
+          58.0752
+        ]
+      },
+      "properties": {
+        "id": "settlement_d_08",
+        "name": "Населённый пункт — Некоузский",
+        "kind": "settlement",
+        "district_id": "d_08",
+        "domains": {}
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.55,
+          58.174
+        ]
+      },
+      "properties": {
+        "id": "bank_d_08_01",
+        "name": "Банк 08-01",
+        "kind": "bank",
+        "district_id": "d_08",
+        "domains": {
+          "money": {
+            "role": "supply",
+            "capacity": 2168
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.55,
+          58.326
+        ]
+      },
+      "properties": {
+        "id": "bank_d_08_02",
+        "name": "Банк 08-02",
+        "kind": "bank",
+        "district_id": "d_08",
+        "domains": {
+          "money": {
+            "role": "supply",
+            "capacity": 2438
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.591843,
+          58.202396
+        ]
+      },
+      "properties": {
+        "id": "emp_d_08_01",
+        "name": "Работодатель 08-01",
+        "kind": "employer",
+        "district_id": "d_08",
+        "domains": {
+          "labor": {
+            "role": "demand",
+            "capacity": 128
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.508157,
+          58.297604
+        ]
+      },
+      "properties": {
+        "id": "emp_d_08_02",
+        "name": "Работодатель 08-02",
+        "kind": "employer",
+        "district_id": "d_08",
+        "domains": {
+          "labor": {
+            "role": "demand",
+            "capacity": 56
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.618285,
+          58.25
+        ]
+      },
+      "properties": {
+        "id": "emp_d_08_03",
+        "name": "Работодатель 08-03",
+        "kind": "employer",
+        "district_id": "d_08",
+        "domains": {
+          "labor": {
+            "role": "demand",
+            "capacity": 123
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.667434,
+          58.191964
+        ]
+      },
+      "properties": {
+        "id": "res_d_08_01",
+        "name": "Жилое здание 08-01",
+        "kind": "residence",
+        "district_id": "d_08",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 166
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 80
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.553839,
+          58.238612
+        ]
+      },
+      "properties": {
+        "id": "res_d_08_02",
+        "name": "Жилое здание 08-02",
+        "kind": "residence",
+        "district_id": "d_08",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 105
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 57
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.432071,
+          58.19633
+        ]
+      },
+      "properties": {
+        "id": "res_d_08_03",
+        "name": "Жилое здание 08-03",
+        "kind": "residence",
+        "district_id": "d_08",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 139
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 82
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.47575,
+          58.123613
+        ]
+      },
+      "properties": {
+        "id": "res_d_08_04",
+        "name": "Жилое здание 08-04",
+        "kind": "residence",
+        "district_id": "d_08",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 131
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 75
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.616447,
+          58.122568
+        ]
+      },
+      "properties": {
+        "id": "res_d_08_05",
+        "name": "Жилое здание 08-05",
+        "kind": "residence",
+        "district_id": "d_08",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 130
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 75
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.669719,
+          58.344314
+        ]
+      },
+      "properties": {
+        "id": "res_d_08_06",
+        "name": "Жилое здание 08-06",
+        "kind": "residence",
+        "district_id": "d_08",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 152
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 91
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.55387,
+          58.391139
+        ]
+      },
+      "properties": {
+        "id": "res_d_08_07",
+        "name": "Жилое здание 08-07",
+        "kind": "residence",
+        "district_id": "d_08",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 132
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 73
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.442542,
+          58.346347
+        ]
+      },
+      "properties": {
+        "id": "res_d_08_08",
+        "name": "Жилое здание 08-08",
+        "kind": "residence",
+        "district_id": "d_08",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 108
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 60
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.474986,
+          58.275094
+        ]
+      },
+      "properties": {
+        "id": "res_d_08_09",
+        "name": "Жилое здание 08-09",
+        "kind": "residence",
+        "district_id": "d_08",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 174
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 97
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.614469,
+          58.276099
+        ]
+      },
+      "properties": {
+        "id": "res_d_08_10",
+        "name": "Жилое здание 08-10",
+        "kind": "residence",
+        "district_id": "d_08",
+        "domains": {
+          "money": {
+            "role": "demand",
+            "capacity": 98
+          },
+          "labor": {
+            "role": "supply",
+            "capacity": 59
           }
         }
       }

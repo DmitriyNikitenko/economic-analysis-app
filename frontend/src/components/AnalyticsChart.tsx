@@ -70,6 +70,10 @@ export default function AnalyticsChart({
                             </th>
 
                             <th className="p-3 font-medium">
+                                Количество связей
+                            </th>
+
+                            <th className="p-3 font-medium">
                                 Средняя степень узла
                             </th>
 
@@ -94,6 +98,13 @@ export default function AnalyticsChart({
                             <td className="p-3 font-bold text-slate-900">
                                 {regionStats
                                     ? regionStats.node_count.toLocaleString("ru-RU")
+                                    : "—"}
+                            </td>
+
+                            {/* Количество связей */}        
+                            <td className="p-3 font-bold text-slate-900">
+                                {regionStats
+                                    ? regionStats.edge_count.toLocaleString("ru-RU")
                                     : "—"}
                             </td>
 
@@ -145,6 +156,13 @@ export default function AnalyticsChart({
                                     <td className="p-3 text-slate-700">
                                         {stats
                                             ? stats.node_count.toLocaleString("ru-RU")
+                                            : "—"}
+                                    </td>
+
+                                    {/* Количество связей */}
+                                    <td className="p-3 text-slate-700">
+                                        {stats
+                                            ? stats.edge_count.toLocaleString("ru-RU")
                                             : "—"}
                                     </td>
 

@@ -159,24 +159,6 @@ export default function App() {
         <h2 id="layer-controls-heading" className="mb-3 text-lg font-semibold">Настройки отображения графа</h2>
 
         <fieldset className="mb-5">
-          <legend className="mb-2 font-medium">Слои</legend>
-          <div className="flex flex-wrap gap-x-5 gap-y-2">
-            {/* Переключатели видимости слоёв: объекты, роли и рёбра */}
-            {config.layers.map((layer) => (
-              <label key={layer.id} className="flex cursor-pointer items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={visibleLayers[layer.id]}
-                  onChange={(event) => toggleLayer(layer.id, event.target.checked)}
-                  className="accent-sky-700"
-                />
-                {layer.label}
-              </label>
-            ))}
-          </div>
-        </fieldset>
-
-        <fieldset className="mb-5">
           <legend className="mb-2 font-medium">Домен</legend>
           <div className="flex flex-wrap gap-2" role="group" aria-label="Выбор экономического домена">
             {/* Выбор экономического домена */}
@@ -219,6 +201,24 @@ export default function App() {
           )}
         </fieldset>
 
+        <fieldset className="mb-5">
+          <legend className="mb-2 font-medium">Слои</legend>
+          <div className="flex flex-wrap gap-x-5 gap-y-2">
+            {/* Переключатели видимости слоёв: объекты, роли и рёбра */}
+            {config.layers.map((layer) => (
+              <label key={layer.id} className="flex cursor-pointer items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={visibleLayers[layer.id]}
+                  onChange={(event) => toggleLayer(layer.id, event.target.checked)}
+                  className="accent-sky-700"
+                />
+                {layer.label}
+              </label>
+            ))}
+          </div>
+        </fieldset>
+
         <fieldset>
           <legend className="mb-2 font-medium">Радиус досягаемости связей</legend>
           {/* Настройки радиуса */}
@@ -228,6 +228,7 @@ export default function App() {
             ))}
           </div>
         </fieldset>
+        
       </section>
 
       {/* Отображение карты через MapView */}

@@ -35,6 +35,7 @@ export const SELECTED_EDGE_COLOR = "#00BFFF";
 // Подписи для типов экономических объектов
 export const KIND_LABELS: Record<SubjectProperties["kind"], string> = {
     settlement: "Населённый пункт",
+    residence: "Жилое здание",
     bank: "Банк",
     employer: "Работодатель",
     shop: "Магазин",
@@ -45,8 +46,8 @@ export function getCapacityUnit(
     kind: SubjectProperties["kind"],
     domain: Domain,
 ): string {
-    // Ёмкость: население, которое потенциально нуждается в финансовых услугах
-    if (domain === "money" && kind === "settlement") {
+    // Ёмкость: количество жителей, которое потенциально нуждается в финансовых услугах
+    if (domain === "money" && kind === "residence") {
         return "человек";  // единица измерения
     }
 
@@ -55,7 +56,7 @@ export function getCapacityUnit(
         return "усл. ед.";
     }
     // Ёмкость: Трудоспособное население — потенциальная рабочая сила, которая может быть доступна работодателям
-    if (domain === "labor" && kind === "settlement") {
+    if (domain === "labor" && kind === "residence") {
         return "человек";
     }
 
@@ -64,6 +65,8 @@ export function getCapacityUnit(
         return "вакансий";
     }
 
+    // Для остальных сочетаний единица измерения не определена
+    // Например, settlement не имеет экономической ёмкости
     return "—";
 }
 

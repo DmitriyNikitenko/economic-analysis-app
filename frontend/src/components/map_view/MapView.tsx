@@ -138,16 +138,26 @@ export default function MapView({
   }, [districts]);
 
   // Фильтрация экономических объектов
-  // Показываем только узлы, участвующие в активном домене/наборе доступных доменов.
+  // Населённые пункты показываются всегда,
+  // остальные объекты — только при наличии активного домена
   const subjects = useMemo(
     () =>
-      data.features.filter((feature) =>
-        availableDomains.some(
+      data.features.filter((feature) => {
+        const props = feature.properties;
+
+        // Населённый пункт отображается независимо от выбора домена
+        if (props.kind === "settlement") {
+          return true;
+        }
+
+        // Остальные объекты должны участвовать
+        // хотя бы в одном выбранном экономическом домене
+        return availableDomains.some(
           (domain) =>
             (selection === "all" || domain === selection) &&
-            Boolean(feature.properties.domains?.[domain]),
-        ),
-      ),
+            Boolean(props.domains?.[domain]),
+        );
+      }),
     [data, availableDomains, selection],
   );
 
@@ -243,7 +253,12 @@ export default function MapView({
 
   // Фильтрация связей между объектами
   const visibleEdges = useMemo(() => {
-    const subjectIds = new Set(subjects.map((feature) => feature.properties.id));
+    
+    const subjectIds = new Set(
+      subjects
+        .filter((feature) => feature.properties.kind !== "settlement")  // Исключаем населённые пункты из фильтрации связей, так как они не участвуют в экономических связях
+        .map((feature) => feature.properties.id),
+    );
 
     return edges.features.filter((edge) => {
       const domain = edge.properties.domain;
@@ -312,6 +327,9 @@ export default function MapView({
         .slice(0, 5),
     [selectedConnections],
   );
+
+  // Проверяем, есть ли у выбранного объекта экономические связи
+  const hasSelectedConnections = selectedConnections.length > 0;
 
   // Раскрашиваем районы в зависимости от средней степени узлов
   // Если слой отключён, показываем только границы районов
@@ -462,7 +480,7 @@ export default function MapView({
                 // При выборе объекта остальные связи становятся прозрачнее
                 // 0.8 — стандартная прозрачность для всех связей, когда объект не выбран
                 // 0.18 — прозрачность для связей, не относящихся к выбранному объекту
-                opacity: selectedSubject
+                opacity: hasSelectedConnections  // Если есть выбранный объект с связями (исключает settlement)
                   ? isSelectedConnection
                     ? 1
                     : 0.18
@@ -547,7 +565,7 @@ export default function MapView({
         selection={selection}
         availableDomains={availableDomains}
         config={config}
-        hasSelectedSubject={selectedSubject !== null}
+        hasSelectedConnections={selectedSubject !== null}
       />
 
       {/* Карточка выбранного объекта */}
@@ -591,41 +609,52 @@ export default function MapView({
                   Ёмкость по доменам
                 </h4>
 
-                {availableDomains.map((domain) => {
-                  const info =
-                    selectedSubject.properties.domains?.[domain];
+                {availableDomains.some(
+                  (domain) =>
+                    selectedSubject.properties.domains?.[domain]
+                ) ? (
+                  availableDomains.map((domain) => {
+                    const info =
+                      selectedSubject.properties.domains?.[domain];
 
-                  if (!info) return null;
+                    if (!info) return null;
 
-                  return (
-                    <div
-                      key={domain}
-                      className="mb-2 flex items-center justify-between gap-2 text-sm"
-                    >
-                      <div>
-                        <span className="text-slate-700">
-                          {DOMAIN_LABELS[domain]}
-                        </span>
+                    return (
+                      <div
+                        key={domain}
+                        className="mb-2 flex items-center justify-between gap-2 text-sm"
+                      >
+                        <div>
+                          <span className="text-slate-700">
+                            {DOMAIN_LABELS[domain]}
+                          </span>
 
-                        <span className="ml-2 text-slate-400">
-                          {info.role === "demand"
-                            ? "Спрос"
-                            : "Предложение"}
+                          <span className="ml-2 text-slate-400">
+                            {info.role === "demand"
+                              ? "Спрос"
+                              : "Предложение"}
+                          </span>
+                        </div>
+
+                        <span className="font-semibold text-slate-800">
+                          {info.capacity.toLocaleString("ru-RU", {
+                            maximumFractionDigits: 2,
+                          })}{" "}
+                          {getCapacityUnit(
+                            selectedSubject.properties.kind,
+                            domain,
+                          )}
                         </span>
                       </div>
-
-                      <span className="font-semibold text-slate-800">
-                        {info.capacity.toLocaleString("ru-RU", {
-                          maximumFractionDigits: 2,
-                        })}{" "}
-                        {getCapacityUnit(
-                          selectedSubject.properties.kind,
-                          domain,
-                        )}
-                      </span>
-                    </div>
-                  );
-                })}
+                    );
+                  })
+                ) : (
+                  <p className="text-sm text-slate-500">
+                    {selectedSubject.properties.kind === "settlement"
+                      ? "Населённый пункт служит ориентиром на карте и не участвует в экономических связях."
+                      : "Для объекта нет данных о ёмкости в доступных доменах."}
+                  </p>
+                )}
               </div>
 
               {/* Количество связей */}

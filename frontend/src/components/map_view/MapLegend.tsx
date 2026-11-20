@@ -27,7 +27,7 @@ type Props = {
     selection: DomainSelection;
     availableDomains: Domain[];
     config: LayerConfig;
-    hasSelectedSubject: boolean;
+    hasSelectedConnections: boolean;
 };
 
 // Компонент легенды карты
@@ -36,7 +36,7 @@ export default function MapLegend({
     selection,
     availableDomains,
     config,
-    hasSelectedSubject,
+    hasSelectedConnections,
 }: Props) {
     
     // Получаем название выбранного домена
@@ -57,6 +57,11 @@ export default function MapLegend({
                         <span>
                             <span style={{ color: "#457b9d" }}>●</span>{" "}
                             Населенный пункт
+                        </span>
+
+                        <span>
+                            <span style={{ color: "#457b9d" }}>⬣</span>{" "}
+                            Жилое здание
                         </span>
 
                         <span>
@@ -125,7 +130,7 @@ export default function MapLegend({
                         </span>
 
                         {/* Если выбран объект, показываем легенду для связей выбранного объекта */}
-                        {hasSelectedSubject && (
+                        {hasSelectedConnections && (
                             <span className="inline-flex items-center gap-2">
                                 <span
                                     className="inline-block w-7"
