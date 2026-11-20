@@ -484,15 +484,11 @@ def main():
         "Неклассифицированных объектов: "
         f"{result['unclassified']}"
     )
-
-    if result["districts_updated"]:
-        print(
-            f"Муниципальных районов записано: "
-            f"{result['districts']}"
-        )
-    else:
-        print("Муниципальные районы не обновлялись.")
-
+    
+    print(
+        "Муниципальных районов записано: "
+        f"{result['districts']}"
+    )
 
 if __name__ == "__main__":
     main()
