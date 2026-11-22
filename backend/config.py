@@ -11,6 +11,7 @@ CONFIG_PATH = ROOT / "config" / "region.yaml"
 
 DOMAINS = ("money", "labor", "goods")
 LAYERS = ("objects", "roles", "edges") 
+GRAPH_MODELS = ("huff", "equilibrium")
 
 class ConfigError(ValueError):
     pass
@@ -22,6 +23,12 @@ class DomainConfig:
     enabled: bool
     radius_km: float
     beta: float
+
+@dataclass(frozen=True)
+class GraphConfig:
+    model: str = "huff"
+    max_price: float = 2.0
+    transport_price: float = 1.0
 
 @dataclass(frozen=True)
 class LayerConfig:
@@ -49,6 +56,7 @@ class Config:
     domains: dict[str, DomainConfig]
     layers: tuple[LayerConfig, ...]
     show_all_domains_option: bool
+    graph: GraphConfig = GraphConfig()
 
     @property
     def enabled_domains(self) -> list[str]:
@@ -78,6 +86,20 @@ def _parse_domain(domain_id: str, raw: dict) -> DomainConfig:
         radius_km=radius,
         beta=beta,
     )
+
+def _parse_graph(raw: dict | None) -> GraphConfig:
+    if raw is None:
+        return GraphConfig()
+    model = str(raw.get("model", "huff"))
+    if model not in GRAPH_MODELS:
+        raise ConfigError(f"graph.model: неизвестная модель '{model}', допустимы {list(GRAPH_MODELS)}")
+    max_price = float(raw.get("max_price", 2.0))
+    transport_price = float(raw.get("transport_price", 1.0))
+    if max_price <= 0:
+        raise ConfigError(f"graph.max_price должен быть > 0, сейчас {max_price}")
+    if transport_price < 0:
+        raise ConfigError(f"graph.transport_price должен быть >= 0, сейчас {transport_price}")
+    return GraphConfig(model=model, max_price=max_price, transport_price=transport_price)
 
 
 def load_config(path: str | Path = CONFIG_PATH) -> Config:
@@ -119,6 +141,7 @@ def load_config(path: str | Path = CONFIG_PATH) -> Config:
         domains={d: _parse_domain(d, raw_domains[d]) for d in DOMAINS},
         layers=tuple(layers),
         show_all_domains_option=bool(data.get("show_all_domains_option", True)),
+        graph=_parse_graph(data.get("graph")),
     )
 
 
