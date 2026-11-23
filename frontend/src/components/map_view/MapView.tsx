@@ -482,7 +482,7 @@ export default function MapView({
         center={regionBounds.isValid() ? regionBounds.getCenter() : [57.8, 39.0]}
         zoom={7}
         minZoom={7}
-        maxZoom={12}
+        maxZoom={24}
         maxBounds={regionBounds}
         maxBoundsViscosity={1}
         style={{ height: "560px", width: "100%" }}
