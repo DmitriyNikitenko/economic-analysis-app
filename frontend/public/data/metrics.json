@@ -1,203 +1,45 @@
 {
-  "generated_at": "2026-11-20T00:00:00Z",
-  "seed": 20261120,
-  "synthetic": true,
+  "generated_at": "2026-11-23T16:01:33+03:00",
   "region": {
-    "name": "Ярославская область, Россия",
-    "boundary_is_approximate": true,
     "all": {
-      "node_count": 120,
-      "edge_count": 237,
-      "avg_degree": 3.95,
-      "low_data": false
-    },
-    "money": {
-      "node_count": 96,
-      "edge_count": 85,
-      "avg_degree": 1.7708,
+      "node_count": 564,
+      "edge_count": 1155,
+      "avg_degree": 4.1,
       "low_data": false
     },
     "labor": {
-      "node_count": 104,
-      "edge_count": 152,
-      "avg_degree": 2.9231,
+      "node_count": 481,
+      "edge_count": 728,
+      "avg_degree": 3.03,
+      "low_data": false
+    },
+    "money": {
+      "node_count": 466,
+      "edge_count": 427,
+      "avg_degree": 1.83,
       "low_data": false
     }
   },
   "districts": [
     {
-      "id": "d_01",
-      "name": "Ярославский",
+      "id": "relation/1701436",
+      "name": "городской округ Ярославль",
       "all": {
-        "node_count": 15,
-        "edge_count": 24,
-        "avg_degree": 3.2,
-        "low_data": false
-      },
-      "money": {
-        "node_count": 12,
-        "edge_count": 10,
-        "avg_degree": 1.6667,
+        "node_count": 564,
+        "edge_count": 1155,
+        "avg_degree": 4.1,
         "low_data": false
       },
       "labor": {
-        "node_count": 13,
-        "edge_count": 14,
-        "avg_degree": 2.1538,
-        "low_data": false
-      }
-    },
-    {
-      "id": "d_02",
-      "name": "Ростовский",
-      "all": {
-        "node_count": 15,
-        "edge_count": 31,
-        "avg_degree": 4.1333,
+        "node_count": 481,
+        "edge_count": 728,
+        "avg_degree": 3.03,
         "low_data": false
       },
       "money": {
-        "node_count": 12,
-        "edge_count": 11,
-        "avg_degree": 1.8333,
-        "low_data": false
-      },
-      "labor": {
-        "node_count": 13,
-        "edge_count": 20,
-        "avg_degree": 3.0769,
-        "low_data": false
-      }
-    },
-    {
-      "id": "d_03",
-      "name": "Переславский",
-      "all": {
-        "node_count": 15,
-        "edge_count": 32,
-        "avg_degree": 4.2667,
-        "low_data": false
-      },
-      "money": {
-        "node_count": 12,
-        "edge_count": 12,
-        "avg_degree": 2.0,
-        "low_data": false
-      },
-      "labor": {
-        "node_count": 13,
-        "edge_count": 20,
-        "avg_degree": 3.0769,
-        "low_data": false
-      }
-    },
-    {
-      "id": "d_04",
-      "name": "Рыбинский",
-      "all": {
-        "node_count": 15,
-        "edge_count": 29,
-        "avg_degree": 3.8667,
-        "low_data": false
-      },
-      "money": {
-        "node_count": 12,
-        "edge_count": 10,
-        "avg_degree": 1.6667,
-        "low_data": false
-      },
-      "labor": {
-        "node_count": 13,
-        "edge_count": 19,
-        "avg_degree": 2.9231,
-        "low_data": false
-      }
-    },
-    {
-      "id": "d_05",
-      "name": "Угличский",
-      "all": {
-        "node_count": 15,
-        "edge_count": 28,
-        "avg_degree": 3.7333,
-        "low_data": false
-      },
-      "money": {
-        "node_count": 12,
-        "edge_count": 10,
-        "avg_degree": 1.6667,
-        "low_data": false
-      },
-      "labor": {
-        "node_count": 13,
-        "edge_count": 18,
-        "avg_degree": 2.7692,
-        "low_data": false
-      }
-    },
-    {
-      "id": "d_06",
-      "name": "Пошехонский",
-      "all": {
-        "node_count": 15,
-        "edge_count": 29,
-        "avg_degree": 3.8667,
-        "low_data": false
-      },
-      "money": {
-        "node_count": 12,
-        "edge_count": 10,
-        "avg_degree": 1.6667,
-        "low_data": false
-      },
-      "labor": {
-        "node_count": 13,
-        "edge_count": 19,
-        "avg_degree": 2.9231,
-        "low_data": false
-      }
-    },
-    {
-      "id": "d_07",
-      "name": "Любимский",
-      "all": {
-        "node_count": 15,
-        "edge_count": 29,
-        "avg_degree": 3.8667,
-        "low_data": false
-      },
-      "money": {
-        "node_count": 12,
-        "edge_count": 10,
-        "avg_degree": 1.6667,
-        "low_data": false
-      },
-      "labor": {
-        "node_count": 13,
-        "edge_count": 19,
-        "avg_degree": 2.9231,
-        "low_data": false
-      }
-    },
-    {
-      "id": "d_08",
-      "name": "Некоузский",
-      "all": {
-        "node_count": 15,
-        "edge_count": 35,
-        "avg_degree": 4.6667,
-        "low_data": false
-      },
-      "money": {
-        "node_count": 12,
-        "edge_count": 12,
-        "avg_degree": 2.0,
-        "low_data": false
-      },
-      "labor": {
-        "node_count": 13,
-        "edge_count": 23,
-        "avg_degree": 3.5385,
+        "node_count": 466,
+        "edge_count": 427,
+        "avg_degree": 1.83,
         "low_data": false
       }
     }
