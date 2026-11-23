@@ -2,12 +2,13 @@ import uuid
 from types import SimpleNamespace
 from unittest.mock import MagicMock, call, patch
 import pytest
+import numpy as np
 
 from backend.economy.models import Capacity, Edge, Subject
 from backend.graph import __main__ as graph_main
 from backend.graph.engine import MIN_VISIBLE_DISTANCE, build_gravity_edges, distance
 from backend.graph.updater import update_edges
-
+from backend.graph.equilibrium import build_equilibrium_edges, solve_flows
 
 def make_config(
     radius_km: float = 100.0,
@@ -219,6 +220,100 @@ def test_update_edges_empty_list_skips_insert():
 
     repo.delete_edges_by_domain.assert_called_once_with("labor")
     repo.insert_edges.assert_not_called()
+
+
+# equilibrium.py
+
+def test_solve_flows_analytical_single_pair():
+    # При t = 0, pc = cc = 10, a = 2.0: 2 * (x / 10)^4 = 2.0 => x = 10.0
+    flows = solve_flows(
+        supply_caps=np.array([10.0]),
+        demand_caps=np.array([10.0]),
+        sup_idx=np.array([0]),
+        dem_idx=np.array([0]),
+        transport_costs=np.array([0.0]),
+        max_price=2.0,
+        power=4,
+    )
+    assert flows[0] == pytest.approx(10.0, rel=1e-5)
+
+
+def test_solve_flows_zero_when_transport_too_high():
+    flows = solve_flows(
+        supply_caps=np.array([10.0]),
+        demand_caps=np.array([10.0]),
+        sup_idx=np.array([0]),
+        dem_idx=np.array([0]),
+        transport_costs=np.array([2.5]),
+        max_price=2.0,
+    )
+    assert flows[0] == pytest.approx(0.0, abs=1e-9)
+
+
+def test_build_equilibrium_edges_weights_and_distance_preference():
+    cfg = make_config(radius_km=200.0)
+    cfg.graph = SimpleNamespace(model="equilibrium", max_price=2.0, transport_price=1.5)
+    subjects = [
+        Subject("d1", "Спрос", "org", 0.0, 0.0, None, None, [Capacity("labor", "demand", 10.0)]),
+        Subject("s_near", "Ближний", "org", 0.0, 0.1, None, None, [Capacity("labor", "supply", 10.0)]),
+        Subject("s_far", "Дальний", "org", 0.0, 0.5, None, None, [Capacity("labor", "supply", 10.0)]),
+    ]
+
+    edges = build_equilibrium_edges(subjects, cfg)
+
+    assert len(edges) == 2
+    assert sum(e.weight for e in edges) == pytest.approx(1.0)
+    by_to = {e.to_id: e.weight for e in edges}
+    assert by_to["s_near"] > by_to["s_far"]
+
+
+def test_build_equilibrium_edges_empty_or_out_of_radius():
+    cfg = make_config(radius_km=5.0)
+    cfg.graph = SimpleNamespace(model="equilibrium", max_price=2.0, transport_price=1.0)
+    subjects = [
+        Subject("d1", "Спрос", "org", 0.0, 0.0, None, None, [Capacity("labor", "demand", 10.0)]),
+        Subject("s_far", "Далеко", "org", 0.0, 1.0, None, None, [Capacity("labor", "supply", 10.0)]),
+    ]
+
+    assert build_equilibrium_edges([], cfg) == []
+    assert build_equilibrium_edges(subjects, cfg) == []
+
+
+def test_graph_main_selects_equilibrium_model(tmp_path):
+    db_file = tmp_path / "db.duckdb"
+    db_file.touch()
+    cfg = make_config()
+    cfg.paths = SimpleNamespace(db=db_file)
+    cfg.graph = SimpleNamespace(model="equilibrium")
+
+    with (
+        patch.object(graph_main, "get_config", return_value=cfg),
+        patch.object(graph_main, "connect"),
+        patch.object(graph_main, "Repository"),
+        patch.object(graph_main, "build_gravity_edges") as mock_huff,
+        patch.object(graph_main, "build_equilibrium_edges", return_value=[]) as mock_eq,
+        patch.object(graph_main, "update_edges") as mock_update,
+    ):
+        graph_main.main()
+        mock_huff.assert_not_called()
+        mock_eq.assert_called_once()
+        mock_update.assert_called_once()
+
+
+def test_graph_main_unknown_model_exits(tmp_path):
+    db_file = tmp_path / "db.duckdb"
+    db_file.touch()
+    cfg = make_config()
+    cfg.paths = SimpleNamespace(db=db_file)
+    cfg.graph = SimpleNamespace(model="unknown")
+
+    with (
+        patch.object(graph_main, "get_config", return_value=cfg),
+        patch.object(graph_main, "connect"),
+        patch.object(graph_main, "Repository"),
+    ):
+        with pytest.raises(SystemExit, match="Unknown graph model: unknown"):
+            graph_main.main()
 
 
 # __main__.py

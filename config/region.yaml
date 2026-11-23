@@ -18,6 +18,11 @@ paths:
 
 low_data_threshold: 5 # если меньше 5 узлов в районе, метрика помечается ненадёжной
 
+graph:
+  model: equilibrium   # huff | equilibrium
+  max_price: 2.0
+  transport_price: 1.0
+
 domains:
   money:
     label: "Деньги"
