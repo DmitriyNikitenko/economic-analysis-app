@@ -9,6 +9,8 @@ from backend.economy.db import connect, init_schema
 from backend.economy.repository import Repository
 from backend.economy.models import District
 
+from tqdm import tqdm
+
 # Упрощенные категории (временно)
 KIND_MAPPING = {
     "bank": "bank",
@@ -17,7 +19,7 @@ KIND_MAPPING = {
 
     "settlement": "settlement",
 
-    "residential_building": "residential_building",
+    "residential_building": "residence",
 
     "industrial_area": "employer",
     "industrial_facility": "employer",
@@ -373,40 +375,50 @@ def ingest(
             [region],
         )
 
-        # Записываем исходные OSM-объекты.
-        conn.executemany(
-            """
-            INSERT OR REPLACE INTO osm_objects (
-                osm_type,
-                osm_id,
-                tags,
-                geom,
-                region
-            )
-            VALUES (
-                ?, ?, CAST(? AS JSON), ST_GeomFromGeoJSON(?), ?
-            )
-            """,
-            objects,
-        )
+        sql1 = """INSERT INTO osm_objects (osm_type, osm_id, tags, geom, region)
+         VALUES (?, ?, CAST(? AS JSON), ST_GeomFromGeoJSON(?), ?)"""
+        for i in tqdm(range(0, len(objects), 2000), desc="osm_objects"):
+            conn.executemany(sql1, objects[i:i + 2000])
 
-        # Записываем классификацию:
-        # одна запись на каждый домен объекта.
-        if classifications:
-            conn.executemany(
-                """
-                INSERT OR REPLACE INTO osm_classification (
-                    osm_type,
-                    osm_id,
-                    domain,
-                    role,
-                    kind,
-                    rule
-                )
-                VALUES (?, ?, ?, ?, ?, ?)
-                """,
-                classifications,
-            )
+        # # Записываем исходные OSM-объекты.
+        # conn.executemany(
+        #     """
+        #     INSERT OR REPLACE INTO osm_objects (
+        #         osm_type,
+        #         osm_id,
+        #         tags,
+        #         geom,
+        #         region
+        #     )
+        #     VALUES (
+        #         ?, ?, CAST(? AS JSON), ST_GeomFromGeoJSON(?), ?
+        #     )
+        #     """,
+        #     objects,
+        # )
+
+        sql2 = """INSERT INTO osm_classification (osm_type, osm_id, domain, role, kind, rule)
+         VALUES (?, ?, ?, ?, ?, ?)"""
+        for i in tqdm(range(0, len(classifications), 2000), desc="osm_classifications"):
+            conn.executemany(sql2, classifications[i:i + 2000])
+
+        # # Записываем классификацию:
+        # # одна запись на каждый домен объекта.
+        # if classifications:
+        #     conn.executemany(
+        #         """
+        #         INSERT OR REPLACE INTO osm_classification (
+        #             osm_type,
+        #             osm_id,
+        #             domain,
+        #             role,
+        #             kind,
+        #             rule
+        #         )
+        #         VALUES (?, ?, ?, ?, ?, ?)
+        #         """,
+        #         classifications,
+        #     )
 
         conn.execute("COMMIT")
 
