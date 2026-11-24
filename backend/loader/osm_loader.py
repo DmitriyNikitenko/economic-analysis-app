@@ -272,6 +272,12 @@ def main():
     )
 
     parser.add_argument(
+        "--districts-only", 
+        action="store_true",
+        help="Загрузить только районы."
+    )
+
+    parser.add_argument(
         "--save",
         action="store_true",
         help="Сохранить результат в файл.",
@@ -286,25 +292,26 @@ def main():
 
     args = parser.parse_args()
 
-    data = get_data(
-        region=args.region,
-        full_region=args.full_region,
-        save=args.save,
-        output_path=args.output,
-    )
+    if not args.districts_only:
+        data = get_data(
+            region=args.region,
+            full_region=args.full_region,
+            save=args.save,
+            output_path=args.output,
+        )
 
-    print(f"Загружено объектов: {len(data['features'])}")
+        print(f"Загружено объектов: {len(data['features'])}")
 
-    if args.save:
-        config = get_config()
-        path = args.output or config.paths.raw
+        if args.save:
+            config = get_config()
+            path = args.output or config.paths.raw
 
-        if not path.is_absolute():
-            path = Path.cwd() / path
+            if not path.is_absolute():
+                path = Path.cwd() / path
         
-        print(f"Сохранено в: {path.resolve()}")
-    else:
-        print("Файл не сохранён (--save не указан).")
+            print(f"Сохранено в: {path.resolve()}")
+        else:
+            print("Файл не сохранён (--save не указан).")
 
     districts = get_districts(
         region=args.region,
