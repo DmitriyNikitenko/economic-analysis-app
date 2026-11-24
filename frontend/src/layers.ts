@@ -67,9 +67,9 @@ export const DEFAULT_CONFIG: LayerConfig = {
     },
   ],
   domains: [
-    { id: "money", label: "Деньги", enabled: true, radius_km: 12 },
-    { id: "labor", label: "Труд", enabled: true, radius_km: 15 },
-    { id: "goods", label: "Товары и услуги", enabled: false, radius_km: 8.5 },
+    { id: "money", label: "Рынок денег", enabled: true, radius_km: 12 },
+    { id: "labor", label: "Рынок труда", enabled: true, radius_km: 15 },
+    { id: "goods", label: "Рынок товаров и услуг", enabled: false, radius_km: 8.5 },
   ],
   show_all_domains_option: true,
 };
