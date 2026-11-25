@@ -2,6 +2,7 @@
 import json
 from contextlib import contextmanager
 import duckdb
+import pandas as pd
 from backend.economy.models import Capacity, District, Edge, Metric, Subject
 
 
@@ -38,6 +39,17 @@ class Repository:
     def _insert_many(self, sql: str, rows: list[tuple]) -> None:
         if rows:
             self._con.executemany(sql, rows)
+
+    def _insert_bulk(self, table: str, columns: list[str], rows: list[tuple]) -> None:
+        # Для больших таблиц вся пачка одним запросом через DataFrame
+        if not rows:
+            return
+        batch = pd.DataFrame(rows, columns=columns, dtype=object)
+        self._con.register("_batch", batch)
+        try:
+            self._con.execute(f"INSERT INTO {table} ({', '.join(columns)}) SELECT * FROM _batch")
+        finally:
+            self._con.unregister("_batch")
 
     # ---------- subjects и capacities ----------
     def get_subjects(self, domains: list[str] | None = None) -> list[Subject]:
@@ -78,13 +90,14 @@ class Repository:
         with self._transaction():
             self._con.execute("DELETE FROM capacities")
             self._con.execute("DELETE FROM subjects")
-            self._insert_many(
-                "INSERT INTO subjects (id, name, kind, lon, lat, address, district_id) "
-                "VALUES (?, ?, ?, ?, ?, ?, ?)",
+            self._insert_bulk(
+                "subjects",
+                ["id", "name", "kind", "lon", "lat", "address", "district_id"],
                 [(s.id, s.name, s.kind, s.lon, s.lat, s.address, s.district_id) for s in subjects],
             )
-            self._insert_many(
-                "INSERT INTO capacities (subject_id, domain, role, capacity) VALUES (?, ?, ?, ?)",
+            self._insert_bulk(
+                "capacities",
+                ["subject_id", "domain", "role", "capacity"],
                 [(s.id, c.domain, c.role, c.capacity) for s in subjects for c in s.capacities],
             )
 
@@ -106,9 +119,9 @@ class Repository:
 
     def _insert_edges(self, edges: list[Edge]) -> None:
         # вставка без транзакции: вызывается внутри транзакций методов ниже
-        self._insert_many(
-            "INSERT INTO edges (id, domain, from_id, to_id, distance_km, weight) "
-            "VALUES (?, ?, ?, ?, ?, ?)",
+        self._insert_bulk(
+            "edges",
+            ["id", "domain", "from_id", "to_id", "distance_km", "weight"],
             [(e.id, e.domain, e.from_id, e.to_id, e.distance_km, e.weight) for e in edges],
         )
 
