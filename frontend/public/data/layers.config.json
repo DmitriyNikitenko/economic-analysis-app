@@ -24,19 +24,19 @@
   "domains": [
     {
       "id": "money",
-      "label": "Деньги",
+      "label": "Рынок денег",
       "enabled": true,
       "radius_km": 12
     },
     {
       "id": "labor",
-      "label": "Труд",
+      "label": "Рынок труда",
       "enabled": true,
       "radius_km": 15
     },
     {
       "id": "goods",
-      "label": "Товары и услуги",
+      "label": "Рынок товаров и услуг",
       "enabled": false,
       "radius_km": 8.5
     }

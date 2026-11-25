@@ -11,9 +11,9 @@ export function roleColor(role?: "supply" | "demand") {
 
 // Названия доменов
 export const DOMAIN_LABELS: Record<Domain, string> = {
-    money: "Деньги",
-    labor: "Труд",
-    goods: "Товары и услуги",
+    money: "Рынок денег",
+    labor: "Рынок труда",
+    goods: "Рынок товаров и услуг",
 };
 
 // Цветовая шкала средней степени узлов.
