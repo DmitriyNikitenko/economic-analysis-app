@@ -5,29 +5,7 @@ import osmnx as ox
 import pandas as pd
 import argparse
 from backend.config import get_config
-
-NAME_KEYS = {"name", "alt_name", "official_name", "short_name", "old_name"}
-KEEP_LANGS = {"ru", "en"}
-
-def keep_tag(key, value):
-    """Оставляет только заполненные свойства и нужные языки названий."""
-    if value is None:
-        return False
-
-    if not isinstance(value, (list, dict)) and pd.isna(value):
-        return False
-    
-    if isinstance(value, str) and not value.strip():
-        return False
-
-    # Удаляем name:de, alt_name:fr и подобные языковые варианты,
-    # оставляя name:ru, name:en, alt_name:ru и т. д.
-    for name_key in NAME_KEYS:
-        prefix = f"{name_key}:"
-        if key.startswith(prefix):
-            language = key[len(prefix):].split(":")[0].split("-")[0]
-            return language in KEEP_LANGS
-    return True
+from backend.loader.osm_tags import get_osm_tags, keep_tag
 
 def get_data(region=None, full_region=False, save=False, output_path=None):
     """
@@ -42,32 +20,34 @@ def get_data(region=None, full_region=False, save=False, output_path=None):
     config = get_config()
     region_id = region or config.region_id
 
-    tags = {
-        "amenity": ["bank", "atm"],
-        "office": True,
-        "shop": True,
-        "building": [
-            "residential",
-            "apartments",
-            "house",
-            "detached",
-            "semidetached_house",
-            "terrace",
-            "bungalow",
-            "dormitory",
-            "farm",
-        ],
-        "place": [
-            "city",
-            "town",
-            "village",
-            "hamlet",
-            "isolated_dwelling",
-        ],
-        "man_made": "works",
-        "industrial": True,
-        "landuse": "industrial",
-    }
+    # tags = {
+    #     "amenity": ["bank", "atm"],
+    #     "office": True,
+    #     "shop": True,
+    #     "building": [
+    #         "residential",
+    #         "apartments",
+    #         "house",
+    #         "detached",
+    #         "semidetached_house",
+    #         "terrace",
+    #         "bungalow",
+    #         "dormitory",
+    #         "farm",
+    #     ],
+    #     "place": [
+    #         "city",
+    #         "town",
+    #         "village",
+    #         "hamlet",
+    #         "isolated_dwelling",
+    #     ],
+    #     "man_made": "works",
+    #     "industrial": True,
+    #     "landuse": "industrial",
+    # }
+
+    tags = get_osm_tags()
 
     if full_region:
         if not config.place:
@@ -149,7 +129,8 @@ def get_districts(region=None, full_region=False, save=False, output_path=None):
     region_id = region or config.region_id
 
     tags = {
-        "admin_level": "6",
+        "boundary": "administrative",
+        "admin_level": "6"
     }
 
 
