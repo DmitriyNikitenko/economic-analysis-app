@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS osm_classification (
     domain        VARCHAR NOT NULL CHECK (domain IN ('money', 'labor', 'goods')),
     role          VARCHAR NOT NULL CHECK (role IN ('supply', 'demand')),
     kind          VARCHAR NOT NULL,
+    group_key     VARCHAR NOT NULL,
     rule          VARCHAR,
     classified_at TIMESTAMP DEFAULT current_timestamp,
     PRIMARY KEY (osm_type, osm_id, domain)
@@ -32,6 +33,7 @@ CREATE TABLE IF NOT EXISTS subjects (
     id          VARCHAR PRIMARY KEY,
     name        VARCHAR,
     kind        VARCHAR NOT NULL,
+    group_key   VARCHAR NOT NULL,
     lon         DOUBLE  NOT NULL,
     lat         DOUBLE  NOT NULL,
     address     VARCHAR,

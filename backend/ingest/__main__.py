@@ -9,29 +9,32 @@ from backend.config import get_config
 from backend.economy.db import connect, init_schema
 from backend.economy.repository import Repository
 from backend.economy.models import District
+from backend.classification.classifier import load_rules
 
 from tqdm import tqdm
 
 # Сколько строк вставляется одним запросом (пачками, чтобы показывать прогресс и не раздувать память)
 BATCH_SIZE = 50_000
 
-# Упрощенные категории (временно)
-KIND_MAPPING = {
-    "bank": "bank",
-    "atm": "bank",
-    "financial_service": "bank",
+# # Упрощенные категории (временно)
+# KIND_MAPPING = {
+#     "bank": "bank",
+#     "atm": "bank",
+#     "financial_service": "bank",
 
-    "settlement": "settlement",
+#     "settlement": "settlement",
 
-    "residential_building": "residence",
+#     "residential_building": "residence",
 
-    "industrial_area": "employer",
-    "industrial_facility": "employer",
-    "employer": "employer",
+#     "industrial_area": "employer",
+#     "industrial_facility": "employer",
+#     "employer": "employer",
 
-    "shop": "shop",
-    "service": "shop",
-}
+#     "shop": "shop",
+#     "service": "shop",
+# }
+
+KNOWN_TYPES = {r["type"] for r in load_rules()}
 
 VALID_OSM_TYPES = {"node", "way", "relation"}
 VALID_DOMAINS = {"money", "labor", "goods"}
@@ -132,7 +135,7 @@ def prepare_classification(
     if object_type == "unclassified":
         return []
 
-    kind = KIND_MAPPING.get(object_type)
+    kind = object_type
 
     if kind is None:
         raise ValueError(
@@ -140,6 +143,10 @@ def prepare_classification(
             f"у объекта {osm_type}/{osm_id}. "
         )
 
+    if kind not in KNOWN_TYPES:
+        raise ValueError(f"Тип {object_type!r} у {osm_type}/{osm_id} отсутствует в rules.yaml")
+
+    group_key = classification.get("group")
     domains = classification.get("domains") or []
     roles = classification.get("roles") or {}
     rule = classification.get("matched_rule")
@@ -178,6 +185,7 @@ def prepare_classification(
                 domain,
                 role,
                 kind,
+                group_key,
                 rule,
             )
         )
@@ -421,7 +429,7 @@ def ingest(
             insert_rows(
                 conn,
                 "osm_classification",
-                ["osm_type", "osm_id", "domain", "role", "kind", "rule"],
+                ["osm_type", "osm_id", "domain", "role", "kind", "group_key", "rule"],
                 classifications[i:i + BATCH_SIZE],
             )
 

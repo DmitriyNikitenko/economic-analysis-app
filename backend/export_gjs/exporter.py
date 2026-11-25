@@ -24,6 +24,7 @@ def build_subjects_geojson(subjects: list[Subject]) -> dict:
                 "id": s.id,
                 "name": s.name,
                 "kind": s.kind,
+                "group": s.group,
                 "district_id": s.district_id,
                 "address": s.address,
                 "domains": domains

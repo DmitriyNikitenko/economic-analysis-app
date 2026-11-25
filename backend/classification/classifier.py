@@ -24,6 +24,10 @@ def load_rules(rules_path=None):
 
     return rules_data["rules"]
 
+def first_value(v):
+    # shop="clothes;shoes" -> "clothes"
+    return str(v).split(";")[0].strip()
+
 def matches(properties, conditions):
     """Проверяет, соответствует ли объект всем условиям правила."""
     for key, expected in conditions.items():
@@ -32,13 +36,15 @@ def matches(properties, conditions):
         if actual is None:
             return False
 
+        value = first_value(actual)
+
         if expected == "*":
-            if str(actual).strip() == "":
+            if value == "":
                 return False
         elif isinstance(expected, list):
-            if actual not in expected:
+            if value  not in expected:
                 return False
-        elif actual != expected:
+        elif value  != expected:
             return False
 
     return True
@@ -59,6 +65,7 @@ def classify(properties, rules):
 
     if not matched:
         return {
+            "group": None,
             "type": "unclassified",
             "domains": [],
             "roles": {},
@@ -69,6 +76,7 @@ def classify(properties, rules):
     matched_rule = matched[0]
 
     return {
+        "group": matched_rule.get("group"),
         "type": matched_rule["type"],
         "domains": matched_rule.get("domains", []),
         "roles": matched_rule.get("roles", {}),
