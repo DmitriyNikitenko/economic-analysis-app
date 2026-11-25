@@ -1,6 +1,7 @@
 import math
 from typing import Sequence
 from backend.economy.models import Subject, Edge, District
+from shapely import contains_xy, prepare
 from shapely.geometry import shape, Point
 
 
@@ -82,9 +83,19 @@ def validate_export_data(
                         f"For '{s.id}' and '{c.domain}', the sum of outgoing weights = {stats['weight']}; 1.0 was expected.")
 
     district_polygons = {d.id: shape(d.geom) for d in districts}
+    subjects_by_district: dict[str, tuple[list[str], list[float], list[float]]] = {}
     for s in subjects:
         if s.district_id and s.district_id in district_polygons:
-            poly = district_polygons[s.district_id]
-            pt = Point(s.lon, s.lat)
-            if not poly.contains(pt):
-                raise ValueError(f"Entity '{s.id}' is outside its district '{s.district_id}'")
+            ids, lons, lats = subjects_by_district.setdefault(s.district_id, ([], [], []))
+            ids.append(s.id)
+            lons.append(s.lon)
+            lats.append(s.lat)
+
+    for district_id, (ids, lons, lats) in subjects_by_district.items():
+        poly = district_polygons[district_id]
+        prepare(poly)
+        inside = contains_xy(poly, lons, lats)
+        if not inside.all():
+            for sid, ok in zip(ids, inside):
+                if not ok:
+                    raise ValueError(f"Entity '{sid}' is outside its district '{district_id}'")

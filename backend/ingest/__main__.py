@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 
 import duckdb
+import pandas as pd
 
 from backend.config import get_config
 from backend.economy.db import connect, init_schema
@@ -10,6 +11,9 @@ from backend.economy.repository import Repository
 from backend.economy.models import District
 
 from tqdm import tqdm
+
+# Сколько строк вставляется одним запросом (пачками, чтобы показывать прогресс и не раздувать память)
+BATCH_SIZE = 50_000
 
 # Упрощенные категории (временно)
 KIND_MAPPING = {
@@ -244,6 +248,18 @@ def load_districts(path: Path) -> list[District]:
 
     return districts
 
+def insert_rows(conn, table: str, columns: list[str], rows: list[tuple], select: str = "*") -> None:
+    # Вставляет пачку строк одним запросом через DataFrame
+    if not rows:
+        return
+    batch = pd.DataFrame(rows, columns=columns, dtype=object)
+    conn.register("_batch", batch)
+    try:
+        conn.execute(f"INSERT INTO {table} ({', '.join(columns)}) SELECT {select} FROM _batch")
+    finally:
+        conn.unregister("_batch")
+
+
 def ingest(
     input_path = None,
     db_path = None,
@@ -375,10 +391,14 @@ def ingest(
             [region],
         )
 
-        sql1 = """INSERT INTO osm_objects (osm_type, osm_id, tags, geom, region)
-         VALUES (?, ?, CAST(? AS JSON), ST_GeomFromGeoJSON(?), ?)"""
-        for i in tqdm(range(0, len(objects), 2000), desc="osm_objects"):
-            conn.executemany(sql1, objects[i:i + 2000])
+        for i in tqdm(range(0, len(objects), BATCH_SIZE), desc="osm_objects"):
+            insert_rows(
+                conn,
+                "osm_objects",
+                ["osm_type", "osm_id", "tags", "geom", "region"],
+                objects[i:i + BATCH_SIZE],
+                select="osm_type, osm_id, CAST(tags AS JSON), ST_GeomFromGeoJSON(geom), region",
+            )
 
         # # Записываем исходные OSM-объекты.
         # conn.executemany(
@@ -397,10 +417,13 @@ def ingest(
         #     objects,
         # )
 
-        sql2 = """INSERT INTO osm_classification (osm_type, osm_id, domain, role, kind, rule)
-         VALUES (?, ?, ?, ?, ?, ?)"""
-        for i in tqdm(range(0, len(classifications), 2000), desc="osm_classifications"):
-            conn.executemany(sql2, classifications[i:i + 2000])
+        for i in tqdm(range(0, len(classifications), BATCH_SIZE), desc="osm_classifications"):
+            insert_rows(
+                conn,
+                "osm_classification",
+                ["osm_type", "osm_id", "domain", "role", "kind", "rule"],
+                classifications[i:i + BATCH_SIZE],
+            )
 
         # # Записываем классификацию:
         # # одна запись на каждый домен объекта.

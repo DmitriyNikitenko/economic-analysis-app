@@ -5,6 +5,7 @@ from backend.economy.models import Subject, Edge, District, Metric
 from backend.economy.repository import Repository
 from backend.export_gjs.validator import validate_export_data
 
+
 def build_subjects_geojson(subjects: list[Subject]) -> dict:
     features = []
     for s in subjects:
@@ -31,33 +32,30 @@ def build_subjects_geojson(subjects: list[Subject]) -> dict:
     return {"type": "FeatureCollection", "features": features}
 
 
-def build_edges_geojson(edges: list[Edge], subjects: list[Subject]) -> dict:
-    coords_map = {s.id: [s.lon, s.lat] for s in subjects}
+def build_edges_json(edges: list[Edge], subjects: list[Subject]) -> dict:
+    subject_ids = {s.id for s in subjects}
 
-    features = []
+    result: dict[str, dict[str, list[list]]] = {}
     for e in edges:
-        if e.from_id not in coords_map or e.to_id not in coords_map:
+        if e.from_id not in subject_ids or e.to_id not in subject_ids:
             raise ValueError(
                 f"Integrity error: edge {e.id} references a non-existent node "
                 f"(from_id={e.from_id}, to_id={e.to_id})"
             )
 
-        features.append({
-            "type": "Feature",
-            "geometry": {
-                "type": "LineString",
-                "coordinates": [coords_map[e.from_id], coords_map[e.to_id]]
-            },
-            "properties": {
-                "id": e.id,
-                "domain": e.domain,
-                "from_id": e.from_id,
-                "to_id": e.to_id,
-                "distance_km": e.distance_km,
-                "weight": e.weight
-            }
-        })
-    return {"type": "FeatureCollection", "features": features}
+        domain_map = result.get(e.domain)
+        if domain_map is None:
+            domain_map = {}
+            result[e.domain] = domain_map
+
+        outgoing = domain_map.get(e.from_id)
+        if outgoing is None:
+            outgoing = []
+            domain_map[e.from_id] = outgoing
+
+        outgoing.append([e.to_id, round(e.weight, 6)])
+
+    return result
 
 
 def build_districts_geojson(districts: list[District]) -> dict:
@@ -91,7 +89,6 @@ def build_metrics_json(metrics: list[Metric], districts: list[District]) -> dict
             "low_data": bool(m.low_data)
         }
 
-
         if m.scope == "region":
             res_region[m.domain] = metric_data
         elif m.scope == "district" and m.district_id:
@@ -109,6 +106,14 @@ def build_metrics_json(metrics: list[Metric], districts: list[District]) -> dict
     }
 
 
+def _write_json(path: Path, data: dict, *, compact: bool = True) -> None:
+    with open(path, "w", encoding="utf-8") as f:
+        if compact:
+            json.dump(data, f, ensure_ascii=False, separators=(",", ":"))
+        else:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+
+
 def run_export(repo: Repository, output_dir: str | Path, enabled_domains: list[str]) -> None:
     out_path = Path(output_dir)
     out_path.mkdir(parents=True, exist_ok=True)
@@ -119,7 +124,6 @@ def run_export(repo: Repository, output_dir: str | Path, enabled_domains: list[s
     districts = repo.get_districts()
     metrics = repo.get_metrics()
 
-
     # Удаляем отключенные домены
     active_domains = set(enabled_domains)
     edges = [e for e in edges if e.domain in active_domains]
@@ -129,20 +133,8 @@ def run_export(repo: Repository, output_dir: str | Path, enabled_domains: list[s
     # Проверяем целостность данных
     validate_export_data(subjects, edges, districts, enabled_domains)
 
-    # Формируем GeoJSON и JSON
-    subjects_gjs = build_subjects_geojson(subjects)
-    edges_gjs = build_edges_geojson(edges, subjects)
-    districts_gjs = build_districts_geojson(districts)
-    metrics_json = build_metrics_json(metrics, districts)
-
-    # Пишем файлы для фронтенда
-    files = {
-        "subjects.geojson": subjects_gjs,
-        "edges.geojson": edges_gjs,
-        "districts.geojson": districts_gjs,
-        "metrics.json": metrics_json
-    }
-
-    for filename, data in files.items():
-        with open(out_path / filename, "w", encoding="utf-8") as f:
-            json.dump(data, f, ensure_ascii=False, indent=2)
+    # Формируем и пишем файлы по очереди, не держа все словари в памяти одновременно
+    _write_json(out_path / "subjects.geojson", build_subjects_geojson(subjects))
+    _write_json(out_path / "edges.json", build_edges_json(edges, subjects))
+    _write_json(out_path / "districts.geojson", build_districts_geojson(districts))
+    _write_json(out_path / "metrics.json", build_metrics_json(metrics, districts), compact=False)

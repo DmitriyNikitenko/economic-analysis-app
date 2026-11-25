@@ -8,7 +8,6 @@
 import json
 import math
 import re
-
 from shapely.affinity import scale
 from shapely.geometry import shape
 from backend.config import get_config
@@ -32,28 +31,41 @@ def fetch_rows(con, region_id: str, domains: list[str]) -> list[tuple]:
     # ST_Centroid превращает любую геометрию (точку, линию, полигон) в точку, а из точки берём lon/lat.
     # LEFT JOIN districts находит район, в который попала точка; если районов в БД нет, будет NULL.
     # Контур (GeoJSON) отдаём только для жилых домов: по нему считается площадь, остальным он не нужен.
+    # Центроид и район считаются один раз на объект, а не на каждую пару (объект, домен):
+    # у жилого дома две строки классификации, а поиск района самая дорогая часть запроса.
     placeholders = ", ".join("?" * len(domains))
     return con.execute(
         f"""
-        SELECT o.osm_type,
-               o.osm_id,
-               CAST(o.tags AS VARCHAR),
-               ST_X(ST_Centroid(o.geom)),
-               ST_Y(ST_Centroid(o.geom)),
+        WITH classified AS (
+            SELECT * FROM osm_classification WHERE domain IN ({placeholders})
+        ),
+        objects AS (
+            SELECT o.osm_type, o.osm_id, o.tags, o.geom, ST_Centroid(o.geom) AS pt
+            FROM osm_objects o
+            WHERE o.region = ?
+              AND EXISTS (SELECT 1 FROM classified c
+                          WHERE c.osm_type = o.osm_type AND c.osm_id = o.osm_id)
+        ),
+        located AS (
+            SELECT ob.*, d.id AS district_id
+            FROM objects ob
+            LEFT JOIN districts d ON ST_Within(ob.pt, d.geom)
+        )
+        SELECT l.osm_type,
+               l.osm_id,
+               CAST(l.tags AS VARCHAR),
+               ST_X(l.pt),
+               ST_Y(l.pt),
                c.domain,
                c.role,
                c.kind,
-               d.id,
-               CASE WHEN c.kind = ? THEN CAST(ST_AsGeoJSON(o.geom) AS VARCHAR) END
-        FROM osm_objects o
-        JOIN osm_classification c
-          ON c.osm_type = o.osm_type AND c.osm_id = o.osm_id
-        LEFT JOIN districts d
-          ON ST_Within(ST_Centroid(o.geom), d.geom)
-        WHERE o.region = ? AND c.domain IN ({placeholders})
-        ORDER BY o.osm_type, o.osm_id, c.domain, d.id
+               l.district_id,
+               CASE WHEN c.kind = ? THEN CAST(ST_AsGeoJSON(l.geom) AS VARCHAR) END
+        FROM located l
+        JOIN classified c ON c.osm_type = l.osm_type AND c.osm_id = l.osm_id
+        ORDER BY l.osm_type, l.osm_id, c.domain, l.district_id
         """,
-        [RESIDENCE, region_id, *domains],
+        [*domains, region_id, RESIDENCE],
     ).fetchall()
 
 
