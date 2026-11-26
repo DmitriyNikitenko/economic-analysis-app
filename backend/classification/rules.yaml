@@ -1,142 +1,51 @@
+groups:
+  finance: Финансы
+  settlement: Населённые пункты
+  residence: Жилые здания
+  industry: Промышленность
+  office: Офисы и учреждения
+  retail: Торговля
+  services: Услуги
+
 rules:
-  - id: bank
-    priority: 100
-    match:
-      amenity: bank
-    type: bank
-    domains: [money]
-    roles:
-      money: supply
+  # ---------- Финансы ----------
+  - {id: bank, priority: 100, match: {amenity: bank}, type: bank_branch, group: finance, domains: [money], roles: {money: supply}}
+  - {id: atm, priority: 95, match: {amenity: atm}, type: atm, group: finance, domains: [money], roles: {money: supply}}
+  - {id: microfinance, priority: 90, match: {shop: [money_lender, pawnbroker]}, type: microfinance, group: finance, domains: [money], roles: {money: supply}}
+  - {id: financial_office, priority: 90, match: {office: financial}, type: financial_office, group: finance, domains: [money], roles: {money: supply}}
 
-  - id: atm
-    priority: 95
-    match:
-      amenity: atm
-    type: atm
-    domains: [money]
-    roles:
-      money: supply
+  # ---------- Населённые пункты ----------
+  - {id: settlement, priority: 80, match: {place: [city, town, village, hamlet, isolated_dwelling]}, type: settlement, group: settlement, domains: [], roles: {}}
 
-  - id: financial_office
-    priority: 90
-    match:
-      office: financial
-    type: financial_service
-    domains: [money]
-    roles:
-      money: supply
+  # ---------- Жилые здания ----------
+  - {id: residence, priority: 30, match: {building: [residential, apartments, dormitory, house, detached, semidetached_house, terrace, bungalow, farm]}, type: residence, group: residence, domains: [money, labor, goods], roles: {money: demand, labor: supply, goods: demand}}
 
-  - id: money_lender
-    priority: 90
-    match:
-      shop: money_lender
-    type: financial_service
-    domains: [money]
-    roles:
-      money: supply
+  # ---------- Промышленность ----------
+  - {id: works, priority: 75, match: {man_made: works}, type: industrial_facility, group: industry, domains: [labor], roles: {labor: demand}}
+  - {id: industrial_land, priority: 70, match: {landuse: industrial}, type: industrial_area, group: industry, domains: [labor], roles: {labor: demand}}
+  - {id: industrial_activity, priority: 65, match: {industrial: "*"}, type: industrial_facility, group: industry, domains: [labor], roles: {labor: demand}}
 
-  - id: settlement
-    priority: 80
-    match:
-      place:
-        - city
-        - town
-        - village
-        - hamlet
-        - isolated_dwelling
-    type: settlement
-    domains: [money, labor]
-    roles:
-      money: demand
-      labor: supply
+  # ---------- Офисы ----------
+  - {id: office_government, priority: 60, match: {office: government}, type: office_government, group: office, domains: [labor], roles: {labor: demand}}
+  - {id: office_company, priority: 60, match: {office: [company, it, telecommunication, energy_supplier, insurance, employment_agency, logistics, research, "yes"]}, type: office_company, group: office, domains: [labor], roles: {labor: demand}}
+  - {id: office_professional, priority: 60, match: {office: [lawyer, notary, accountant, architect, estate_agent, tax_advisor, consulting, advertising_agency, surveyor]}, type: office_professional, group: office, domains: [labor], roles: {labor: demand}}
+  - {id: office_nonprofit, priority: 60, match: {office: [ngo, association, charity, foundation, religion, political_party]}, type: office_nonprofit, group: office, domains: [labor], roles: {labor: demand}}
+  - {id: office_other, priority: 55, match: {office: "*"}, type: office_other, group: office, domains: [labor], roles: {labor: demand}}
 
-  - id: residential_building
-    priority: 30
+  # ---------- Торговля ----------
+  - {id: supermarket, priority: 64, match: {shop: [supermarket, department_store, mall, wholesale]}, type: supermarket, group: retail, domains: [goods], roles: {goods: supply}}
+  - id: shop_food
+    priority: 64
     match:
-      building:
-        - residential
-        - apartments
-        - house
-        - detached
-        - semidetached_house
-        - terrace
-        - bungalow
-        - dormitory
-        - farm
-    type: residential_building
-    domains: [money, labor]
-    roles:
-      money: demand
-      labor: supply
-
-  - id: industrial_land
-    priority: 70
-    match:
-      landuse: industrial
-    type: industrial_area
-    domains: [labor]
-    roles:
-      labor: demand
-
-  - id: works
-    priority: 75
-    match:
-      man_made: works
-    type: industrial_facility
-    domains: [labor]
-    roles:
-      labor: demand
-
-  - id: industrial_activity
-    priority: 65
-    match:
-      industrial: "*"
-    type: industrial_facility
-    domains: [labor]
-    roles:
-      labor: demand
-
-  - id: employer_office
-    priority: 60
-    match:
-      office:
-        - company
-        - government
-        - employment_agency
-        - insurance
-        - it
-        - telecommunication
-        - energy_supplier
-        - architect
-        - accountant
-        - lawyer
-        - notary
-        - estate_agent
-        - ngo
-        - association
-        - charity
-        - foundation
-        - religion
-        - yes
-    type: employer
-    domains: [labor]
-    roles:
-      labor: demand
-
-  - id: shop
-    priority: 50
-    match:
-      shop: "*"
-    type: shop
+      shop: [convenience, grocery, greengrocer, butcher, bakery, pastry, deli, confectionery,
+             beverages, alcohol, seafood, farm, dairy, kiosk, general, frozen_food, tea, coffee,
+             cheese, nuts, spices, health_food]
+    type: shop_food
+    group: retail
     domains: [goods]
-    roles:
-      goods: supply
+    roles: {goods: supply}
+  - {id: shop_other, priority: 63, match: {shop: "*"}, type: shop_goods, group: retail, domains: [goods], roles: {goods: supply}}
 
-  - id: amenity_service
-    priority: 40
-    match:
-      amenity: "*"
-    type: service
-    domains: [goods]
-    roles:
-      goods: supply
+  # ---------- Услуги ----------
+  - {id: personal_service, priority: 64, match: {shop: [beauty, hairdresser, massage, tattoo, laundry, dry_cleaning, tailor, optician]}, type: personal_service, group: services, domains: [goods], roles: {goods: supply}}
+  - {id: food_service, priority: 64, match: {amenity: [restaurant, cafe, fast_food, food_court]}, type: food_service, group: services, domains: [goods], roles: {goods: supply}}

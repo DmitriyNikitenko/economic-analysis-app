@@ -2,9 +2,9 @@ import duckdb
 import pytest
 from backend.economy.models import Capacity, District, Edge, Metric, Subject
 
-def make_subject(subject_id, *capacities, district_id="d1", name=None):
+def make_subject(subject_id, *capacities, district_id="d1", name=None, group="finance"):
     return Subject(
-        id=subject_id, name=name, kind="bank", lon=39.9, lat=57.6,
+        id=subject_id, name=name, kind="bank", group=group, lon=39.9, lat=57.6,
         address=None, district_id=district_id, capacities=list(capacities))
 
 def make_edge(edge_id, domain="money", from_id="s1", to_id="s2", weight=0.5):

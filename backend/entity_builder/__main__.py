@@ -59,6 +59,7 @@ def fetch_rows(con, region_id: str, domains: list[str]) -> list[tuple]:
                c.domain,
                c.role,
                c.kind,
+               c.group_key,
                l.district_id,
                CASE WHEN c.kind = ? THEN CAST(ST_AsGeoJSON(l.geom) AS VARCHAR) END
         FROM located l
@@ -122,7 +123,7 @@ def build_subjects(rows: list[tuple]) -> list[Subject]:
     roles: dict[str, dict[str, str]] = {}      # id субъекта -> {домен: роль}
     own_capacity: dict[str, float | None] = {}  # жилой дом -> ёмкость по размерам (None, если не посчитать)
 
-    for osm_type, osm_id, tags_json, lon, lat, domain, role, kind, district_id, geometry_json in rows:
+    for osm_type, osm_id, tags_json, lon, lat, domain, role, kind, group_key, district_id, geometry_json in rows:
         subject_id = make_subject_id(osm_type, osm_id)
 
         if subject_id not in subjects:  # первая строка объекта: создаём субъекта
@@ -131,6 +132,7 @@ def build_subjects(rows: list[tuple]) -> list[Subject]:
                 id=subject_id,
                 name=tags.get("name"),
                 kind=kind,
+                group=group_key,
                 lon=lon,
                 lat=lat,
                 address=make_address(tags),

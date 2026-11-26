@@ -62,8 +62,8 @@ def test_build_gravity_edges_empty_inputs():
 
 def test_build_gravity_edges_only_demand_or_only_supply():
     cfg = make_config()
-    only_demand = [Subject("d1", "D", "org", 0.0, 0.0, None, None, [Capacity("labor", "demand", 10.0)])]
-    only_supply = [Subject("s1", "S", "org", 0.0, 0.0, None, None, [Capacity("labor", "supply", 10.0)])]
+    only_demand = [Subject("d1", "D", "org", "office", 0.0, 0.0, None, None, [Capacity("labor", "demand", 10.0)])]
+    only_supply = [Subject("s1", "S", "org", "office", 0.0, 0.0, None, None, [Capacity("labor", "supply", 10.0)])]
 
     assert build_gravity_edges(only_demand, cfg) == []
     assert build_gravity_edges(only_supply, cfg) == []
@@ -72,8 +72,8 @@ def test_build_gravity_edges_only_demand_or_only_supply():
 def test_build_gravity_edges_single_pair_attributes():
     cfg = make_config(radius_km=200.0, beta=2.0)
     subjects = [
-        Subject("d1", "Спрос", "org", 30.0, 60.0, None, "dist1", [Capacity("labor", "demand", 10.0)]),
-        Subject("s1", "Предложение", "org", 30.0, 60.1, None, "dist1", [Capacity("labor", "supply", 50.0)]),
+        Subject("d1", "Спрос", "org", "office", 30.0, 60.0, None, "dist1", [Capacity("labor", "demand", 10.0)]),
+        Subject("s1", "Предложение", "org", "office", 30.0, 60.1, None, "dist1", [Capacity("labor", "supply", 50.0)]),
     ]
 
     edges = build_gravity_edges(subjects, cfg)
@@ -90,9 +90,9 @@ def test_build_gravity_edges_single_pair_attributes():
 def test_build_gravity_edges_weights_sum_to_one():
     cfg = make_config(radius_km=200.0, beta=2.0)
     subjects = [
-        Subject("d1", "Спрос", "org", 0.0, 0.0, None, "dist1", [Capacity("labor", "demand", 10.0)]),
-        Subject("s1", "Ближний", "org", 0.0, 0.1, None, "dist1", [Capacity("labor", "supply", 100.0)]),
-        Subject("s2", "Дальний", "org", 0.0, 0.2, None, "dist1", [Capacity("labor", "supply", 100.0)]),
+        Subject("d1", "Спрос", "org", "office", 0.0, 0.0, None, "dist1", [Capacity("labor", "demand", 10.0)]),
+        Subject("s1", "Ближний", "org", "office", 0.0, 0.1, None, "dist1", [Capacity("labor", "supply", 100.0)]),
+        Subject("s2", "Дальний", "org", "office", 0.0, 0.2, None, "dist1", [Capacity("labor", "supply", 100.0)]),
     ]
 
     edges = build_gravity_edges(subjects, cfg)
@@ -106,9 +106,9 @@ def test_build_gravity_edges_weights_sum_to_one():
 def test_build_gravity_edges_beta_zero_depends_only_on_capacity():
     cfg = make_config(radius_km=200.0, beta=0.0)
     subjects = [
-        Subject("d1", "Спрос", "org", 0.0, 0.0, None, None, [Capacity("labor", "demand", 10.0)]),
-        Subject("s1", "П1", "org", 0.0, 0.1, None, None, [Capacity("labor", "supply", 25.0)]),
-        Subject("s2", "П2", "org", 0.0, 0.5, None, None, [Capacity("labor", "supply", 75.0)]),
+        Subject("d1", "Спрос", "org", "office", 0.0, 0.0, None, None, [Capacity("labor", "demand", 10.0)]),
+        Subject("s1", "П1", "org", "office", 0.0, 0.1, None, None, [Capacity("labor", "supply", 25.0)]),
+        Subject("s2", "П2", "org", "office", 0.0, 0.5, None, None, [Capacity("labor", "supply", 75.0)]),
     ]
 
     edges = build_gravity_edges(subjects, cfg)
@@ -121,9 +121,9 @@ def test_build_gravity_edges_beta_zero_depends_only_on_capacity():
 def test_build_gravity_edges_filters_by_radius():
     cfg = make_config(radius_km=20.0, beta=1.0)
     subjects = [
-        Subject("d1", "Спрос", "org", 0.0, 0.0, None, None, [Capacity("labor", "demand", 10.0)]),
-        Subject("s_in", "В радиусе", "org", 0.0, 0.1, None, None, [Capacity("labor", "supply", 50.0)]),
-        Subject("s_out", "За радиусом", "org", 0.0, 1.0, None, None, [Capacity("labor", "supply", 50.0)]),
+        Subject("d1", "Спрос", "org", "office", 0.0, 0.0, None, None, [Capacity("labor", "demand", 10.0)]),
+        Subject("s_in", "В радиусе", "org", "office", 0.0, 0.1, None, None, [Capacity("labor", "supply", 50.0)]),
+        Subject("s_out", "За радиусом", "org", "office", 0.0, 1.0, None, None, [Capacity("labor", "supply", 50.0)]),
     ]
 
     edges = build_gravity_edges(subjects, cfg)
@@ -136,8 +136,8 @@ def test_build_gravity_edges_filters_by_radius():
 def test_build_gravity_edges_no_supplies_within_radius():
     cfg = make_config(radius_km=5.0, beta=2.0)
     subjects = [
-        Subject("d1", "Спрос", "org", 0.0, 0.0, None, None, [Capacity("labor", "demand", 10.0)]),
-        Subject("s_far", "Далеко", "org", 0.0, 1.0, None, None, [Capacity("labor", "supply", 50.0)]),
+        Subject("d1", "Спрос", "org", "office", 0.0, 0.0, None, None, [Capacity("labor", "demand", 10.0)]),
+        Subject("s_far", "Далеко", "org", "office", 0.0, 1.0, None, None, [Capacity("labor", "supply", 50.0)]),
     ]
     assert build_gravity_edges(subjects, cfg) == []
 
@@ -146,9 +146,9 @@ def test_build_gravity_edges_min_visible_distance():
     cfg = make_config(radius_km=10.0, beta=2.0)
     # 0.0002 градуса широты ≈ 0.022 км (< MIN_VISIBLE_DISTANCE = 0.05 км)
     subjects = [
-        Subject("d1", "Спрос", "org", 0.0, 0.0, None, None, [Capacity("labor", "demand", 10.0)]),
-        Subject("s_same", "Та же точка", "org", 0.0, 0.0, None, None, [Capacity("labor", "supply", 50.0)]),
-        Subject("s_close", "Рядом", "org", 0.0, 0.0002, None, None, [Capacity("labor", "supply", 50.0)]),
+        Subject("d1", "Спрос", "org", "office", 0.0, 0.0, None, None, [Capacity("labor", "demand", 10.0)]),
+        Subject("s_same", "Та же точка", "org", "office", 0.0, 0.0, None, None, [Capacity("labor", "supply", 50.0)]),
+        Subject("s_close", "Рядом", "org", "office", 0.0, 0.0002, None, None, [Capacity("labor", "supply", 50.0)]),
     ]
 
     edges = build_gravity_edges(subjects, cfg)
@@ -164,8 +164,8 @@ def test_build_gravity_edges_min_visible_distance():
 def test_build_gravity_edges_skips_zero_capacity_supply():
     cfg = make_config(radius_km=100.0, beta=2.0)
     subjects = [
-        Subject("d1", "Спрос", "org", 0.0, 0.0, None, None, [Capacity("labor", "demand", 10.0)]),
-        Subject("s_zero", "Нулевой", "org", 0.0, 0.1, None, None, [Capacity("labor", "supply", 0.0)]),
+        Subject("d1", "Спрос", "org", "office", 0.0, 0.0, None, None, [Capacity("labor", "demand", 10.0)]),
+        Subject("s_zero", "Нулевой", "org", "office", 0.0, 0.1, None, None, [Capacity("labor", "supply", 0.0)]),
     ]
     assert build_gravity_edges(subjects, cfg) == []
 
@@ -173,10 +173,10 @@ def test_build_gravity_edges_skips_zero_capacity_supply():
 def test_build_gravity_edges_multiple_demands_normalized_independently():
     cfg = make_config(radius_km=200.0, beta=2.0)
     subjects = [
-        Subject("d1", "Спрос 1", "org", 0.0, 0.0, None, None, [Capacity("labor", "demand", 10.0)]),
-        Subject("d2", "Спрос 2", "org", 0.0, 0.5, None, None, [Capacity("labor", "demand", 20.0)]),
-        Subject("s1", "П1", "org", 0.0, 0.1, None, None, [Capacity("labor", "supply", 100.0)]),
-        Subject("s2", "П2", "org", 0.0, 0.4, None, None, [Capacity("labor", "supply", 100.0)]),
+        Subject("d1", "Спрос 1", "org", "office", 0.0, 0.0, None, None, [Capacity("labor", "demand", 10.0)]),
+        Subject("d2", "Спрос 2", "org", "office", 0.0, 0.5, None, None, [Capacity("labor", "demand", 20.0)]),
+        Subject("s1", "П1", "org", "office", 0.0, 0.1, None, None, [Capacity("labor", "supply", 100.0)]),
+        Subject("s2", "П2", "org", "office", 0.0, 0.4, None, None, [Capacity("labor", "supply", 100.0)]),
     ]
 
     edges = build_gravity_edges(subjects, cfg)
@@ -196,11 +196,11 @@ def test_build_gravity_edges_skips_disabled_domains():
         extra_domains={"retail": (100.0, 2.0)},
     )
     subjects = [
-        Subject("d1", "D", "org", 0.0, 0.0, None, None, [
+        Subject("d1", "D", "org", "office", 0.0, 0.0, None, None, [
             Capacity("labor", "demand", 10.0),
             Capacity("retail", "demand", 10.0),
         ]),
-        Subject("s1", "S", "org", 0.0, 0.1, None, None, [
+        Subject("s1", "S", "org", "office", 0.0, 0.1, None, None, [
             Capacity("labor", "supply", 50.0),
             Capacity("retail", "supply", 50.0),
         ]),
@@ -267,9 +267,9 @@ def test_build_equilibrium_edges_weights_and_distance_preference():
     cfg = make_config(radius_km=200.0)
     cfg.graph = SimpleNamespace(model="equilibrium", max_price=2.0, transport_price=1.5)
     subjects = [
-        Subject("d1", "Спрос", "org", 0.0, 0.0, None, None, [Capacity("labor", "demand", 10.0)]),
-        Subject("s_near", "Ближний", "org", 0.0, 0.1, None, None, [Capacity("labor", "supply", 10.0)]),
-        Subject("s_far", "Дальний", "org", 0.0, 0.5, None, None, [Capacity("labor", "supply", 10.0)]),
+        Subject("d1", "Спрос", "org", "office", 0.0, 0.0, None, None, [Capacity("labor", "demand", 10.0)]),
+        Subject("s_near", "Ближний", "org", "office", 0.0, 0.1, None, None, [Capacity("labor", "supply", 10.0)]),
+        Subject("s_far", "Дальний", "org", "office", 0.0, 0.5, None, None, [Capacity("labor", "supply", 10.0)]),
     ]
 
     edges = build_equilibrium_edges(subjects, cfg)
@@ -284,8 +284,8 @@ def test_build_equilibrium_edges_empty_or_out_of_radius():
     cfg = make_config(radius_km=5.0)
     cfg.graph = SimpleNamespace(model="equilibrium", max_price=2.0, transport_price=1.0)
     subjects = [
-        Subject("d1", "Спрос", "org", 0.0, 0.0, None, None, [Capacity("labor", "demand", 10.0)]),
-        Subject("s_far", "Далеко", "org", 0.0, 1.0, None, None, [Capacity("labor", "supply", 10.0)]),
+        Subject("d1", "Спрос", "org", "office", 0.0, 0.0, None, None, [Capacity("labor", "demand", 10.0)]),
+        Subject("s_far", "Далеко", "org", "office", 0.0, 1.0, None, None, [Capacity("labor", "supply", 10.0)]),
     ]
 
     assert build_equilibrium_edges([], cfg) == []

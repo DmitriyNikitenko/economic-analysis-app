@@ -12,6 +12,7 @@ class Subject:
     id: str
     name: str | None
     kind: str
+    group: str
     lon: float
     lat: float
     address: str | None

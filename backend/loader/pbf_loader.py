@@ -3,49 +3,78 @@ import json
 from pathlib import Path
 
 import osmium
-from shapely.geometry import shape, mapping
-from shapely.geometry import box, Point
+
+from shapely.geometry import shape, mapping, box, Point
 
 from backend.config import get_config
-from backend.loader.osm_loader import keep_tag
+from backend.loader.osm_tags import (
+    keep_tag,
+    pick_name,
+    PLACES,
+    RESIDENTIAL,
+    FOOD_SHOPS,
+    LARGE_RETAIL,
+    PERSONAL_SERVICES,
+    FOOD_SERVICES,
+)
 
-PLACES = {"city", "town", "village", "hamlet", "isolated_dwelling"}
-RESIDENTIAL = {"residential", "apartments", "house", "detached",
-               "semidetached_house", "terrace", "bungalow", "dormitory", "farm"}
+def wanted(tags, buildings=True):
+    """
+    Проверяет, соответствует ли объект хотя бы одному
+    правилу из rules.yaml.
+    """
+    # Финансы
+    if tags.get("amenity") in {"bank", "atm"}:
+        return True
 
+    if tags.get("shop") in {"money_lender", "pawnbroker"}:
+        return True
 
+    if tags.get("office") == "financial":
+        return True
 
-def wanted(t, buildings=True):
-    return (
-        t.get("amenity") in {"bank", "atm"}
-        or "office" in t
-        or "shop" in t
-        or (buildings and t.get("building") in RESIDENTIAL)
-        or t.get("place") in PLACES
-        or t.get("man_made") == "works"
-        or "industrial" in t
-        or t.get("landuse") == "industrial"
-    )
+    # Населённые пункты
+    if tags.get("place") in PLACES:
+        return True
 
+    # Жилые здания
+    if buildings and tags.get("building") in RESIDENTIAL:
+        return True
 
-def pick_name(t, osm_id):
-    for key in ("name:ru", "name", "official_name:ru", "official_name"):
-        v = t.get(key)
-        if isinstance(v, str) and v.strip():
-            return v.strip()
-    return f"Район OSM {osm_id}"
+    # Промышленность
+    if tags.get("man_made") == "works":
+        return True
 
+    if tags.get("landuse") == "industrial":
+        return True
+
+    if tags.get("industrial"):
+        return True
+
+    # Офисы
+    if tags.get("office"):
+        return True
+
+    # Торговля
+    if tags.get("shop"):
+        return True
+
+    # Услуги
+    if tags.get("amenity") in FOOD_SERVICES:
+        return True
+
+    return False
 
 class Collector(osmium.SimpleHandler):
     def __init__(self, region_id, want_objects=True, buildings=True, bbox=None):
         super().__init__()
         self.region_id = region_id
         self.want_objects = want_objects
+        self.buildings = buildings
         self.factory = osmium.geom.GeoJSONFactory()
         self.objects = []
-        self.buildings = buildings
         self.districts = []
-        self.region_geoms = []      # границы admin_level=4 для фильтра районов
+        self.region_geoms = []
         self.errors = 0
         self.bbox = box(*bbox) if bbox else None
 

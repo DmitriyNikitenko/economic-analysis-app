@@ -62,7 +62,7 @@ class Repository:
             params = list(domains)
 
         rows = self._con.execute(
-            "SELECT s.id, s.name, s.kind, s.lon, s.lat, s.address, s.district_id, "
+            "SELECT s.id, s.name, s.kind, s.group_key, s.lon, s.lat, s.address, s.district_id, "
             "       c.domain, c.role, c.capacity "
             "FROM subjects s "
             f"LEFT JOIN capacities c ON c.subject_id = s.id{join_filter} "
@@ -71,11 +71,11 @@ class Repository:
         ).fetchall()
 
         subjects: dict[str, Subject] = {}
-        for (subject_id, name, kind, lon, lat, address, district_id,
+        for (subject_id, name, kind, group_key, lon, lat, address, district_id,
              domain, role, capacity) in rows:
             subject = subjects.get(subject_id)
             if subject is None:  # первая строка субъекта
-                subject = Subject(subject_id, name, kind, lon, lat, address, district_id)
+                subject = Subject(subject_id, name, kind, group_key, lon, lat, address, district_id)
                 subjects[subject_id] = subject
             if domain is not None:  # у субъекта без ёмкостей список остаётся пустым
                 subject.capacities.append(Capacity(domain, role, capacity))
@@ -92,8 +92,8 @@ class Repository:
             self._con.execute("DELETE FROM subjects")
             self._insert_bulk(
                 "subjects",
-                ["id", "name", "kind", "lon", "lat", "address", "district_id"],
-                [(s.id, s.name, s.kind, s.lon, s.lat, s.address, s.district_id) for s in subjects],
+                ["id", "name", "kind", "group_key", "lon", "lat", "address", "district_id"],
+                [(s.id, s.name, s.kind, s.group, s.lon, s.lat, s.address, s.district_id) for s in subjects],
             )
             self._insert_bulk(
                 "capacities",
