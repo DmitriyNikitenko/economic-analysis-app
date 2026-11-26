@@ -54,7 +54,7 @@ def build_edges_json(edges: list[Edge], subjects: list[Subject]) -> dict:
             outgoing = []
             domain_map[e.from_id] = outgoing
 
-        outgoing.append([e.to_id, round(e.weight, 6)])
+        outgoing.append([e.to_id, round(e.weight, 6), round(e.distance_km, 3)])
 
     return result
 
