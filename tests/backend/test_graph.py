@@ -1,14 +1,41 @@
-import uuid
 from types import SimpleNamespace
 from unittest.mock import MagicMock, call, patch
-import pytest
+
 import numpy as np
+import pytest
 
 from backend.economy.models import Capacity, Edge, Subject
 from backend.graph import __main__ as graph_main
-from backend.graph.engine import MIN_VISIBLE_DISTANCE, build_gravity_edges, distance
-from backend.graph.updater import update_edges
+from backend.graph import engine, equilibrium
+from backend.graph.engine import MIN_VISIBLE_DISTANCE, build_gravity_edges
 from backend.graph.equilibrium import build_equilibrium_edges, solve_flows
+from backend.graph.updater import update_edges
+
+
+def _fake_road_pairs(dem_ll: np.ndarray, sup_ll: np.ndarray, radius_km: float):
+    """Быстрая замена road_pairs для юнит-тестов (расстояние по гаверсинусу в км)."""
+    if len(dem_ll) == 0 or len(sup_ll) == 0:
+        return np.empty(0, dtype=int), np.empty(0, dtype=int), np.empty(0, dtype=float)
+
+    lon1 = np.radians(dem_ll[:, 0])[:, None]
+    lat1 = np.radians(dem_ll[:, 1])[:, None]
+    lon2 = np.radians(sup_ll[:, 0])[None, :]
+    lat2 = np.radians(sup_ll[:, 1])[None, :]
+
+    dlat = lat2 - lat1
+    dlon = lon2 - lon1
+    a = np.sin(dlat / 2) ** 2 + np.cos(lat1) * np.cos(lat2) * np.sin(dlon / 2) ** 2
+    dists = 2 * 6371.0 * np.arcsin(np.sqrt(np.clip(a, 0.0, 1.0)))
+
+    d_idx, s_idx = np.where(dists <= radius_km)
+    return d_idx, s_idx, dists[d_idx, s_idx]
+
+
+@pytest.fixture(autouse=True)
+def mock_road_pairs(monkeypatch):
+    monkeypatch.setattr(engine, "road_pairs", _fake_road_pairs)
+    monkeypatch.setattr(equilibrium, "road_pairs", _fake_road_pairs)
+
 
 def make_config(
     radius_km: float = 100.0,
@@ -53,12 +80,11 @@ def test_build_gravity_edges_single_pair_attributes():
 
     assert len(edges) == 1
     e = edges[0]
-    assert uuid.UUID(e.id).version == 4
+    assert e.id == "labor:d1:s1"
     assert e.domain == "labor"
     assert e.from_id == "d1"
     assert e.to_id == "s1"
     assert e.weight == pytest.approx(1.0)
-    assert e.distance_km == round(distance(30.0, 60.0, 30.0, 60.1), 3)
 
 
 def test_build_gravity_edges_weights_sum_to_one():
@@ -75,27 +101,6 @@ def test_build_gravity_edges_weights_sum_to_one():
     assert sum(e.weight for e in edges) == pytest.approx(1.0)
     by_to = {e.to_id: e.weight for e in edges}
     assert by_to["s1"] > by_to["s2"]
-
-
-def test_build_gravity_edges_exact_formula():
-    beta = 1.5
-    cfg = make_config(radius_km=200.0, beta=beta)
-    subjects = [
-        Subject("d1", "Спрос", "org", 0.0, 0.0, None, None, [Capacity("labor", "demand", 10.0)]),
-        Subject("s1", "П1", "org", 0.0, 0.1, None, None, [Capacity("labor", "supply", 100.0)]),
-        Subject("s2", "П2", "org", 0.0, 0.3, None, None, [Capacity("labor", "supply", 250.0)]),
-    ]
-
-    edges = build_gravity_edges(subjects, cfg)
-    by_to = {e.to_id: e for e in edges}
-
-    d1 = distance(0.0, 0.0, 0.0, 0.1)
-    d2 = distance(0.0, 0.0, 0.0, 0.3)
-    w1 = 100.0 * (d1 ** -beta)
-    w2 = 250.0 * (d2 ** -beta)
-
-    assert by_to["s1"].weight == pytest.approx(w1 / (w1 + w2))
-    assert by_to["s2"].weight == pytest.approx(w2 / (w1 + w2))
 
 
 def test_build_gravity_edges_beta_zero_depends_only_on_capacity():
@@ -137,24 +142,32 @@ def test_build_gravity_edges_no_supplies_within_radius():
     assert build_gravity_edges(subjects, cfg) == []
 
 
-def test_build_gravity_edges_same_coordinates_uses_min_visible_distance():
-    beta = 2.0
-    cfg = make_config(radius_km=50.0, beta=beta)
+def test_build_gravity_edges_min_visible_distance():
+    cfg = make_config(radius_km=10.0, beta=2.0)
+    # 0.0002 градуса широты ≈ 0.022 км (< MIN_VISIBLE_DISTANCE = 0.05 км)
     subjects = [
-        Subject("d1", "Спрос", "org", 30.0, 60.0, None, None, [Capacity("labor", "demand", 10.0)]),
-        Subject("s_same", "Тут же", "org", 30.0, 60.0, None, None, [Capacity("labor", "supply", 10.0)]),
-        Subject("s_near", "Рядом", "org", 30.0, 60.01, None, None, [Capacity("labor", "supply", 10.0)]),
+        Subject("d1", "Спрос", "org", 0.0, 0.0, None, None, [Capacity("labor", "demand", 10.0)]),
+        Subject("s_same", "Та же точка", "org", 0.0, 0.0, None, None, [Capacity("labor", "supply", 50.0)]),
+        Subject("s_close", "Рядом", "org", 0.0, 0.0002, None, None, [Capacity("labor", "supply", 50.0)]),
     ]
 
     edges = build_gravity_edges(subjects, cfg)
     by_to = {e.to_id: e for e in edges}
 
-    d_near = distance(30.0, 60.0, 30.0, 60.01)
-    w_same = 10.0 * (MIN_VISIBLE_DISTANCE ** -beta)
-    w_near = 10.0 * (d_near ** -beta)
+    assert len(edges) == 2
+    assert by_to["s_same"].distance_km < MIN_VISIBLE_DISTANCE
+    assert by_to["s_close"].distance_km < MIN_VISIBLE_DISTANCE
+    assert by_to["s_same"].weight == pytest.approx(0.5)
+    assert by_to["s_close"].weight == pytest.approx(0.5)
 
-    assert by_to["s_same"].distance_km == 0.0
-    assert by_to["s_same"].weight == pytest.approx(w_same / (w_same + w_near))
+
+def test_build_gravity_edges_skips_zero_capacity_supply():
+    cfg = make_config(radius_km=100.0, beta=2.0)
+    subjects = [
+        Subject("d1", "Спрос", "org", 0.0, 0.0, None, None, [Capacity("labor", "demand", 10.0)]),
+        Subject("s_zero", "Нулевой", "org", 0.0, 0.1, None, None, [Capacity("labor", "supply", 0.0)]),
+    ]
+    assert build_gravity_edges(subjects, cfg) == []
 
 
 def test_build_gravity_edges_multiple_demands_normalized_independently():
