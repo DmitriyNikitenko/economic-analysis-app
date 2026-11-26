@@ -1,4 +1,3 @@
-import uuid
 from typing import Sequence
 
 import numpy as np
@@ -114,28 +113,10 @@ def build_equilibrium_edges(subjects: Sequence[Subject], config: Config) -> list
         by_d = df.sort_values("dist").groupby("d").head(K_CANDIDATES)
         by_s = df.sort_values("dist").groupby("s").head(K_CANDIDATES)
         df = pd.concat([by_d, by_s]).drop_duplicates(["d", "s"])
-        pos = df.index.to_numpy()
 
         dem_indices = df["d"].to_numpy(dtype=int)
         sup_indices = df["s"].to_numpy(dtype=int)
         dist_arr = df["dist"].to_numpy(dtype=float)
-
-        # sup_indices: list[int] = []
-        # dem_indices: list[int] = []
-        # dists: list[float] = []
-
-        # for j, (dem_node, _) in enumerate(demands):
-        #     for i, (sup_node, _) in enumerate(supplies):
-        #         dist = distance(dem_node.lon, dem_node.lat, sup_node.lon, sup_node.lat)
-        #         if dist <= radius:
-        #             sup_indices.append(i)
-        #             dem_indices.append(j)
-        #             dists.append(dist)
-
-        # if not dists:
-        #     continue
-
-        # dist_arr = np.array(dists, dtype=float)
 
         transport_costs = transport_price * (dist_arr / radius)
 
@@ -148,15 +129,6 @@ def build_equilibrium_edges(subjects: Sequence[Subject], config: Config) -> list
             max_price=max_price,
             power=power,
         )
-
-        # # Проверка корректности решенной задачи
-        # x_full = np.zeros(len(dist))
-        # x_full[pos] = flows
-        # in_k = np.zeros(len(dist), dtype=bool)
-        # in_k[pos] = True
-        # kkt_report(x_full, d_idx, s_idx, dist,
-        #    np.array([c for _, c in supplies], float), np.array([c for _, c in demands], float),
-        #    radius, max_price, transport_price, power, in_k, name=domain_id)
 
         by_demand: dict[int, list[tuple[int, float, float]]] = {}
         for idx, flow in enumerate(flows):
@@ -184,32 +156,5 @@ def build_equilibrium_edges(subjects: Sequence[Subject], config: Config) -> list
                         weight=flow / total_d,
                     )
                 )
-
-        # # Группируем ненулевые потоки по потребителям и нормируем вес (weight = x_ij / d_j)
-        # by_demand: dict[int, list[tuple[int, float, float]]] = {}
-        # for idx, flow in enumerate(flows):
-        #     if flow > FLOW_EPS:
-        #         j = dem_indices[idx]
-        #         i = sup_indices[idx]
-        #         by_demand.setdefault(j, []).append((i, dists[idx], float(flow)))
-
-        # for j, items in by_demand.items():
-        #     total_d = sum(flow for _, _, flow in items)
-        #     if total_d <= 0:
-        #         continue
-
-        #     dem_node = demands[j][0]
-        #     for i, dist, flow in items:
-        #         sup_node = supplies[i][0]
-        #         edges.append(
-        #             Edge(
-        #                 id=str(uuid.uuid4()),
-        #                 domain=domain_id,
-        #                 from_id=dem_node.id,
-        #                 to_id=sup_node.id,
-        #                 distance_km=round(dist, 3),
-        #                 weight=flow / total_d,
-        #             )
-        #         )
 
     return edges

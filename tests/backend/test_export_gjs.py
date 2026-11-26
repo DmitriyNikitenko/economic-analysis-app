@@ -8,7 +8,7 @@ from backend.economy.models import Capacity, District, Edge, Metric, Subject
 from backend.export_gjs import __main__ as export_main
 from backend.export_gjs.exporter import (
     build_districts_geojson,
-    build_edges_geojson,
+    build_edges_json,
     build_metrics_json,
     build_subjects_geojson,
     run_export,
@@ -25,8 +25,8 @@ SQUARE = {
 def sample_data():
     districts = [District("d1", "Центральный", SQUARE)]
     subjects = [
-        Subject("s1", "Спрос", "org", 2.0, 2.0, "Адрес 1", "d1", [Capacity("labor", "demand", 10.0)]),
-        Subject("s2", "Предложение", "org", 3.0, 3.0, "Адрес 2", "d1", [Capacity("labor", "supply", 20.0)]),
+        Subject("s1", "Спрос", "org", "office", 2.0, 2.0, "Адрес 1", "d1", [Capacity("labor", "demand", 10.0)]),
+        Subject("s2", "Предложение", "org", "office", 3.0, 3.0, "Адрес 2", "d1", [Capacity("labor", "supply", 20.0)]),
     ]
     edges = [Edge("e1", "labor", "s1", "s2", 1.5, 1.0)]
     metrics = [
@@ -49,21 +49,21 @@ def test_validate_empty_lists_ok():
 
 def test_validate_demand_without_outgoing_edges_ok():
     d = [District("d1", "Район", SQUARE)]
-    s = [Subject("s1", "Спрос", "org", 2.0, 2.0, None, "d1", [Capacity("labor", "demand", 15.0)])]
+    s = [Subject("s1", "Спрос", "org", "office", 2.0, 2.0, None, "d1", [Capacity("labor", "demand", 15.0)])]
     validate_export_data(s, [], d, ["labor"])
 
 
 def test_validate_subject_without_district_ok():
-    s = [Subject("s1", "Без района", "org", 99.0, 99.0, None, None, [Capacity("labor", "demand", 10.0)])]
+    s = [Subject("s1", "Без района", "org", "office", 99.0, 99.0, None, None, [Capacity("labor", "demand", 10.0)])]
     validate_export_data(s, [], [], ["labor"])
 
 
 def test_validate_multiple_outgoing_edges_sum_to_one():
     d = [District("d1", "Район", SQUARE)]
     subjects = [
-        Subject("s1", "Спрос", "org", 2.0, 2.0, None, "d1", [Capacity("labor", "demand", 10.0)]),
-        Subject("s2", "Предложение 1", "org", 3.0, 3.0, None, "d1", [Capacity("labor", "supply", 20.0)]),
-        Subject("s3", "Предложение 2", "org", 4.0, 4.0, None, "d1", [Capacity("labor", "supply", 30.0)]),
+        Subject("s1", "Спрос", "org", "office", 2.0, 2.0, None, "d1", [Capacity("labor", "demand", 10.0)]),
+        Subject("s2", "Предложение 1", "org", "office", 3.0, 3.0, None, "d1", [Capacity("labor", "supply", 20.0)]),
+        Subject("s3", "Предложение 2", "org", "office", 4.0, 4.0, None, "d1", [Capacity("labor", "supply", 30.0)]),
     ]
     edges = [
         Edge("e1", "labor", "s1", "s2", 1.0, 0.4),
@@ -86,14 +86,14 @@ def test_validate_duplicate_subject_id(sample_data):
 
 def test_validate_unknown_district_id():
     d = [District("d1", "Район", SQUARE)]
-    s = [Subject("s1", "A", "org", 2.0, 2.0, None, "unknown_d", [Capacity("labor", "demand", 10.0)])]
+    s = [Subject("s1", "A", "org", "office", 2.0, 2.0, None, "unknown_d", [Capacity("labor", "demand", 10.0)])]
     with pytest.raises(ValueError, match="unknown district 'unknown_d'"):
         validate_export_data(s, [], d, ["labor"])
 
 
 def test_validate_subject_disabled_domain():
     d = [District("d1", "Район", SQUARE)]
-    s = [Subject("s1", "A", "org", 2.0, 2.0, None, "d1", [Capacity("retail", "demand", 10.0)])]
+    s = [Subject("s1", "A", "org", "office", 2.0, 2.0, None, "d1", [Capacity("retail", "demand", 10.0)])]
     with pytest.raises(ValueError, match="disabled domain 'retail'"):
         validate_export_data(s, [], d, ["labor"])
 
@@ -101,7 +101,7 @@ def test_validate_subject_disabled_domain():
 @pytest.mark.parametrize("bad_cap", [0.0, -1.0, -100.5])
 def test_validate_bad_capacity(bad_cap):
     d = [District("d1", "Район", SQUARE)]
-    s = [Subject("s1", "A", "org", 1.0, 1.0, None, "d1", [Capacity("labor", "demand", bad_cap)])]
+    s = [Subject("s1", "A", "org", "office", 1.0, 1.0, None, "d1", [Capacity("labor", "demand", bad_cap)])]
     with pytest.raises(ValueError, match="<= 0"):
         validate_export_data(s, [], d, ["labor"])
 
@@ -145,7 +145,7 @@ def test_validate_wrong_from_role(sample_data):
 
 def test_validate_wrong_to_role(sample_data):
     subjects, _, districts, _ = sample_data
-    subjects.append(Subject("s3", "Спрос 2", "org", 4.0, 4.0, None, "d1", [Capacity("labor", "demand", 10.0)]))
+    subjects.append(Subject("s3", "Спрос 2", "org", "office", 4.0, 4.0, None, "d1", [Capacity("labor", "demand", 10.0)]))
     bad_edges = [Edge("e1", "labor", "s1", "s3", 1.0, 1.0)]
     with pytest.raises(ValueError, match="is not 'supply'"):
         validate_export_data(subjects, bad_edges, districts, ["labor"])
@@ -156,7 +156,7 @@ def test_validate_weights_sum_not_one(sample_data, weight):
     subjects, _, districts, _ = sample_data
     # Для 1.0001 создаём два ребра, чтобы каждое было <= 1.0, но сумма != 1.0
     if weight > 1.0:
-        subjects.append(Subject("s3", "П2", "org", 4.0, 4.0, None, "d1", [Capacity("labor", "supply", 10.0)]))
+        subjects.append(Subject("s3", "П2", "org", "office", 4.0, 4.0, None, "d1", [Capacity("labor", "supply", 10.0)]))
         bad_edges = [
             Edge("e1", "labor", "s1", "s2", 1.0, 0.6),
             Edge("e2", "labor", "s1", "s3", 1.0, 0.6),
@@ -169,7 +169,7 @@ def test_validate_weights_sum_not_one(sample_data, weight):
 
 def test_validate_point_outside_district():
     d = [District("d1", "Район", SQUARE)]
-    s = [Subject("s1", "A", "org", 50.0, 50.0, None, "d1", [Capacity("labor", "demand", 10.0)])]
+    s = [Subject("s1", "A", "org", "office", 50.0, 50.0, None, "d1", [Capacity("labor", "demand", 10.0)])]
     with pytest.raises(ValueError, match="outside its district"):
         validate_export_data(s, [], d, ["labor"])
 
@@ -187,25 +187,22 @@ def test_build_subjects_geojson(sample_data):
     assert f0["properties"]["id"] == "s1"
     assert f0["properties"]["domains"] == {"labor": {"role": "demand", "capacity": 10.0}}
 
-
-def test_build_edges_geojson(sample_data):
+def test_build_edges_json(sample_data):
     subjects, edges, _, _ = sample_data
-    edges_gjs = build_edges_geojson(edges, subjects)
+    edges_json = build_edges_json(edges, subjects)
 
-    assert edges_gjs["type"] == "FeatureCollection"
-    assert len(edges_gjs["features"]) == 1
-    f0 = edges_gjs["features"][0]
-    assert f0["geometry"] == {"type": "LineString", "coordinates": [[2.0, 2.0], [3.0, 3.0]]}
-    assert f0["properties"]["distance_km"] == 1.5
-    assert f0["properties"]["weight"] == 1.0
-
+    assert edges_json == {
+        "labor": {
+            "s1": [["s2", 1.0, 1.5]]
+        }
+    }
 
 @pytest.mark.parametrize("from_id,to_id", [("unknown", "s2"), ("s1", "unknown")])
 def test_build_edges_missing_node_raises(sample_data, from_id, to_id):
     subjects, _, _, _ = sample_data
     bad_edges = [Edge("e1", "labor", from_id, to_id, 1.0, 1.0)]
     with pytest.raises(ValueError, match="Integrity error"):
-        build_edges_geojson(bad_edges, subjects)
+        build_edges_json(bad_edges, subjects)
 
 
 def test_build_districts_geojson(sample_data):
@@ -246,12 +243,16 @@ def test_run_export_writes_files_and_filters_domains(tmp_path, sample_data):
     out_dir = tmp_path / "export_out"
     run_export(repo, out_dir, ["labor"])
 
-    for name in ("subjects.geojson", "edges.geojson", "districts.geojson", "metrics.json"):
+    for name in ("subjects.geojson", "edges.json", "districts.geojson", "metrics.json"):
         assert (out_dir / name).exists()
 
-    saved_edges = json.loads((out_dir / "edges.geojson").read_text(encoding="utf-8"))
+    saved_edges = json.loads((out_dir / "edges.json").read_text(encoding="utf-8"))
     saved_subjects = json.loads((out_dir / "subjects.geojson").read_text(encoding="utf-8"))
-    assert len(saved_edges["features"]) == 1
+    assert saved_edges == {
+        "labor": {
+            "s1": [["s2", 1.0, 1.5]]
+        }
+    }
     assert "disabled" not in saved_subjects["features"][0]["properties"]["domains"]
 
 

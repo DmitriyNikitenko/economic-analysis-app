@@ -6,7 +6,7 @@ DOMAINS = ["money", "labor"]
 
 def make_subject(subject_id, district_id, *domains):
     return Subject(
-        id=subject_id, name=None, kind="bank", lon=39.9, lat=57.6, address=None,
+        id=subject_id, name=None, kind="bank", group="finance", lon=39.9, lat=57.6, address=None,
         district_id=district_id,
         capacities=[Capacity(domain, "supply", 1.0) for domain in domains])
 

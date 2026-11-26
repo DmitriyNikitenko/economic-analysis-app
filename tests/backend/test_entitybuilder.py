@@ -31,16 +31,16 @@ HOUSE_AREA = (METERS_PER_DEGREE * 0.001) ** 2
 
 
 def row(osm_type="node", osm_id=1, tags=None, lon=39.9, lat=57.6, domain="money", role="supply",
-        kind="bank", district_id=None, geometry=None):
+        kind="bank", group_key="finance", district_id=None, geometry=None):
     # одна строка так, как её отдаёт fetch_rows: объект OSM в одном домене
-    return (osm_type, osm_id, json.dumps(tags or {}), lon, lat, domain, role, kind, district_id,
+    return (osm_type, osm_id, json.dumps(tags or {}), lon, lat, domain, role, kind, group_key, district_id,
             json.dumps(geometry) if geometry else None)
 
 def house_rows(osm_id, tags=None, geometry=HOUSE, **kwargs):
     # жилой дом участвует в двух доменах: money (спрос) и labor (предложение)
     return [
-        row(osm_id=osm_id, tags=tags, domain="labor", role="supply", kind="residence", geometry=geometry, **kwargs),
-        row(osm_id=osm_id, tags=tags, domain="money", role="demand", kind="residence", geometry=geometry, **kwargs),
+        row(osm_id=osm_id, tags=tags, domain="labor", role="supply", kind="residence", group_key="residence", geometry=geometry, **kwargs),
+        row(osm_id=osm_id, tags=tags, domain="money", role="demand", kind="residence", group_key="residence", geometry=geometry, **kwargs),
     ]
 
 
@@ -136,12 +136,12 @@ def test_residence_in_two_domains_gets_one_capacity_value_in_both():
 def test_settlement_is_a_subject_without_capacities():
     # справочный объект: на карте есть, в графе не участвует; population остаётся в osm_objects.tags
     rows = [
-        row(kind="settlement", domain="labor", role="supply", tags={"name": "Посёлок", "population": "300"}),
-        row(kind="settlement", domain="money", role="demand", tags={"name": "Посёлок", "population": "300"}),
+        row(kind="settlement", group_key="settlement", domain="labor", role="supply", tags={"name": "Посёлок", "population": "300"}),
+        row(kind="settlement", group_key="settlement", domain="money", role="demand", tags={"name": "Посёлок", "population": "300"}),
     ]
     subjects = build_subjects(rows)
 
-    assert [(s.id, s.kind, s.name) for s in subjects] == [("s_n1", "settlement", "Посёлок")]
+    assert [(s.id, s.kind, s.group, s.name) for s in subjects] == [("s_n1", "settlement", "settlement", "Посёлок")]
     assert subjects[0].capacities == []
 
 def test_bank_and_employer_get_average_capacity_of_residences():
@@ -192,7 +192,7 @@ def test_subject_fields_come_from_the_first_row():
     tags = {"name": "Банк", "addr:street": "Лесная", "addr:housenumber": "5"}
     subject = build_subjects([row(tags=tags, lon=39.1, lat=57.2, district_id="d1")])[0]
 
-    assert (subject.name, subject.address, subject.kind) == ("Банк", "Лесная, 5", "bank")
+    assert (subject.name, subject.address, subject.kind, subject.group) == ("Банк", "Лесная, 5", "bank", "finance")
     assert (subject.lon, subject.lat, subject.district_id) == (39.1, 57.2, "d1")
 
 def test_missing_name_and_district_stay_none():
@@ -230,22 +230,27 @@ def add_object(con, osm_type, osm_id, tags, geometry, region="yaroslavl"):
         [osm_type, osm_id, json.dumps(tags), json.dumps(geometry), region],
     )
 
-def classify(con, osm_type, osm_id, domain, role, kind):
+def classify(con, osm_type, osm_id, domain, role, kind, group_key):
     con.execute(
-        "INSERT INTO osm_classification (osm_type, osm_id, domain, role, kind) "
-        "VALUES (?, ?, ?, ?, ?)",
-        [osm_type, osm_id, domain, role, kind],
+        "INSERT INTO osm_classification (osm_type, osm_id, domain, role, kind, group_key) "
+        "VALUES (?, ?, ?, ?, ?, ?)",
+        [osm_type, osm_id, domain, role, kind, group_key],
     )
 
 def add_settlement(con, osm_id=1, geometry=POINT, region="yaroslavl", tags=None):
     add_object(con, "node", osm_id, tags or {"name": "Посёлок", "population": "500"}, geometry, region)
-    classify(con, "node", osm_id, "money", "demand", "settlement")
-    classify(con, "node", osm_id, "labor", "supply", "settlement")
+    classify(con, "node", osm_id, "money", "demand", "settlement", "settlement")
+    classify(con, "node", osm_id, "labor", "supply", "settlement", "settlement")
 
 def add_residence(con, osm_id=10, geometry=HOUSE_IN_DISTRICT, tags=None):
     add_object(con, "way", osm_id, tags or {"building": "apartments", "building:levels": "5"}, geometry)
-    classify(con, "way", osm_id, "money", "demand", "residence")
-    classify(con, "way", osm_id, "labor", "supply", "residence")
+    classify(con, "way", osm_id, "money", "demand", "residence", "residence")
+    classify(con, "way", osm_id, "labor", "supply", "residence", "residence")
+
+def test_fetch_rows_returns_group_key(con):
+    add_settlement(con)
+    rows = fetch_rows(con, "yaroslavl", DOMAINS)
+    assert {r[8] for r in rows} == {"settlement"}
 
 def test_fetch_rows_returns_one_row_per_object_and_domain(con):
     add_settlement(con)
@@ -256,7 +261,7 @@ def test_fetch_rows_returns_one_row_per_object_and_domain(con):
 
 def test_fetch_rows_skips_disabled_domains(con):
     add_settlement(con)
-    classify(con, "node", 1, "goods", "supply", "settlement")
+    classify(con, "node", 1, "goods", "supply", "settlement", "settlement")
     rows = fetch_rows(con, "yaroslavl", DOMAINS)
 
     assert "goods" not in {r[5] for r in rows}
@@ -284,7 +289,7 @@ def test_fetch_rows_uses_centroid_for_polygons(con):
 def test_fetch_rows_gives_geometry_only_for_residences(con):
     add_settlement(con)
     add_residence(con)
-    geometry_by_kind = {r[7]: r[9] for r in fetch_rows(con, "yaroslavl", DOMAINS)}
+    geometry_by_kind = {r[7]: r[10] for r in fetch_rows(con, "yaroslavl", DOMAINS)}
 
     assert geometry_by_kind["settlement"] is None
     assert json.loads(geometry_by_kind["residence"])["type"] == "Polygon"
@@ -294,21 +299,21 @@ def test_fetch_rows_finds_district_of_point(con):
     add_settlement(con)
     rows = fetch_rows(con, "yaroslavl", DOMAINS)
 
-    assert {r[8] for r in rows} == {"d1"}
+    assert {r[9] for r in rows} == {"d1"}
 
 def test_fetch_rows_gives_null_district_outside_all_districts(con):
     Repository(con).save_districts([District("d1", "Первый", SQUARE_1)])
     add_settlement(con, geometry=FAR_POINT)
     rows = fetch_rows(con, "yaroslavl", DOMAINS)
 
-    assert {r[8] for r in rows} == {None}
+    assert {r[9] for r in rows} == {None}
 
 def test_fetch_rows_works_without_districts(con):
     add_settlement(con)
     rows = fetch_rows(con, "yaroslavl", DOMAINS)
 
     assert len(rows) == 2
-    assert {r[8] for r in rows} == {None}
+    assert {r[9] for r in rows} == {None}
 
 # вся цепочка: БД -> субъекты -> БД
 def test_full_chain_saves_subjects_with_capacities_and_district(con):
@@ -317,7 +322,7 @@ def test_full_chain_saves_subjects_with_capacities_and_district(con):
     add_settlement(con, osm_id=1)
     add_residence(con, osm_id=10)
     add_object(con, "node", 2, {"amenity": "bank", "name": "Банк"}, {"type": "Point", "coordinates": [39.95, 57.65]})
-    classify(con, "node", 2, "money", "supply", "bank")
+    classify(con, "node", 2, "money", "supply", "bank", "finance")
     repo.save_subjects(build_subjects(fetch_rows(con, "yaroslavl", DOMAINS)))
     saved = {s.id: s for s in repo.get_subjects()}
 
