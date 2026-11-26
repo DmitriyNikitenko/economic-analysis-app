@@ -1,4 +1,3 @@
-import uuid
 from typing import Sequence
 
 import numpy as np
@@ -114,7 +113,6 @@ def build_equilibrium_edges(subjects: Sequence[Subject], config: Config) -> list
         by_d = df.sort_values("dist").groupby("d").head(K_CANDIDATES)
         by_s = df.sort_values("dist").groupby("s").head(K_CANDIDATES)
         df = pd.concat([by_d, by_s]).drop_duplicates(["d", "s"])
-        pos = df.index.to_numpy()
 
         dem_indices = df["d"].to_numpy(dtype=int)
         sup_indices = df["s"].to_numpy(dtype=int)
