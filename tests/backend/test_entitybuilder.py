@@ -5,9 +5,15 @@ import pytest
 from backend.economy.models import Capacity, District
 from backend.economy.repository import Repository
 from backend.entity_builder.__main__ import (
-    DEFAULT_CAPACITY,
+    AREA_KINDS,
+    BALANCE_RATIO,
+    CAPACITY_SPECS,
+    DEFAULT_AREA_M2,
     DEFAULT_LEVELS,
+    M2_PER_RESIDENT,
+    MAX_FOOTPRINT_M2,
     METERS_PER_DEGREE,
+    WORKING_SHARE,
     build_subjects,
     fetch_rows,
     footprint_area_m2,
@@ -18,6 +24,7 @@ from backend.entity_builder.__main__ import (
 )
 
 DOMAINS = ["money", "labor"]
+ALL_DOMAINS = ["money", "labor", "goods"]
 
 
 def square(lon, lat, size):
@@ -25,9 +32,9 @@ def square(lon, lat, size):
     return {"type": "Polygon", "coordinates": [[[lon, lat], [lon + size, lat], [lon + size, lat + size],
                                                  [lon, lat + size], [lon, lat]]]}
 
-# квадрат 0.001° на экваторе: сторона ~111.2 м, площадь ~12365 м²
 HOUSE = square(0.0, 0.0, 0.001)
 HOUSE_AREA = (METERS_PER_DEGREE * 0.001) ** 2
+RESIDENTS = HOUSE_AREA / M2_PER_RESIDENT  # жителей в одноэтажном доме HOUSE
 
 
 def row(osm_type="node", osm_id=1, tags=None, lon=39.9, lat=57.6, domain="money", role="supply",
@@ -123,14 +130,13 @@ def test_residence_capacity_is_none_without_area():
 def test_empty_rows_give_no_subjects():
     assert build_subjects([]) == []
 
-def test_residence_in_two_domains_gets_one_capacity_value_in_both():
+def test_residence_capacity_is_residents_in_money_and_workers_in_labor():
     subjects = build_subjects(house_rows(1, tags={"building:levels": "2"}))
 
     assert len(subjects) == 1
-    capacity = 2 * HOUSE_AREA
     assert subjects[0].capacities == [
-        Capacity("labor", "supply", pytest.approx(capacity, rel=1e-3)),
-        Capacity("money", "demand", pytest.approx(capacity, rel=1e-3)),
+        Capacity("labor", "supply", pytest.approx(2 * RESIDENTS * WORKING_SHARE, rel=1e-3)),
+        Capacity("money", "demand", pytest.approx(2 * RESIDENTS, rel=1e-3)),
     ]
 
 def test_settlement_is_a_subject_without_capacities():
@@ -144,37 +150,95 @@ def test_settlement_is_a_subject_without_capacities():
     assert [(s.id, s.kind, s.group, s.name) for s in subjects] == [("s_n1", "settlement", "settlement", "Посёлок")]
     assert subjects[0].capacities == []
 
-def test_bank_and_employer_get_average_capacity_of_residences():
-    # два дома: один этаж и три этажа, среднее = 2 * площадь
-    rows = (
-        house_rows(1)
-        + house_rows(2, tags={"building:levels": "3"})
-        + [row(osm_id=3, kind="bank", domain="money", role="supply"),
-           row(osm_id=4, kind="employer", domain="labor", role="demand")]
-    )
-    saved = {s.id: s for s in build_subjects(rows)}
+def capacities(subjects, osm_id):
+    return {c.domain: c.capacity for c in {s.id: s for s in subjects}[f"s_n{osm_id}"].capacities}
 
-    average = pytest.approx(2 * HOUSE_AREA, rel=1e-3)
-    assert saved["s_n3"].capacities == [Capacity("money", "supply", average)]
-    assert saved["s_n4"].capacities == [Capacity("labor", "demand", average)]
-
-def test_residence_without_area_gets_average_of_the_rest():
+def test_residence_without_area_gets_average_area_of_the_rest():
     rows = house_rows(1) + house_rows(2, geometry=None)
     saved = {s.id: s for s in build_subjects(rows)}
 
-    assert [c.capacity for c in saved["s_n2"].capacities] == [pytest.approx(HOUSE_AREA, rel=1e-3)] * 2
+    assert [c.capacity for c in saved["s_n2"].capacities] == [c.capacity for c in saved["s_n1"].capacities]
 
 def test_average_ignores_residences_without_area():
     # дом без размеров не должен тянуть среднее вниз до нуля
-    rows = house_rows(1) + house_rows(2, geometry=None) + [row(osm_id=3)]
-    saved = {s.id: s for s in build_subjects(rows)}
+    rows = house_rows(1) + house_rows(2, geometry=None)
+    subjects = build_subjects(rows)
 
-    assert saved["s_n3"].capacities[0].capacity == pytest.approx(HOUSE_AREA, rel=1e-3)
+    assert capacities(subjects, 2)["money"] == pytest.approx(RESIDENTS, rel=1e-3)
 
-def test_default_capacity_when_there_are_no_residences():
-    subject = build_subjects([row(kind="bank")])[0]
+def test_default_area_when_there_are_no_residences():
+    # домов нет, балансировать не с чем: остаётся типовая площадь отделения * коэффициент
+    subject = build_subjects([row(kind="bank_branch")])[0]
 
-    assert subject.capacities == [Capacity("money", "supply", DEFAULT_CAPACITY)]
+    assert subject.capacities == [Capacity("money", "supply", CAPACITY_SPECS["bank_branch"].default_area)]
+
+def test_kind_with_area_uses_footprint_times_levels_not_default():
+    rows = house_rows(1) + [row(osm_id=2, kind="bank_branch", tags={"building:levels": "2"}, geometry=HOUSE)]
+    # балансировка: сумма банков = сумма спроса; банк один, поэтому ёмкость банка = ёмкость всех домов
+    assert capacities(build_subjects(rows), 2)["money"] == pytest.approx(RESIDENTS, rel=1e-3)
+
+def test_bigger_building_gets_bigger_capacity_among_same_kind():
+    small, big = square(0.0, 0.0, 0.001), square(0.01, 0.0, 0.002)
+    rows = (house_rows(1)
+            + [row(osm_id=2, kind="bank_branch", geometry=small), row(osm_id=3, kind="bank_branch", geometry=big)])
+    subjects = build_subjects(rows)
+
+    assert capacities(subjects, 3)["money"] == pytest.approx(4 * capacities(subjects, 2)["money"], rel=1e-3)
+
+def test_point_object_gets_default_area_of_its_kind():
+    # у банкомата и отделения без контура разная типовая площадь, поэтому разная ёмкость
+    rows = house_rows(1) + [row(osm_id=2, kind="atm"), row(osm_id=3, kind="bank_branch")]
+    subjects = build_subjects(rows)
+    ratio = CAPACITY_SPECS["atm"].default_area / CAPACITY_SPECS["bank_branch"].default_area
+
+    assert capacities(subjects, 2)["money"] / capacities(subjects, 3)["money"] == pytest.approx(ratio)
+
+def test_atm_ignores_its_footprint():
+    with_contour = build_subjects(house_rows(1) + [row(osm_id=2, kind="atm", geometry=HOUSE)])
+    without = build_subjects(house_rows(1) + [row(osm_id=2, kind="atm")])
+
+    assert capacities(with_contour, 2) == capacities(without, 2)
+
+def test_huge_footprint_is_clamped():
+    huge = square(0.0, 0.0, 0.05)  # ~30 кm^2 - это территория, а не здание
+    assert residence_capacity({}, huge) == pytest.approx(MAX_FOOTPRINT_M2)
+
+def test_supply_is_balanced_to_demand_in_each_domain():
+    rows = (house_rows(1) + house_rows(2, tags={"building:levels": "3"})
+            + [row(osm_id=3, kind="bank_branch"), row(osm_id=4, kind="atm")]
+            + [row(osm_id=5, kind="office_company", domain="labor", role="demand", group_key="office")])
+    subjects = build_subjects(rows)
+    total = lambda domain, role: sum(c.capacity for s in subjects for c in s.capacities
+                                     if c.domain == domain and c.role == role)
+
+    assert total("money", "supply") == pytest.approx(BALANCE_RATIO * total("money", "demand"))
+    assert total("labor", "demand") == pytest.approx(BALANCE_RATIO * total("labor", "supply"))
+
+def test_balance_keeps_ratio_between_kinds():
+    rows = house_rows(1) + [row(osm_id=2, kind="bank_branch"), row(osm_id=3, kind="atm")]
+    subjects = build_subjects(rows)
+
+    assert capacities(subjects, 2)["money"] / capacities(subjects, 3)["money"] == pytest.approx(
+        CAPACITY_SPECS["bank_branch"].default_area / CAPACITY_SPECS["atm"].default_area)
+
+def test_goods_domain_demand_is_residents_supply_by_kind():
+    rows = (house_rows(1)
+            + [row(osm_type="way", osm_id=1, kind="residence", group_key="residence", domain="goods", role="demand", geometry=HOUSE),
+               row(osm_id=2, kind="supermarket", group_key="retail", domain="goods", role="supply"),
+               row(osm_id=3, kind="shop_food", group_key="retail", domain="goods", role="supply")])
+    subjects = build_subjects(rows)
+    by_id = {s.id: {c.domain: c.capacity for c in s.capacities} for s in subjects}
+
+    assert by_id["s_n2"]["goods"] > by_id["s_n3"]["goods"]  # супермаркет заметно больше продуктового магазина
+
+def test_unknown_kind_gets_default_area_and_positive_capacity():
+    subject = build_subjects([row(kind="something_new")])[0]
+
+    assert subject.capacities == [Capacity("money", "supply", DEFAULT_AREA_M2)]
+
+def test_area_kinds_include_residence_but_not_atm_or_settlement():
+    assert "residence" in AREA_KINDS
+    assert "atm" not in AREA_KINDS and "settlement" not in AREA_KINDS
 
 def test_capacity_is_always_positive():
     # схема БД требует capacity > 0
@@ -220,7 +284,7 @@ SQUARE_2 = {"type": "Polygon", "coordinates": [[[39.85, 57.55], [40.05, 57.55], 
                                                  [39.85, 57.75], [39.85, 57.55]]]}
 FAR_POINT = {"type": "Point", "coordinates": [41.5, 58.5]}
 POINT = {"type": "Point", "coordinates": [39.9, 57.6]}
-# дом в районе SQUARE_1: сторона 0.001°, на широте 57.6 площадь ~6600 м²
+# дом в районе SQUARE_1: сторона 0.001°, на широте 57.6 площадь ~6600 m^2
 HOUSE_IN_DISTRICT = square(39.9, 57.6, 0.001)
 
 def add_object(con, osm_type, osm_id, tags, geometry, region="yaroslavl"):
@@ -286,13 +350,19 @@ def test_fetch_rows_uses_centroid_for_polygons(con):
 
     assert (lon, lat) == pytest.approx((39.5, 57.5))
 
-def test_fetch_rows_gives_geometry_only_for_residences(con):
+def test_fetch_rows_gives_geometry_only_for_kinds_measured_by_area(con):
     add_settlement(con)
     add_residence(con)
+    add_object(con, "node", 3, {"amenity": "bank"}, POINT)
+    classify(con, "node", 3, "money", "supply", "bank_branch", "finance")
+    add_object(con, "node", 4, {"amenity": "atm"}, POINT)
+    classify(con, "node", 4, "money", "supply", "atm", "finance")
     geometry_by_kind = {r[7]: r[10] for r in fetch_rows(con, "yaroslavl", DOMAINS)}
 
     assert geometry_by_kind["settlement"] is None
+    assert geometry_by_kind["atm"] is None
     assert json.loads(geometry_by_kind["residence"])["type"] == "Polygon"
+    assert json.loads(geometry_by_kind["bank_branch"])["type"] == "Point"
 
 def test_fetch_rows_finds_district_of_point(con):
     Repository(con).save_districts([District("d1", "Первый", SQUARE_1)])
@@ -322,18 +392,19 @@ def test_full_chain_saves_subjects_with_capacities_and_district(con):
     add_settlement(con, osm_id=1)
     add_residence(con, osm_id=10)
     add_object(con, "node", 2, {"amenity": "bank", "name": "Банк"}, {"type": "Point", "coordinates": [39.95, 57.65]})
-    classify(con, "node", 2, "money", "supply", "bank", "finance")
+    classify(con, "node", 2, "money", "supply", "bank_branch", "finance")
     repo.save_subjects(build_subjects(fetch_rows(con, "yaroslavl", DOMAINS)))
     saved = {s.id: s for s in repo.get_subjects()}
 
     assert set(saved) == {"s_n1", "s_n2", "s_w10"}
     assert saved["s_n1"].district_id == "d1"
     assert saved["s_n1"].capacities == []  # населённый пункт без ёмкостей
-    house_capacity = footprint_area_m2(HOUSE_IN_DISTRICT) * 5
+    residents = footprint_area_m2(HOUSE_IN_DISTRICT) * 5 / M2_PER_RESIDENT
     assert [(c.domain, c.role) for c in saved["s_w10"].capacities] == [("labor", "supply"), ("money", "demand")]
-    assert saved["s_w10"].capacities[0].capacity == pytest.approx(house_capacity)
-    assert saved["s_n2"].kind == "bank"
-    assert saved["s_n2"].capacities == [Capacity("money", "supply", pytest.approx(house_capacity))]  # среднее по домам
+    assert saved["s_w10"].capacities[0].capacity == pytest.approx(residents * WORKING_SHARE)
+    assert saved["s_n2"].kind == "bank_branch"
+    # единственный банк: после балансировки его ёмкость равна ёмкости спроса (всех жителей)
+    assert saved["s_n2"].capacities == [Capacity("money", "supply", pytest.approx(residents))]
 
 def test_overlapping_districts_do_not_break_saving(con):
     # точка (39.9, 57.6) лежит в обоих квадратах: без защиты от дублей запись упала бы на PRIMARY KEY
