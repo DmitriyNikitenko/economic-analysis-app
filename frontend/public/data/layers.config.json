@@ -37,8 +37,8 @@
     {
       "id": "goods",
       "label": "Рынок товаров и услуг",
-      "enabled": false,
-      "radius_km": 8.5
+      "enabled": true,
+      "radius_km": 5
     }
   ],
   "show_all_domains_option": true
