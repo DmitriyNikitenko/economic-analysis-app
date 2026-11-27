@@ -36,8 +36,8 @@ domains:
     beta: 2.0
   goods:
     label: "Товары и услуги"
-    enabled: false # заведён, но пока не используется, тк не определена ёмкость
-    radius_km: 8.5
+    enabled: true
+    radius_km: 5
     beta: 2.0
 
 # Слои карты (уходят во frontend/public/data/layers.config.json)
