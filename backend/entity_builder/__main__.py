@@ -1,13 +1,17 @@
 # Сборщик сущностей: превращает классифицированные объекты OSM в таблицу subjects и capacities
 # loader -> classifier -> ingest -> entity_builder -> graph -> metrics -> export
 #
-# Как считается ёмкость:
-#   residence) - площадь* этажность
-#   bank, employer и остальные - средняя ёмкость жилых домов
-#   settlement  - справочный объект: субъект есть, ёмкостей нет
+# Как считается ёмкость (новая схема):
+#   ёмкость = площадь * коэффициент типа (CAPACITY_SPECS);
+#   площадь = контур * этажность, иначе типовая площадь типа;
+#   жилой дом: площадь * этажность -> число жителей (m^2 / M2_PER_RESIDENT) или работников в домене labor;
+#   после этого ёмкости не-домов в каждом домене масштабируются так, чтобы сумма предложения
+#   совпала с суммой спроса: в OSM нет абсолютных мощностей банков и магазинов;
+#   settlement  - справочный объект
 import json
 import math
 import re
+from dataclasses import dataclass
 from shapely.affinity import scale
 from shapely.geometry import shape
 from backend.config import get_config
@@ -17,23 +21,59 @@ from backend.economy.repository import Repository
 
 RESIDENCE = "residence"
 NO_CAPACITY_KINDS = {"settlement"} 
+DEFAULT_AREA_M2 = 100.0
+DEFAULT_LEVELS = 1
+MAX_FOOTPRINT_M2 = 50_000
 
-# Ёмкость, если её не из чего посчитать (например, в данных вообще нет жилых домов).
-DEFAULT_CAPACITY = 1.0
-DEFAULT_LEVELS = 1  # этажность, если в OSM не указан building:levels
+# Нормы для перевода площади в людей
+M2_PER_RESIDENT = 30.0     # общей площади дома на одного жителя
+WORKING_SHARE = 0.55       # доля трудоспособных среди жителей
+M2_PER_JOB_OFFICE = 15.0   # m^2 офиса на одно рабочее место
+M2_PER_JOB_INDUSTRY = 50.0 # m^2 производственного здания на одно рабочее место
+M2_PER_JOB_LAND = 500.0    # m^2 промзоны на одно рабочее место
 
-# Длина одного градуса дуги в метрах; радиус Земли 6371 км, как в backend/graph/engine.py
+# Во сколько раз суммарное предложение домена больше суммарного спроса после балансировки
+BALANCE_RATIO = 1.0
+# Длина одного градуса дуги в метрах, как в backend/graph/engine.py
 METERS_PER_DEGREE = 111_195
 
+@dataclass(frozen=True)
+class CapacitySpec:
+    # Как считать ёмкость объекта этого типа
+    weights: dict[str, float] 
+    use_area: bool = True        
+    default_area: float | None = None 
+
+CAPACITY_SPECS: dict[str, CapacitySpec] = {
+    RESIDENCE: CapacitySpec({"money": 1 / M2_PER_RESIDENT,                  # жителей
+                             "labor": WORKING_SHARE / M2_PER_RESIDENT,      # трудоспособных
+                             "goods": 1 / M2_PER_RESIDENT}),                # потребителей
+    # деньги: предложение, в m^2 отделения
+    "bank_branch": CapacitySpec({"money": 1.0}, default_area=300),
+    "atm": CapacitySpec({"money": 1.0}, use_area=False, default_area=30),   #
+    "microfinance": CapacitySpec({"money": 1.0}, default_area=40),
+    "financial_office": CapacitySpec({"money": 1.0}, default_area=100),
+    # труд: спрос, в рабочих местах
+    "industrial_facility": CapacitySpec({"labor": 1 / M2_PER_JOB_INDUSTRY}, default_area=2000),
+    "industrial_area": CapacitySpec({"labor": 1 / M2_PER_JOB_LAND}, default_area=20_000),
+    "office_government": CapacitySpec({"labor": 1 / M2_PER_JOB_OFFICE}, default_area=300),
+    "office_company": CapacitySpec({"labor": 1 / M2_PER_JOB_OFFICE}, default_area=150),
+    "office_professional": CapacitySpec({"labor": 1 / M2_PER_JOB_OFFICE}, default_area=60),
+    "office_nonprofit": CapacitySpec({"labor": 1 / M2_PER_JOB_OFFICE}, default_area=60),
+    "office_other": CapacitySpec({"labor": 1 / M2_PER_JOB_OFFICE}, default_area=100),
+    # товары и услуги: предложение, в m^2 торговой площади с поправкой на оборот
+    "supermarket": CapacitySpec({"goods": 1.0}, default_area=1500),
+    "shop_food": CapacitySpec({"goods": 1.5}, default_area=80),
+    "shop_goods": CapacitySpec({"goods": 0.7}, default_area=80),
+    "personal_service": CapacitySpec({"goods": 0.5}, default_area=40),
+    "food_service": CapacitySpec({"goods": 1.0}, default_area=100),
+}
+DEFAULT_SPEC = CapacitySpec({}, use_area=False, default_area=DEFAULT_AREA_M2)
+AREA_KINDS = tuple(sorted(kind for kind, spec in CAPACITY_SPECS.items() if spec.use_area))
+
 def fetch_rows(con, region_id: str, domains: list[str]) -> list[tuple]:
-    # Одна строка = один объект OSM в одном домене.
-    # Объект, участвующий в двух доменах (жилой дом), даёт две строки.
-    # ST_Centroid превращает любую геометрию (точку, линию, полигон) в точку, а из точки берём lon/lat.
-    # LEFT JOIN districts находит район, в который попала точка; если районов в БД нет, будет NULL.
-    # Контур (GeoJSON) отдаём только для жилых домов: по нему считается площадь, остальным он не нужен.
-    # Центроид и район считаются один раз на объект, а не на каждую пару (объект, домен):
-    # у жилого дома две строки классификации, а поиск района самая дорогая часть запроса.
     placeholders = ", ".join("?" * len(domains))
+    area_placeholders = ", ".join("?" * len(AREA_KINDS))
     return con.execute(
         f"""
         WITH classified AS (
@@ -61,18 +101,16 @@ def fetch_rows(con, region_id: str, domains: list[str]) -> list[tuple]:
                c.kind,
                c.group_key,
                l.district_id,
-               CASE WHEN c.kind = ? THEN CAST(ST_AsGeoJSON(l.geom) AS VARCHAR) END
+               CASE WHEN c.kind IN ({area_placeholders}) THEN CAST(ST_AsGeoJSON(l.geom) AS VARCHAR) END
         FROM located l
         JOIN classified c ON c.osm_type = l.osm_type AND c.osm_id = l.osm_id
         ORDER BY l.osm_type, l.osm_id, c.domain, l.district_id
         """,
-        [*domains, region_id, RESIDENCE],
+        [*domains, region_id, *AREA_KINDS],
     ).fetchall()
 
 
 def make_subject_id(osm_type: str, osm_id: int) -> str:
-    # Id строится из id в OSM, поэтому при повторном запуске один и тот же объект
-    # получает тот же id (например, node 123 -> s_n123)
     return f"s_{osm_type[0]}{osm_id}"
 
 
@@ -84,9 +122,6 @@ def make_address(tags: dict) -> str | None:
 
 
 def footprint_area_m2(geometry: dict | None) -> float:
-    # Площадь контура здания в м². Координаты в градусах, поэтому переводим их в метры:
-    # градус широты везде одной длины, а градус долготы короче в cos(широты) раз.
-    # У точки и линии площади нет, для них вернётся 0.
     if not geometry or geometry.get("type") not in ("Polygon", "MultiPolygon"):
         return 0.0
     polygon = shape(geometry)
@@ -100,8 +135,6 @@ def footprint_area_m2(geometry: dict | None) -> float:
 
 
 def parse_levels(tags: dict) -> float:
-    # Этажность из тега building:levels. В OSM встречается "5", "2,5", "5;6": берём первое число.
-    # Если тега нет или в нём нет положительного числа, считаем дом одноэтажным.
     match = re.search(r"\d+(?:[.,]\d+)?", str(tags.get("building:levels", "")))
     if match:
         levels = float(match.group().replace(",", "."))
@@ -111,17 +144,14 @@ def parse_levels(tags: dict) -> float:
 
 
 def residence_capacity(tags: dict, geometry: dict | None) -> float | None:
-    # Ёмкость жилого дома: площадь застройки * этажность. None, если площадь неизвестна.
-    area = footprint_area_m2(geometry)
+    area = min(footprint_area_m2(geometry), MAX_FOOTPRINT_M2)
     return area * parse_levels(tags) if area > 0 else None
 
 
 def build_subjects(rows: list[tuple]) -> list[Subject]:
-    # Склеивает строки (объект, домен) в субъектов с списком ёмкостей.
-    # Функция не обращается к БД, поэтому её легко проверять тестами.
     subjects: dict[str, Subject] = {}
-    roles: dict[str, dict[str, str]] = {}      # id субъекта -> {домен: роль}
-    own_capacity: dict[str, float | None] = {}  # жилой дом -> ёмкость по размерам (None, если не посчитать)
+    roles: dict[str, dict[str, str]] = {} 
+    own_area: dict[str, float | None] = {} 
 
     for osm_type, osm_id, tags_json, lon, lat, domain, role, kind, group_key, district_id, geometry_json in rows:
         subject_id = make_subject_id(osm_type, osm_id)
@@ -138,31 +168,51 @@ def build_subjects(rows: list[tuple]) -> list[Subject]:
                 address=make_address(tags),
                 district_id=district_id,
             )
-            if kind == RESIDENCE:
+            if CAPACITY_SPECS.get(kind, DEFAULT_SPEC).use_area:
                 geometry = json.loads(geometry_json) if geometry_json else None
-                own_capacity[subject_id] = residence_capacity(tags, geometry)
-
+                own_area[subject_id] = residence_capacity(tags, geometry)
         if kind not in NO_CAPACITY_KINDS:
             # Если точка попала в несколько пересекающихся районов, SQL вернёт строку на каждый район.
-            # Словарь хранит пару (домен -> роль) один раз: в БД она должна быть уникальной.
+            # Словарь хранит пару (домен -> роль) один раз
             roles.setdefault(subject_id, {})[domain] = role
 
-    # Средняя ёмкость жилых домов, у которых удалось посчитать размеры
-    measured = [value for value in own_capacity.values() if value]
-    average = sum(measured) / len(measured) if measured else DEFAULT_CAPACITY
+    # Средняя площадь жилых домов
+    measured = [own_area[sid] for sid, s in subjects.items() if s.kind == RESIDENCE and own_area.get(sid)]
+    average_house_area = sum(measured) / len(measured) if measured else DEFAULT_AREA_M2
 
     for subject_id, subject in subjects.items():
-        capacity = own_capacity.get(subject_id) or average  # дом без размеров и не-дома получают среднее
+        spec = CAPACITY_SPECS.get(subject.kind, DEFAULT_SPEC)
+        fallback = average_house_area if subject.kind == RESIDENCE else spec.default_area
+        area = own_area.get(subject_id) or fallback or DEFAULT_AREA_M2
         subject.capacities = [
-            Capacity(domain, role, capacity) for domain, role in sorted(roles.get(subject_id, {}).items())
+            Capacity(domain, role, area * spec.weights.get(domain, 1.0))
+            for domain, role in sorted(roles.get(subject_id, {}).items())
         ]
+    result = list(subjects.values())
+    balance_capacities(result)
+    return result
 
-    return list(subjects.values())
+
+def balance_capacities(subjects: list[Subject]) -> None:
+    houses: dict[str, float] = {}
+    others: dict[str, float] = {}
+    for subject in subjects:
+        totals = houses if subject.kind == RESIDENCE else others
+        for capacity in subject.capacities:
+            totals[capacity.domain] = totals.get(capacity.domain, 0.0) + capacity.capacity
+
+    factors = {domain: BALANCE_RATIO * houses[domain] / total
+               for domain, total in others.items() if total > 0 and houses.get(domain)}
+    for subject in subjects:
+        if subject.kind == RESIDENCE:
+            continue
+        for capacity in subject.capacities:
+            capacity.capacity *= factors.get(capacity.domain, 1.0)
 
 
 def main() -> None:
     cfg = get_config()
-    domains = cfg.enabled_domains  # выключенные домены (goods) пропускаем
+    domains = cfg.enabled_domains
 
     with connect(cfg.paths.db, read_only=False) as con:
         init_schema(con)
@@ -173,6 +223,11 @@ def main() -> None:
         rows = fetch_rows(con, cfg.region_id, domains)
         subjects = build_subjects(rows)
         Repository(con).save_subjects(subjects)
+
+    unknown = {s.kind for s in subjects} - set(CAPACITY_SPECS) - NO_CAPACITY_KINDS
+    if unknown:
+        print(f"Предупреждение: для типов {sorted(unknown)} нет записи в CAPACITY_SPECS, "
+              f"ёмкость посчитана по типовой площади {DEFAULT_AREA_M2:g} m^2. Добавьте их в таблицу.")
 
     capacities = sum(len(s.capacities) for s in subjects)
     without_district = sum(1 for s in subjects if s.district_id is None)
