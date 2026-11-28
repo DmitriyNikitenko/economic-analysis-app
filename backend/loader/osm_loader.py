@@ -7,7 +7,7 @@ import argparse
 from backend.config import get_config
 from backend.loader.osm_tags import get_osm_tags, keep_tag
 
-def get_data(region=None, full_region=False, save=False, output_path=None):
+def get_data(region=None, full_region=None, save=False, output_path=None):
     """
     Загружает OSM-объекты и возвращает GeoJSON FeatureCollection.
 
@@ -19,37 +19,11 @@ def get_data(region=None, full_region=False, save=False, output_path=None):
 
     config = get_config()
     region_id = region or config.region_id
-
-    # tags = {
-    #     "amenity": ["bank", "atm"],
-    #     "office": True,
-    #     "shop": True,
-    #     "building": [
-    #         "residential",
-    #         "apartments",
-    #         "house",
-    #         "detached",
-    #         "semidetached_house",
-    #         "terrace",
-    #         "bungalow",
-    #         "dormitory",
-    #         "farm",
-    #     ],
-    #     "place": [
-    #         "city",
-    #         "town",
-    #         "village",
-    #         "hamlet",
-    #         "isolated_dwelling",
-    #     ],
-    #     "man_made": "works",
-    #     "industrial": True,
-    #     "landuse": "industrial",
-    # }
-
     tags = get_osm_tags()
 
-    if full_region:
+    use_full_region = full_region is True or config.test_bbox is None
+
+    if use_full_region:
         if not config.place:
             raise ValueError(
                 "В config/region.yaml не задан region.place."
@@ -114,7 +88,7 @@ def get_data(region=None, full_region=False, save=False, output_path=None):
 
     return data
 
-def get_districts(region=None, full_region=False, save=False, output_path=None):
+def get_districts(region=None, full_region=None, save=False, output_path=None):
     """
     Загружает муниципальные районы из OSM
 
@@ -124,7 +98,6 @@ def get_districts(region=None, full_region=False, save=False, output_path=None):
     Возвращает отдельный GeoJSON FeatureCollection
     """
 
-
     config = get_config()
     region_id = region or config.region_id
 
@@ -133,8 +106,9 @@ def get_districts(region=None, full_region=False, save=False, output_path=None):
         "admin_level": "6"
     }
 
+    use_full_region = full_region is True or config.test_bbox is None
 
-    if full_region:
+    if use_full_region:
         if not config.place:
             raise ValueError(
                 "В config/region.yaml не задан region.place."
@@ -149,7 +123,6 @@ def get_districts(region=None, full_region=False, save=False, output_path=None):
             bbox=config.test_bbox,
             tags=tags,
         )
-
     
     features = []
 

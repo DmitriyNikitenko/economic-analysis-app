@@ -51,7 +51,7 @@ class Config:
     region_name: str
     crs: str
     place: str | None
-    test_bbox: tuple[float, float, float, float]
+    test_bbox: tuple[float, float, float, float] | None
     paths: Paths
     low_data_threshold: int
     domains: dict[str, DomainConfig]
@@ -126,9 +126,17 @@ def load_config(path: str | Path = CONFIG_PATH) -> Config:
             raise ConfigError(f"layers: неизвестный слой '{layer_id}', допустимы {list(LAYERS)}")
         layers.append(LayerConfig(layer_id, str(_require(raw, "label", "layers[]")), bool(raw.get("enabled", True))))
 
-    bbox = tuple(float(v) for v in _require(region, "test_bbox", "region"))
-    if len(bbox) != 4 or bbox[0] >= bbox[2] or bbox[1] >= bbox[3]:
-        raise ConfigError(f"region.test_bbox: ожидается [min_lon, min_lat, max_lon, max_lat], сейчас {list(bbox)}")
+    raw_bbox = region.get("test_bbox")
+    if raw_bbox is None:
+        bbox = None
+    else:
+        if not isinstance(raw_bbox, (list, tuple)) or len(raw_bbox) != 4:
+            raise ConfigError(
+                "region.bbox: ожидается null или "
+                "[min_lon, min_lat, max_lon, max_lat]"
+            )
+
+        bbox = tuple(float(v) for v in raw_bbox)
 
     return Config(
         region_id=str(_require(region, "id", "region")),

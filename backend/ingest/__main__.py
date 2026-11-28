@@ -16,32 +16,25 @@ from tqdm import tqdm
 # Сколько строк вставляется одним запросом (пачками, чтобы показывать прогресс и не раздувать память)
 BATCH_SIZE = 50_000
 
-# # Упрощенные категории (временно)
-# KIND_MAPPING = {
-#     "bank": "bank",
-#     "atm": "bank",
-#     "financial_service": "bank",
-
-#     "settlement": "settlement",
-
-#     "residential_building": "residence",
-
-#     "industrial_area": "employer",
-#     "industrial_facility": "employer",
-#     "employer": "employer",
-
-#     "shop": "shop",
-#     "service": "shop",
-# }
-
 KNOWN_TYPES = {r["type"] for r in load_rules()}
 
 VALID_OSM_TYPES = {"node", "way", "relation"}
 VALID_DOMAINS = {"money", "labor", "goods"}
 VALID_ROLES = {"supply", "demand"}
 
+def validate_feature_collection(data: dict, description: str = "GeoJSON") -> dict:
+    """Проверяет структуру GeoJSON FeatureCollection."""
+    if not isinstance(data, dict) or data.get("type") != "FeatureCollection":
+        raise ValueError(f"Ожидался {description} типа FeatureCollection")
+
+    if not isinstance(data.get("features"), list):
+        raise ValueError(f"В {description} отсутствует корректный список features")
+
+    return data
+
 def load_geojson(path: Path):
-    """Читает классифицированный GeoJSON"""
+    """Читает классифицированный GeoJSON из файла."""
+    path = Path(path)
     if not path.exists():
         raise FileNotFoundError(
             f"Файл классифицированных данных не найден: {path}"
@@ -50,17 +43,55 @@ def load_geojson(path: Path):
     with path.open("r", encoding="utf-8") as file:
         data = json.load(file)
 
-    if data.get("type") != "FeatureCollection":
-        raise ValueError(
-            "Ожидался GeoJSON типа FeatureCollection"
-        )
+    return validate_feature_collection(data, "классифицированный GeoJSON")
 
-    if not isinstance(data.get("features"), list):
-        raise ValueError(
-            "В GeoJSON отсутствует корректный список features"
-        )
+def load_districts_data(data: dict) -> list[District]:
+    """Преобразует GeoJSON районов, уже загруженный в память, в список District."""
+    validate_feature_collection(data, "GeoJSON районов")
 
-    return data
+    districts = []
+    seen_ids = set()
+
+    for feature in data["features"]:
+        properties = feature.get("properties") or {}
+
+        district_id = properties.get("id")
+        name = properties.get("name")
+        geometry = feature.get("geometry")
+
+        if not district_id:
+            raise ValueError("У района отсутствует id.")
+
+        if district_id in seen_ids:
+            raise ValueError(f"Повторяется ID района: {district_id}")
+
+        if not isinstance(name, str) or not name.strip():
+            raise ValueError(f"У района {district_id} отсутствует название.")
+
+        if not isinstance(geometry, dict):
+            raise ValueError(f"У района {district_id} отсутствует геометрия.")
+
+        if geometry.get("type") not in ("Polygon", "MultiPolygon"):
+            raise ValueError(
+                f"У района {district_id} неподходящий тип геометрии: "
+                f"{geometry.get('type')}"
+            )
+
+        seen_ids.add(district_id)
+        districts.append(District(district_id, name, geometry))
+
+    return districts
+
+def load_districts(path: Path) -> list[District]:
+    """Читает GeoJSON районов из файла."""
+    path = Path(path)
+    if not path.exists():
+        raise FileNotFoundError(f"Файл районов не найден: {path}")
+
+    with path.open("r", encoding="utf-8") as file:
+        data = json.load(file)
+
+    return load_districts_data(data)
 
 def get_object_data(feature):
     """
@@ -192,70 +223,6 @@ def prepare_classification(
 
     return rows
 
-def load_districts(path: Path) -> list[District]:
-    """
-    Читает GeoJSON районов и преобразует его в список District
-    """
-
-    if not path.exists():
-        raise FileNotFoundError(
-            f"Файл районов не найден: {path}"
-        )
-
-    with path.open("r", encoding="utf-8") as file:
-        data = json.load(file)
-
-    if data.get("type") != "FeatureCollection":
-        raise ValueError(
-            "Ожидался GeoJSON типа FeatureCollection для районов."
-        )
-
-    districts = []
-    seen_ids = set()
-
-    for feature in data.get("features", []):
-        properties = feature.get("properties") or {}
-
-        district_id = properties.get("id")
-        name = properties.get("name")
-        geometry = feature.get("geometry")
-
-        if not district_id:
-            raise ValueError("У района отсутствует id.")
-
-        if district_id in seen_ids:
-            raise ValueError(
-                f"Повторяется ID района: {district_id}"
-            )
-
-        if not isinstance(name, str) or not name.strip():
-            raise ValueError(
-                f"У района {district_id} отсутствует название."
-            )
-
-        if not isinstance(geometry, dict):
-            raise ValueError(
-                f"У района {district_id} отсутствует геометрия."
-            )
-
-        if geometry.get("type") not in ("Polygon", "MultiPolygon"):
-            raise ValueError(
-                f"У района {district_id} неподходящий тип геометрии: "
-                f"{geometry.get('type')}"
-            )
-
-        seen_ids.add(district_id)
-
-        districts.append(
-            District(
-                district_id,
-                name,
-                geometry,
-            )
-        )
-
-    return districts
-
 def insert_rows(conn, table: str, columns: list[str], rows: list[tuple], select: str = "*") -> None:
     # Вставляет пачку строк одним запросом через DataFrame
     if not rows:
@@ -267,53 +234,62 @@ def insert_rows(conn, table: str, columns: list[str], rows: list[tuple], select:
     finally:
         conn.unregister("_batch")
 
-
 def ingest(
     input_path = None,
     db_path = None,
-    districts_path=None
+    districts_path=None,
+    data=None,
+    districts_data=None,
 ):
     """
     Загружает классифицированные объекты в DuckDB.
 
-    Данные региона синхронизируются:
-    старые записи региона удаляются, затем вставляются
-    объекты из текущего GeoJSON.
+    Данные можно передать напрямую через data и districts_data
+    либо прочитать из GeoJSON-файлов через input_path и districts_path.
+
+    Записи объектов региона синхронизируются: старые записи региона
+    удаляются, затем вставляются объекты из текущего набора данных.
     """
 
     config = get_config()
 
-    districts_path = (
-        Path(districts_path)
-        if districts_path
-        else config.paths.districts
-    )
+    # Основной GeoJSON: приоритет у данных, переданных в память.
+    if data is None:
+        input_path = Path(input_path) if input_path else config.paths.classified
+        data = load_geojson(input_path)
+    else:
+        validate_feature_collection(data, "классифицированный GeoJSON")
 
-    if not districts_path.is_absolute():
-        districts_path = Path.cwd() / districts_path
-
+    # Районы: явно переданные данные имеют приоритет над файлом.
     districts = None
+    if districts_data is not None:
+        districts = load_districts_data(districts_data)
+        if not districts:
+            print("Переданный набор районов пуст. Районы не обновлены.")
+            districts = None
+    else:
+        districts_path = (
+            Path(districts_path) if districts_path else config.paths.districts
+        )
+        if not districts_path.is_absolute():
+            districts_path = Path.cwd() / districts_path
 
-    if districts_path.exists():
-        loaded_districts = load_districts(districts_path)
-
-        if loaded_districts:
-            districts = loaded_districts
+        if districts_path.exists():
+            loaded_districts = load_districts(districts_path)
+            if loaded_districts:
+                districts = loaded_districts
+            else:
+                print(
+                    f"Файл районов {districts_path} пуст. "
+                    "Районы не обновлены."
+                )
         else:
             print(
-                f"Файл районов {districts_path} пуст. "
+                f"Файл районов {districts_path} не найден. "
                 "Районы не обновлены."
             )
-    else:
-        print(
-            f"Файл районов {districts_path} не найден. "
-            "Районы не обновлены."
-        )
 
-    input_path = input_path or config.paths.classified
-    db_path = db_path or config.paths.db
-
-    data = load_geojson(input_path)
+    db_path = Path(db_path) if db_path else config.paths.db
 
     objects = []
     classifications = []
@@ -408,23 +384,6 @@ def ingest(
                 select="osm_type, osm_id, CAST(tags AS JSON), ST_GeomFromGeoJSON(geom), region",
             )
 
-        # # Записываем исходные OSM-объекты.
-        # conn.executemany(
-        #     """
-        #     INSERT OR REPLACE INTO osm_objects (
-        #         osm_type,
-        #         osm_id,
-        #         tags,
-        #         geom,
-        #         region
-        #     )
-        #     VALUES (
-        #         ?, ?, CAST(? AS JSON), ST_GeomFromGeoJSON(?), ?
-        #     )
-        #     """,
-        #     objects,
-        # )
-
         for i in tqdm(range(0, len(classifications), BATCH_SIZE), desc="osm_classifications"):
             insert_rows(
                 conn,
@@ -432,24 +391,6 @@ def ingest(
                 ["osm_type", "osm_id", "domain", "role", "kind", "group_key", "rule"],
                 classifications[i:i + BATCH_SIZE],
             )
-
-        # # Записываем классификацию:
-        # # одна запись на каждый домен объекта.
-        # if classifications:
-        #     conn.executemany(
-        #         """
-        #         INSERT OR REPLACE INTO osm_classification (
-        #             osm_type,
-        #             osm_id,
-        #             domain,
-        #             role,
-        #             kind,
-        #             rule
-        #         )
-        #         VALUES (?, ?, ?, ?, ?, ?)
-        #         """,
-        #         classifications,
-        #     )
 
         conn.execute("COMMIT")
 

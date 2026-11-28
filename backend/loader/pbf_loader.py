@@ -135,6 +135,153 @@ class Collector(osmium.SimpleHandler):
         self.objects.append(self._feature(
             "relation" if is_relation else "way", osm_id, t, geom))
 
+def load_pbf(
+    pbf_path,
+    region=None,
+    region_name="Ярославская область",
+    bbox=None,
+    districts_only=False,
+    buildings=True,
+):
+    """
+    Загружает данные OSM из PBF.
+
+    Args:
+        pbf_path: путь к PBF-файлу.
+        region: идентификатор региона.
+        region_name: название области для поиска admin_level=4.
+        bbox: ограничить загрузку тестовым bbox из конфига.
+        districts_only: загружать только районы.
+        buildings: загружать жилые здания.
+
+    Returns:
+        tuple:
+            raw_data: FeatureCollection объектов OSM.
+            districts_data: FeatureCollection районов.
+            stats: статистика загрузки.
+    """
+
+    config = get_config()
+
+    pbf_path = Path(pbf_path)
+
+    if not pbf_path.exists():
+        raise FileNotFoundError(
+            f"PBF-файл не найден: {pbf_path}"
+        )
+
+    if pbf_path.suffix.lower() != ".pbf":
+        raise ValueError(
+            f"Ожидается файл с расширением .pbf: {pbf_path}"
+        )
+
+    region_id = region or config.region_id
+
+    collector = Collector(
+        region_id,
+        want_objects=not districts_only,
+        buildings=buildings,
+        bbox=config.test_bbox if bbox is None else bbox,
+    )
+
+    print(f"Загрузка PBF: {pbf_path}")
+
+    # locations=True необходим для сборки геометрий ways.
+    collector.apply_file(
+        str(pbf_path),
+        locations=True,
+        idx="flex_mem",
+    )
+
+    # Поиск контура области
+    region_poly = next(
+        (
+            geom
+            for name, geom in collector.region_geoms
+            if region_name.lower() in name.lower()
+        ),
+        None,
+    )
+
+    if region_poly is None:
+        print(
+            "Контур области (admin_level=4) не найден, "
+            "районы не фильтруются."
+        )
+
+    # Формирование GeoJSON районов
+    district_features = []
+    outside = 0
+
+    for osm_id, tags, geometry in collector.districts:
+
+        geom = shape(geometry)
+
+        if (
+            collector.bbox is not None
+            and not geom.intersects(collector.bbox)
+        ):
+            continue
+
+        if (
+            region_poly is not None
+            and not geom.representative_point().within(region_poly)
+        ):
+            outside += 1
+            continue
+
+        name = pick_name(tags, osm_id)
+
+        filtered_tags = {
+            k: v
+            for k, v in tags.items()
+            if keep_tag(k, v)
+        }
+
+        district_features.append({
+            "type": "Feature",
+            "id": f"relation/{osm_id}",
+            "properties": {
+                "id": f"relation/{osm_id}",
+                "name": name,
+                "osm_type": "relation",
+                "osm_id": int(osm_id),
+                "region": region_id,
+                "tags": filtered_tags,
+            },
+            "geometry": mapping(geom),
+        })
+
+    raw_data = {
+        "type": "FeatureCollection",
+        "features": (
+            [] if districts_only else collector.objects
+        ),
+    }
+
+    districts_data = {
+        "type": "FeatureCollection",
+        "features": district_features,
+    }
+
+    stats = {
+        "objects": len(raw_data["features"]),
+        "districts": len(district_features),
+        "districts_outside": outside,
+        "geometry_errors": collector.errors,
+    }
+
+    print(f"Объектов: {stats['objects']}")
+    print(
+        f"Районов: {stats['districts']} "
+        f"(отсечено чужих: {outside})"
+    )
+    print(
+        f"Ошибок сборки геометрии: "
+        f"{stats['geometry_errors']}"
+    )
+
+    return raw_data, districts_data, stats
 
 def write_json(data, path):
     path = Path(path)
@@ -149,8 +296,8 @@ def write_json(data, path):
 def main():
     cfg = get_config()
     p = argparse.ArgumentParser(description="Загрузка данных OSM из PBF")
-    p.add_argument("--pbf", type=Path, required=True)
-    p.add_argument("--region", default=None)
+    p.add_argument("--pbf", type=Path, required=True, help="Путь к PBF-файлу.")
+    p.add_argument("--region", default=None, help="Идентификатор региона.")
     p.add_argument("--districts-only", action="store_true")
     p.add_argument("--region-name", default="Ярославская область",
                    help="Название admin_level=4 для отсечения чужих районов")
@@ -158,53 +305,39 @@ def main():
                help="Не брать жилые здания (для быстрой проверки).")
     p.add_argument("--output", type=Path, default=None,
                help="Куда сохранить объекты (по умолчанию paths.raw).")
-    p.add_argument("--bbox", action="store_true",
-               help="Ограничить выгрузку test_bbox из конфига.")
     args = p.parse_args()
 
-    region_id = args.region or cfg.region_id
-    h = Collector(region_id, want_objects=not args.districts_only,
-              buildings=not args.no_buildings,
-              bbox=cfg.test_bbox if args.bbox else None)
-    # locations=True нужен, чтобы у ways были координаты, иначе area не соберутся
-    h.apply_file(str(args.pbf), locations=True, idx="flex_mem")
+    raw_data, districts_data, stats = load_pbf(
+        pbf_path=args.pbf,
+        region=args.region,
+        region_name=args.region_name,
+        districts_only=args.districts_only,
+        buildings=not args.no_buildings,
+    )
 
-    # контур области
-    region_poly = next((g for name, g in h.region_geoms
-                        if args.region_name.lower() in name.lower()), None)
-    if region_poly is None:
-        print("Контур области (admin_level=4) не найден, районы не фильтруются.")
+    # Сохранение районов
+    districts_path = write_json(
+        districts_data,
+        cfg.paths.districts,
+    )
 
-    features, outside = [], 0
-    for osm_id, t, geom in h.districts:
-        g = shape(geom)
-        if h.bbox is not None and not g.intersects(h.bbox):
-            continue
-        if region_poly is not None and not g.representative_point().within(region_poly):
-            outside += 1
-            continue
-        name = pick_name(t, osm_id)
-        tags = {k: v for k, v in t.items() if keep_tag(k, v)}
-        features.append({
-            "type": "Feature", "id": f"relation/{osm_id}",
-            "properties": {"id": f"relation/{osm_id}", "name": name,
-                           "osm_type": "relation", "osm_id": int(osm_id),
-                           "region": region_id, "tags": tags},
-            "geometry": mapping(g),
-        })
+    print(f"Районы сохранены: {districts_path}")
 
-    out = write_json({"type": "FeatureCollection", "features": features},
-                     cfg.paths.districts)
-    print(f"Районов: {len(features)} (отсечено чужих: {outside}) -> {out}")
-    for f in sorted(features, key=lambda f: f["properties"]["name"]):
-        print("  ", f["properties"]["id"], f["properties"]["name"])
-
+        # Сохранение объектов
     if not args.districts_only:
-        out = write_json({"type": "FeatureCollection", "features": h.objects},
-                         cfg.paths.raw)
-        print(f"Объектов: {len(h.objects)} -> {out}")
-    print(f"Ошибок сборки геометрии: {h.errors}")
 
+        output_path = (
+            args.output
+            if args.output is not None
+            else cfg.paths.raw
+        )
+
+        output_path = write_json(
+            raw_data,
+            output_path,
+        )
+
+        print(f"Объекты сохранены: {output_path}")
 
 if __name__ == "__main__":
     main()

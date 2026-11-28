@@ -159,6 +159,12 @@ def main():
         help="Путь к выходному GeoJSON.",
     )
 
+    parser.add_argument(
+        "--verbose",
+        action="store_true",
+        help="Вывести подробную статистику классификации",
+    )
+
     args = parser.parse_args()
 
     data = classify_data(
@@ -170,10 +176,11 @@ def main():
     summary = get_summary(data)
 
     print(f"Обработано объектов: {summary['total']}")
-    print("Результаты классификации:")
 
-    for category, count in summary["by_type"].items():
-        print(f"  {category}: {count}")
+    if args.verbose:
+        print("Результаты классификации:")
+        for category, count in summary["by_type"].items():
+            print(f"  {category}: {count}")
 
     if args.save:
         print(f"Сохранено в: {args.output.resolve()}")
