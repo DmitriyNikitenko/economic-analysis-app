@@ -4,7 +4,10 @@ region:
   crs: "EPSG:4326"
   # OSM возьмет всю местность
   place: "Ярославская область, Россия"
-  # Тестовый прямоугольник [min_lon, min_lat, max_lon, max_lat]; берётся, если --full-region не указан
+
+  # null — вся область
+  # Тестовый прямоугольник [min_lon, min_lat, max_lon, max_lat] — только заданный участок
+  # test_bbox: null
   test_bbox: [39.86, 57.61, 39.92, 57.64]
   # test_bbox: [39.40, 57.40, 40.40, 57.90]
 
